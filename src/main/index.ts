@@ -5,7 +5,7 @@ import { registerCredentialHandlers } from './ipc/credentials'
 import { registerClaudeHandlers } from './ipc/claude'
 import { registerMcpHandlers } from './ipc/mcp'
 import { startHealthPolling, stopHealthPolling } from './services/health-poller'
-import { killMcpServer } from './services/mcp-manager'
+// MCP server runs externally — no process to manage
 
 function createWindow(): BrowserWindow {
   // Create the browser window.
@@ -85,16 +85,7 @@ app.on('window-all-closed', () => {
   }
 })
 
-// Clean up MCP server and polling on app quit
+// Clean up polling on app quit
 app.on('before-quit', () => {
   stopHealthPolling()
-  killMcpServer()
-})
-
-app.on('will-quit', () => {
-  killMcpServer() // safety net
-})
-
-process.on('exit', () => {
-  killMcpServer() // final safety net for HMR restarts
 })

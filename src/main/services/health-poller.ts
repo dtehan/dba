@@ -1,24 +1,41 @@
 import { BrowserWindow } from 'electron';
 import { IpcChannels } from '../../shared/types';
 import type { ConnectionStatus, ConnectionState } from '../../shared/types';
-import { isMcpRunning } from './mcp-manager';
+import { getMcpUrl } from './mcp-manager';
 import store from '../store';
 
 const POLL_INTERVAL_MS = 30_000;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 
 async function checkTeradataStatus(): Promise<ConnectionState> {
-  const encryptedUsername = store.get('teradata.encryptedUsername');
-  const hasCredentials = typeof encryptedUsername === 'string' && encryptedUsername.length > 0;
-  if (!hasCredentials) return 'not-configured';
-  return isMcpRunning() ? 'connected' : 'disconnected';
+  const mcpUrl = getMcpUrl();
+  if (!mcpUrl || mcpUrl === 'http://127.0.0.1:8001/mcp') {
+    // Check if user has saved a custom URL
+    const savedHost = store.get('teradata.host');
+    if (!savedHost) return 'not-configured';
+  }
+
+  // Quick reachability check
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5_000);
+    const response = await fetch(getMcpUrl(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'teradata-dba-agent', version: '1.0.0' } } }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    return response.ok ? 'connected' : 'disconnected';
+  } catch {
+    return 'disconnected';
+  }
 }
 
 async function checkClaudeStatus(): Promise<ConnectionState> {
   const encryptedApiKey = store.get('claude.encryptedApiKey');
   const hasKey = typeof encryptedApiKey === 'string' && encryptedApiKey.length > 0;
   if (!hasKey) return 'not-configured';
-  // For polling, we just check if key exists (actual API validation happens on explicit test)
   return 'connected';
 }
 
@@ -38,10 +55,9 @@ export function startHealthPolling(win: BrowserWindow): void {
     }
   };
 
-  poll(); // immediate first check on startup
+  poll();
   pollTimer = setInterval(poll, POLL_INTERVAL_MS);
 
-  // Pause polling when window loses focus to save resources and reduce Teradata load
   win.on('blur', () => {
     if (pollTimer) {
       clearInterval(pollTimer);
@@ -49,10 +65,9 @@ export function startHealthPolling(win: BrowserWindow): void {
     }
   });
 
-  // Resume polling when window regains focus
   win.on('focus', () => {
     if (!pollTimer) {
-      poll(); // immediate check on focus resume
+      poll();
       pollTimer = setInterval(poll, POLL_INTERVAL_MS);
     }
   });

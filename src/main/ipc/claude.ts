@@ -1,32 +1,48 @@
 import { ipcMain, safeStorage } from 'electron';
-import Anthropic from '@anthropic-ai/sdk';
+import AnthropicBedrock from '@anthropic-ai/bedrock-sdk';
 import store from '../store';
-import { claudeApiKeySchema } from '@shared/schemas';
 import { IpcChannels } from '@shared/types';
 
 export function registerClaudeHandlers(): void {
-  // Save Claude API key encrypted via safeStorage
+  // Save Claude bearer key encrypted via safeStorage
   ipcMain.handle(IpcChannels.SAVE_CLAUDE_KEY, async (_event, key: unknown) => {
-    const result = claudeApiKeySchema.safeParse(key);
-    if (!result.success) {
-      throw new Error(`Invalid Claude API key: ${result.error.message}`);
+    if (typeof key !== 'string' || !key) {
+      throw new Error('Invalid bearer key');
     }
-
-    const encryptedApiKey = safeStorage.encryptString(result.data).toString('base64');
+    const encryptedApiKey = safeStorage.encryptString(key).toString('base64');
     store.set('claude.encryptedApiKey', encryptedApiKey);
   });
 
-  // Check if Claude API key is configured
+  // Save Bedrock region (plaintext — not a secret)
+  ipcMain.handle('claude:save-region', async (_event, region: unknown) => {
+    if (typeof region !== 'string' || !region) {
+      throw new Error('Invalid region');
+    }
+    store.set('claude.region' as any, region);
+  });
+
+  // Load Bedrock region
+  ipcMain.handle('claude:load-region', async () => {
+    return (store as any).get('claude.region') || 'us-west-2';
+  });
+
+  // Check if Claude bearer key is configured
   ipcMain.handle(IpcChannels.HAS_CLAUDE_KEY, async () => {
     const encryptedApiKey = store.get('claude.encryptedApiKey');
     return typeof encryptedApiKey === 'string' && encryptedApiKey.length > 0;
   });
 
-  // Test Claude API connectivity with a minimal request and 10s timeout
+  // Test Claude API connectivity via Bedrock with a minimal request and 10s timeout
   ipcMain.handle(IpcChannels.TEST_CLAUDE_CONNECTION, async () => {
     try {
-      const apiKey = getDecryptedClaudeKey();
-      const client = new Anthropic({ apiKey });
+      const bearerKey = getDecryptedClaudeKey();
+      const region = (store as any).get('claude.region') || 'us-west-2';
+
+      const client = new AnthropicBedrock({
+        awsRegion: region,
+        awsAccessKey: bearerKey,
+        awsSecretKey: bearerKey,
+      });
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10_000);
@@ -34,7 +50,7 @@ export function registerClaudeHandlers(): void {
       try {
         await client.messages.create(
           {
-            model: 'claude-sonnet-4-20250514',
+            model: 'anthropic.claude-sonnet-4-20250514-v1:0',
             max_tokens: 1,
             messages: [{ role: 'user', content: 'ping' }],
           },
@@ -57,16 +73,13 @@ export function registerClaudeHandlers(): void {
 }
 
 /**
- * Get decrypted Claude API key.
- * Internal use only — NOT exposed via IPC. Called by Claude SDK and subagent runner.
- * Throws if key is not configured.
+ * Get decrypted Claude bearer key.
+ * Internal use only — NOT exposed via IPC.
  */
 export function getDecryptedClaudeKey(): string {
   const encryptedApiKey = store.get('claude.encryptedApiKey');
-
   if (!encryptedApiKey) {
-    throw new Error('Claude API key not configured');
+    throw new Error('Claude bearer key not configured');
   }
-
   return safeStorage.decryptString(Buffer.from(encryptedApiKey, 'base64'));
 }

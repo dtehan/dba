@@ -1,101 +1,64 @@
-import { spawn, ChildProcess } from 'child_process';
-import { getDecryptedTeradataCredentials } from '../ipc/credentials';
+import store from '../store';
 
-let mcpProcess: ChildProcess | null = null;
-
-export function spawnMcpServer(): void {
-  if (mcpProcess) return; // already running
-
-  const { host, username, password } = getDecryptedTeradataCredentials();
-
-  // Percent-encode password to handle special chars (@, /, #, %)
-  const encodedPassword = encodeURIComponent(password);
-  const encodedUsername = encodeURIComponent(username);
-  const DATABASE_URI = `teradata://${encodedUsername}:${encodedPassword}@${host}:1025/${encodedUsername}`;
-
-  mcpProcess = spawn('uvx', ['teradata-mcp-server'], {
-    env: {
-      ...process.env,
-      DATABASE_URI,
-      // No MCP_TRANSPORT set -- defaults to stdio
-    },
-    stdio: ['pipe', 'pipe', 'pipe'],
-  });
-
-  mcpProcess.on('error', (err) => {
-    console.error('[MCP] process error:', err);
-    mcpProcess = null;
-  });
-
-  mcpProcess.on('exit', (code) => {
-    console.log(`[MCP] process exited with code ${code}`);
-    mcpProcess = null;
-  });
-
-  // Log stderr for debugging
-  mcpProcess.stderr?.on('data', (data: Buffer) => {
-    console.error('[MCP stderr]', data.toString());
-  });
-}
-
-export function killMcpServer(): void {
-  if (mcpProcess) {
-    mcpProcess.kill('SIGTERM');
-    mcpProcess = null;
-  }
-}
-
-export function isMcpRunning(): boolean {
-  return mcpProcess !== null && !mcpProcess.killed;
+/**
+ * Get the configured MCP server URL.
+ * Stored as the 'host' field in teradata config (reusing existing store shape).
+ */
+export function getMcpUrl(): string {
+  return store.get('teradata.host') || 'http://127.0.0.1:8001/mcp';
 }
 
 /**
- * Test Teradata connectivity by spawning the MCP server and checking it stays alive.
- * If the process exits immediately with a non-zero code, the connection failed.
- * If it stays running for 5 seconds, the connection is presumed good.
- *
- * Note: Full MCP JSON-RPC query protocol (SELECT 1) will be implemented in Phase 2
- * when we need actual query results from the running server.
+ * Test Teradata MCP server connectivity by sending an HTTP request to the endpoint.
+ * The MCP server runs externally — we just verify it's reachable.
  */
 export async function testTeradataConnection(): Promise<{ success: boolean; error?: string }> {
   try {
-    const { host, username, password } = getDecryptedTeradataCredentials();
-    if (!host || !username || !password) {
-      return { success: false, error: 'Credentials not configured' };
+    const mcpUrl = getMcpUrl();
+    if (!mcpUrl) {
+      return { success: false, error: 'MCP server URL not configured' };
     }
 
-    // If MCP server is already running, connection is confirmed good
-    if (isMcpRunning()) {
-      return { success: true };
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10_000);
+
+    try {
+      // Send a simple POST to the MCP endpoint — streamable HTTP MCP servers
+      // accept JSON-RPC over POST. We send a simple initialize request.
+      const response = await fetch(mcpUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'initialize',
+          params: {
+            protocolVersion: '2024-11-05',
+            capabilities: {},
+            clientInfo: { name: 'teradata-dba-agent', version: '1.0.0' },
+          },
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        return { success: true };
+      } else {
+        return { success: false, error: `MCP server returned ${response.status}: ${response.statusText}` };
+      }
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err instanceof Error && err.name === 'AbortError') {
+        return { success: false, error: 'Connection timed out after 10 seconds' };
+      }
+      throw err;
     }
-
-    // Spawn a fresh attempt and check if it stays alive
-    spawnMcpServer();
-
-    return new Promise((resolve) => {
-      const currentProcess = mcpProcess;
-
-      const timeout = setTimeout(() => {
-        if (isMcpRunning()) {
-          resolve({ success: true });
-        } else {
-          resolve({ success: false, error: 'MCP server failed to start within timeout' });
-        }
-      }, 5000); // 5s startup check
-
-      currentProcess?.on('exit', (code) => {
-        clearTimeout(timeout);
-        if (code !== 0 && code !== null) {
-          resolve({ success: false, error: `MCP server exited with code ${code}` });
-        }
-      });
-
-      currentProcess?.on('error', (err) => {
-        clearTimeout(timeout);
-        resolve({ success: false, error: err.message });
-      });
-    });
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : String(err) };
+    const message = err instanceof Error ? err.message : String(err);
+    return { success: false, error: message };
   }
 }
