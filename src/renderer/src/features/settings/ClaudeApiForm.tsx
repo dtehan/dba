@@ -27,6 +27,11 @@ export function ClaudeApiForm(): JSX.Element {
     setFeedback({ type: 'none' });
     try {
       const api = (window as any).electronAPI;
+      // Auto-save before testing so the key is in the keychain
+      if (bearerKey) {
+        await api?.saveClaudeApiKey?.(bearerKey);
+        await api?.saveBedrockRegion?.(region);
+      }
       const result = await api?.testClaudeConnection?.();
       if (result?.success) {
         setFeedback({ type: 'success', message: 'Connection successful. Claude API is reachable.' });

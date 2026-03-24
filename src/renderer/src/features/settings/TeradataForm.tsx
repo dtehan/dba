@@ -16,6 +16,10 @@ export function TeradataForm(): JSX.Element {
     setFeedback({ type: 'none' });
     try {
       const api = (window as any).electronAPI;
+      // Auto-save URL before testing
+      if (mcpUrl) {
+        await api?.saveTeradataCredentials?.({ host: mcpUrl, username: '', password: '' });
+      }
       const result = await api?.testTeradataConnection?.();
       if (result?.success) {
         setFeedback({ type: 'success', message: 'Connection successful. MCP server is reachable.' });
