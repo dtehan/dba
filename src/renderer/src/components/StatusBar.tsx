@@ -35,8 +35,8 @@ function getDotClass(state: ConnectionState): string {
 
 function StatusIndicator({ label, state }: StatusIndicatorProps): JSX.Element {
   return (
-    <div className="flex items-center gap-xs">
-      <span className="text-xs text-text-muted">{label}</span>
+    <div className="flex items-center gap-1">
+      <span className="text-xs text-[#A3A3A3]">{label}</span>
       <Badge
         variant="outline"
         className="flex items-center gap-xs text-xs"
@@ -56,7 +56,7 @@ export function StatusBar(): JSX.Element {
 
   return (
     <div
-      className="h-[48px] flex items-center gap-lg px-xl bg-surface-card border-t border-surface-border"
+      style={{ gridColumn: '1 / -1', height: '48px', display: 'flex', alignItems: 'center', gap: '24px', padding: '0 32px', backgroundColor: '#262626', borderTop: '1px solid #333333' }}
       aria-label="Connection status"
     >
       <StatusIndicator label="Teradata:" state={connectionStatus.teradata} />

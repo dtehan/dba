@@ -8,14 +8,12 @@ export function AppShell(): JSX.Element {
   const currentPage = useAppStore((s) => s.currentPage);
 
   return (
-    <div className="flex flex-col h-screen bg-surface-base">
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
-        <main className="flex-1 overflow-auto bg-surface-base">
-          {currentPage === 'welcome' && <WelcomeState />}
-          {currentPage === 'settings' && <SettingsScreen />}
-        </main>
-      </div>
+    <div style={{ display: 'grid', gridTemplateRows: '1fr 48px', gridTemplateColumns: '220px 1fr', height: '100vh' }}>
+      <Sidebar />
+      <main style={{ overflow: 'auto', backgroundColor: '#1A1A1A' }}>
+        {currentPage === 'welcome' && <WelcomeState />}
+        {currentPage === 'settings' && <SettingsScreen />}
+      </main>
       <StatusBar />
     </div>
   );
