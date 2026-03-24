@@ -11,6 +11,9 @@ node_modules
 dist
 out
 
+# shadcn/ui alias misplacement artifact (resolved via components.json path config)
+@/
+
 # Editor directories and files
 .vscode
 .idea

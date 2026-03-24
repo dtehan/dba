@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@theme {
+  /* Teradata brand */
+  --color-td-orange: #F37440;
+  --color-td-orange-hover: #E55C20;
+  --color-td-orange-active: #CC4A10;
+  --color-td-charcoal: #1D1D1D;
+
+  /* UI surface scale */
+  --color-surface-base: #1A1A1A;
+  --color-surface-card: #262626;
+  --color-surface-border: #333333;
+
+  /* Text */
+  --color-text-primary: #F5F5F5;
+  --color-text-muted: #A3A3A3;
+
+  /* Semantic */
+  --color-status-connected: #22C55E;
+  --color-status-disconnected: #EF4444;
+  --color-status-checking: #EAB308;
+  --color-destructive: #EF4444;
+
+  /* Typography */
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Cascadia Code", ui-monospace, Menlo, Monaco, monospace;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+}
+
+/* shadcn/ui CSS variables -- dark mode as default */
+:root {
+  --background: 0 0% 10%;
+  --foreground: 0 0% 96%;
+  --card: 0 0% 15%;
+  --card-foreground: 0 0% 96%;
+  --popover: 0 0% 15%;
+  --popover-foreground: 0 0% 96%;
+  --primary: 18 88% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 96%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 64%;
+  --accent: 0 0% 15%;
+  --accent-foreground: 0 0% 96%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 96%;
+  --border: 0 0% 20%;
+  --input: 0 0% 15%;
+  --ring: 18 88% 60%;
+  --radius: 0.5rem;
+}
+
+body {
+  background-color: var(--color-surface-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+}
