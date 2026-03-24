@@ -12,7 +12,7 @@ Four phases take the project from an empty directory to a fully featured local D
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Electron shell, credential storage, MCP/Claude connectivity, and Teradata brand identity
+- [x] **Phase 1: Foundation** - Electron shell, credential storage, MCP/Claude connectivity, and Teradata brand identity (completed 2026-03-24)
 - [ ] **Phase 2: Chat** - Freeform chat with streaming, schema grounding, session memory, and subagent launcher framework
 - [ ] **Phase 3: Core Subagents** - Security Audit, MVC Analysis, and Statistics Analysis subagents with rich output
 - [ ] **Phase 4: Analysis Expansion** - Skew Analysis and Space Usage subagents completing the v1 subagent set
@@ -29,13 +29,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. App connects to Teradata via MCP server (tdsql-mcp / teradata-mcp-server) using stored credentials
   4. Connection health indicator shows live green/red status for both Teradata and Claude API
   5. UI displays Teradata brand colors (orange #F37440, charcoal #1D1D1D) with a clean modern aesthetic on standard DBA monitor sizes
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans complete
 Plans:
 - [x] 01-01-PLAN.md — Scaffold electron-vite project, TailwindCSS v4 + shadcn/ui with Teradata design tokens
 - [x] 01-02-PLAN.md — IPC contract types, preload bridge, credential storage (safeStorage + electron-store)
 - [x] 01-03-PLAN.md — MCP server process manager, Claude API test, health polling service
 - [x] 01-04-PLAN.md — App shell layout, sidebar, status bar, welcome state, Zustand store
-- [ ] 01-05-PLAN.md — Settings screen (credential forms, test/save/clear), visual checkpoint
+- [x] 01-05-PLAN.md — Settings screen (credential forms, test/save/clear), visual checkpoint
 **UI hint**: yes
 
 ### Phase 2: Chat
@@ -81,7 +81,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 4/5 | In Progress|  |
+| 1. Foundation | 5/5 | Complete   | 2026-03-24 |
 | 2. Chat | 0/TBD | Not started | - |
 | 3. Core Subagents | 0/TBD | Not started | - |
 | 4. Analysis Expansion | 0/TBD | Not started | - |

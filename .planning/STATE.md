@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-03-24T20:33:25.652Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 01-05-PLAN.md
+last_updated: "2026-03-24T20:47:26.915Z"
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State
@@ -50,6 +50,7 @@ Plan: 5 of 5
 | Phase 01 P04 | 10 | 2 tasks | 7 files |
 | Phase 01-foundation P02 | 2 | 2 tasks | 13 files |
 | Phase 01 P03 | 4 | 2 tasks | 5 files |
+| Phase 01-foundation P05 | 45 | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,9 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: Internal decrypt functions not exposed via IPC - called only from main process services to keep secrets in main process memory only
 - [Phase 01]: Phase 1 connection test uses 5s process startup check instead of full MCP JSON-RPC SELECT 1 -- full protocol deferred to Phase 2
 - [Phase 01]: Claude health polling infers connected from key presence; actual API validation only on explicit user test to avoid token costs
+- [Phase 01-foundation]: react-hook-form + @hookform/resolvers/zod used for credential forms -- consistent with shadcn form pattern and existing zod schemas from Plan 02
+- [Phase 01-foundation]: electron-store excluded from Vite externalization -- ESM-only package requires bundling rather than Node external resolution in electron-vite renderer
+- [Phase 01-foundation]: Destructive confirmation uses 5-second setTimeout with inline button text change -- no modal needed, matches UI-SPEC copywriting contract
 
 ### Pending Todos
 
@@ -86,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-24T20:33:25.650Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-03-24T20:47:26.912Z
+Stopped at: Completed 01-05-PLAN.md
 Resume file: None
