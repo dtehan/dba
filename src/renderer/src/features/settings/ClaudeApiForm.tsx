@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Eye, EyeOff } from 'lucide-react';
-import { claudeApiKeySchema } from '@shared/schemas';
 import { getElectronAPI } from '@/lib/ipc';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,12 +17,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 
-// Wrap scalar schema in an object for react-hook-form compatibility
-const claudeApiKeyFormSchema = z.object({
-  apiKey: claudeApiKeySchema,
+const bedrockFormSchema = z.object({
+  bearerKey: z.string().min(1, 'Bearer key is required'),
 });
 
-type ClaudeApiKeyFormInput = z.infer<typeof claudeApiKeyFormSchema>;
+type BedrockFormInput = z.infer<typeof bedrockFormSchema>;
 
 type FeedbackState =
   | { type: 'none' }
@@ -32,14 +30,14 @@ type FeedbackState =
   | { type: 'save-success' };
 
 export function ClaudeApiForm(): JSX.Element {
-  const [showApiKey, setShowApiKey] = useState(false);
+  const [showKey, setShowKey] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackState>({ type: 'none' });
 
-  const form = useForm<ClaudeApiKeyFormInput>({
-    resolver: zodResolver(claudeApiKeyFormSchema),
-    defaultValues: { apiKey: '' },
+  const form = useForm<BedrockFormInput>({
+    resolver: zodResolver(bedrockFormSchema),
+    defaultValues: { bearerKey: '' },
   });
 
   // Auto-dismiss success alerts after 3 seconds
@@ -68,14 +66,14 @@ export function ClaudeApiForm(): JSX.Element {
     }
   };
 
-  const handleSaveCredentials = async (data: ClaudeApiKeyFormInput): Promise<void> => {
+  const handleSave = async (data: BedrockFormInput): Promise<void> => {
     setIsSaving(true);
     setFeedback({ type: 'none' });
     try {
-      await getElectronAPI().saveClaudeApiKey(data.apiKey);
+      await getElectronAPI().saveClaudeApiKey(data.bearerKey);
       setFeedback({ type: 'save-success' });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to save API key';
+      const message = err instanceof Error ? err.message : 'Failed to save';
       setFeedback({ type: 'test-error', message });
     } finally {
       setIsSaving(false);
@@ -83,86 +81,80 @@ export function ClaudeApiForm(): JSX.Element {
   };
 
   const isOperationInProgress = isTesting || isSaving;
-  const isFormInvalid = !form.formState.isValid && form.formState.isSubmitted;
 
   return (
-    <Card className="border-border bg-surface-card">
+    <Card className="w-full border-[#333333] bg-[#262626]">
       <CardContent className="p-6">
-        <h2 className="text-lg font-semibold text-text-primary mb-4">Claude API</h2>
+        <h2 className="text-lg font-semibold text-[#F5F5F5] mb-4">Claude API (Bedrock)</h2>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSaveCredentials)} className="space-y-4">
-            {/* API Key field */}
+          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4">
             <FormField
               control={form.control}
-              name="apiKey"
+              name="bearerKey"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-text-primary">API Key</FormLabel>
+                  <FormLabel className="text-[#F5F5F5]">Bearer Key</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         {...field}
-                        type={showApiKey ? 'text' : 'password'}
-                        placeholder="sk-ant-..."
-                        className="bg-surface-card border-border text-text-primary placeholder:text-text-muted focus-visible:ring-0 focus-visible:border-td-orange pr-12"
+                        type={showKey ? 'text' : 'password'}
+                        placeholder="Enter your Bedrock bearer key"
+                        className="w-full bg-[#262626] border-[#333333] text-[#F5F5F5] placeholder:text-[#A3A3A3] focus-visible:ring-0 focus-visible:border-[#F37440] pr-12"
                       />
                       <button
                         type="button"
-                        onClick={() => setShowApiKey((v) => !v)}
-                        aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
-                        className="absolute right-0 top-0 h-12 w-12 flex items-center justify-center text-text-muted hover:text-text-primary transition-colors focus-visible:outline-2 focus-visible:outline-td-orange focus-visible:outline-offset-2"
+                        onClick={() => setShowKey((v) => !v)}
+                        aria-label={showKey ? 'Hide bearer key' : 'Show bearer key'}
+                        className="absolute right-0 top-0 h-10 w-10 flex items-center justify-center text-[#A3A3A3] hover:text-[#F5F5F5] transition-colors"
                       >
-                        {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
+                        {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
                       </button>
                     </div>
                   </FormControl>
                   <FormMessage />
-                  <p className="text-xs text-text-muted">
+                  <p className="text-xs text-[#A3A3A3]">
                     Stored securely via OS keychain — never saved in plaintext.
                   </p>
                 </FormItem>
               )}
             />
 
-            {/* Action buttons */}
             <div className="flex gap-3 pt-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleTestConnection}
                 disabled={isOperationInProgress}
-                className="border-td-orange text-td-orange hover:bg-td-orange/10 focus-visible:outline-2 focus-visible:outline-td-orange focus-visible:outline-offset-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="border-[#F37440] text-[#F37440] hover:bg-[#F37440]/10 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {isTesting ? 'Testing...' : 'Test Connection'}
               </Button>
               <Button
                 type="submit"
-                disabled={isOperationInProgress || isFormInvalid}
-                className="bg-td-orange text-white hover:bg-td-orange-hover active:bg-td-orange-active focus-visible:outline-2 focus-visible:outline-td-orange focus-visible:outline-offset-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                disabled={isOperationInProgress}
+                className="bg-[#F37440] text-white hover:bg-[#E55C20] active:bg-[#CC4A10] disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {isSaving ? 'Saving...' : 'Save Credentials'}
+                {isSaving ? 'Saving...' : 'Save'}
               </Button>
             </div>
 
-            {/* Feedback alerts */}
             {feedback.type === 'test-success' && (
               <Alert className="border-green-500/50 text-green-400 bg-green-500/10">
-                <AlertDescription>Connection successful. Ready to use.</AlertDescription>
+                <AlertDescription>Connection successful. Claude API is reachable.</AlertDescription>
               </Alert>
             )}
             {feedback.type === 'test-error' && (
               <Alert variant="destructive">
                 <AlertDescription>
-                  Connection failed. Check your host and credentials, then try again.
+                  Connection failed. Check your bearer key and try again.
                 </AlertDescription>
               </Alert>
             )}
             {feedback.type === 'save-success' && (
               <Alert className="border-green-500/50 text-green-400 bg-green-500/10">
-                <AlertDescription>
-                  Credentials saved securely to your OS keychain.
-                </AlertDescription>
+                <AlertDescription>Bearer key saved securely to your OS keychain.</AlertDescription>
               </Alert>
             )}
           </form>

@@ -43,8 +43,8 @@ export function SettingsScreen(): JSX.Element {
   };
 
   return (
-    <div className="p-xl overflow-auto h-full">
-      <h1 className="text-2xl font-semibold text-text-primary mb-6">Settings</h1>
+    <div className="p-8 overflow-auto h-full">
+      <h1 className="text-2xl font-semibold text-[#F5F5F5] mb-6">Settings</h1>
 
       <div className="max-w-2xl space-y-6">
         <TeradataForm />
