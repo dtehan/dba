@@ -2,6 +2,7 @@ import { useAppStore } from '@/store/app-store';
 import { Sidebar } from '@/components/Sidebar';
 import { StatusBar } from '@/components/StatusBar';
 import { WelcomeState } from '@/components/WelcomeState';
+import { SettingsScreen } from '@/features/settings/SettingsScreen';
 
 export function AppShell(): JSX.Element {
   const currentPage = useAppStore((s) => s.currentPage);
@@ -12,9 +13,7 @@ export function AppShell(): JSX.Element {
         <Sidebar />
         <main className="flex-1 overflow-auto bg-surface-base">
           {currentPage === 'welcome' && <WelcomeState />}
-          {currentPage === 'settings' && (
-            <div className="p-xl text-text-muted">Settings (Plan 05)</div>
-          )}
+          {currentPage === 'settings' && <SettingsScreen />}
         </main>
       </div>
       <StatusBar />
