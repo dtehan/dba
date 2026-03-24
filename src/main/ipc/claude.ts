@@ -21,6 +21,39 @@ export function registerClaudeHandlers(): void {
     const encryptedApiKey = store.get('claude.encryptedApiKey');
     return typeof encryptedApiKey === 'string' && encryptedApiKey.length > 0;
   });
+
+  // Test Claude API connectivity with a minimal request and 10s timeout
+  ipcMain.handle(IpcChannels.TEST_CLAUDE_CONNECTION, async () => {
+    try {
+      const apiKey = getDecryptedClaudeKey();
+      const client = new Anthropic({ apiKey });
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10_000);
+
+      try {
+        await client.messages.create(
+          {
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1,
+            messages: [{ role: 'user', content: 'ping' }],
+          },
+          { signal: controller.signal }
+        );
+        clearTimeout(timeoutId);
+        return { success: true };
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (err instanceof Error && err.name === 'AbortError') {
+          return { success: false, error: 'Connection timed out after 10 seconds' };
+        }
+        throw err;
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return { success: false, error: message };
+    }
+  });
 }
 
 /**
