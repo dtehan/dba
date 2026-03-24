@@ -42,6 +42,10 @@ DBAs can run expert-level analysis on their Teradata environment through natural
 - Claude API (Anthropic) is the LLM backbone for all AI capabilities
 - Local desktop app — no cloud deployment or shared infrastructure needed
 - Subagents are specialized prompt chains that query Teradata and analyze results
+- **Teradata MCP Servers** available for connectivity:
+  - `tdsql-mcp` (github.com/ksturgeon-td/tdsql-mcp) — provides execute_query, list_databases, list_tables, describe_table, explain_query tools + 21 Teradata SQL syntax reference files
+  - `teradata-mcp-server` (github.com/Teradata/teradata-mcp-server) — official Teradata community MCP server (Python)
+  - These eliminate the need to build raw Teradata connectivity — subagents use MCP tools
 
 ## Constraints
 
@@ -60,6 +64,7 @@ DBAs can run expert-level analysis on their Teradata environment through natural
 | Chat-first output | Keeps v1 simple, results inline with conversation | — Pending |
 | Teradata brand identity | Tool should feel native to the Teradata ecosystem | — Pending |
 | Start with 3 subagents | Security, MVC, Statistics — validate pattern before expanding | — Pending |
+| Use Teradata MCP servers | tdsql-mcp + teradata-mcp-server provide ready-made connectivity and SQL tools | — Pending |
 
 ## Evolution
 
