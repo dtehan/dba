@@ -29,11 +29,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. App connects to Teradata via MCP server (tdsql-mcp / teradata-mcp-server) using stored credentials
   4. Connection health indicator shows live green/red status for both Teradata and Claude API
   5. UI displays Teradata brand colors (orange #F37440, charcoal #1D1D1D) with a clean modern aesthetic on standard DBA monitor sizes
-**Plans:** 2/5 plans executed
+**Plans:** 4/5 plans executed
 Plans:
 - [x] 01-01-PLAN.md — Scaffold electron-vite project, TailwindCSS v4 + shadcn/ui with Teradata design tokens
-- [ ] 01-02-PLAN.md — IPC contract types, preload bridge, credential storage (safeStorage + electron-store)
-- [ ] 01-03-PLAN.md — MCP server process manager, Claude API test, health polling service
+- [x] 01-02-PLAN.md — IPC contract types, preload bridge, credential storage (safeStorage + electron-store)
+- [x] 01-03-PLAN.md — MCP server process manager, Claude API test, health polling service
 - [x] 01-04-PLAN.md — App shell layout, sidebar, status bar, welcome state, Zustand store
 - [ ] 01-05-PLAN.md — Settings screen (credential forms, test/save/clear), visual checkpoint
 **UI hint**: yes
@@ -81,7 +81,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 2/5 | In Progress|  |
+| 1. Foundation | 4/5 | In Progress|  |
 | 2. Chat | 0/TBD | Not started | - |
 | 3. Core Subagents | 0/TBD | Not started | - |
 | 4. Analysis Expansion | 0/TBD | Not started | - |

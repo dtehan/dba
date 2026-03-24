@@ -8,10 +8,10 @@
 ### Foundation
 
 - [x] **FOUN-01**: App launches as a local Electron desktop application
-- [ ] **FOUN-02**: User can configure Teradata connection credentials (host, username, password)
-- [ ] **FOUN-03**: Credentials are stored securely via OS keychain (Electron safeStorage)
+- [x] **FOUN-02**: User can configure Teradata connection credentials (host, username, password)
+- [x] **FOUN-03**: Credentials are stored securely via OS keychain (Electron safeStorage)
 - [ ] **FOUN-04**: App connects to Teradata via MCP server (tdsql-mcp / teradata-mcp-server)
-- [ ] **FOUN-05**: App connects to Claude API with user-provided API key
+- [x] **FOUN-05**: App connects to Claude API with user-provided API key
 - [x] **FOUN-06**: Connection health indicator shows Teradata and Claude API status
 
 ### Chat
@@ -109,10 +109,10 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | FOUN-01 | Phase 1 | Complete |
-| FOUN-02 | Phase 1 | Pending |
-| FOUN-03 | Phase 1 | Pending |
+| FOUN-02 | Phase 1 | Complete |
+| FOUN-03 | Phase 1 | Complete |
 | FOUN-04 | Phase 1 | Pending |
-| FOUN-05 | Phase 1 | Pending |
+| FOUN-05 | Phase 1 | Complete |
 | FOUN-06 | Phase 1 | Complete |
 | UIBR-01 | Phase 1 | Complete |
 | UIBR-02 | Phase 1 | Complete |
