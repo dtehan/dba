@@ -12,7 +12,7 @@
 - [ ] **FOUN-03**: Credentials are stored securely via OS keychain (Electron safeStorage)
 - [ ] **FOUN-04**: App connects to Teradata via MCP server (tdsql-mcp / teradata-mcp-server)
 - [ ] **FOUN-05**: App connects to Claude API with user-provided API key
-- [ ] **FOUN-06**: Connection health indicator shows Teradata and Claude API status
+- [x] **FOUN-06**: Connection health indicator shows Teradata and Claude API status
 
 ### Chat
 
@@ -74,9 +74,9 @@
 ### UI & Branding
 
 - [x] **UIBR-01**: UI uses Teradata brand colors (orange #F37440, dark charcoal #1D1D1D)
-- [ ] **UIBR-02**: UI has a clean, modern aesthetic consistent with Teradata product family
+- [x] **UIBR-02**: UI has a clean, modern aesthetic consistent with Teradata product family
 - [ ] **UIBR-03**: Chat interface has a sidebar with subagent launcher
-- [ ] **UIBR-04**: Responsive layout that works well on typical DBA monitor sizes
+- [x] **UIBR-04**: Responsive layout that works well on typical DBA monitor sizes
 
 ## v2 Requirements
 
@@ -113,10 +113,10 @@
 | FOUN-03 | Phase 1 | Pending |
 | FOUN-04 | Phase 1 | Pending |
 | FOUN-05 | Phase 1 | Pending |
-| FOUN-06 | Phase 1 | Pending |
+| FOUN-06 | Phase 1 | Complete |
 | UIBR-01 | Phase 1 | Complete |
-| UIBR-02 | Phase 1 | Pending |
-| UIBR-04 | Phase 1 | Pending |
+| UIBR-02 | Phase 1 | Complete |
+| UIBR-04 | Phase 1 | Complete |
 | CHAT-01 | Phase 2 | Pending |
 | CHAT-02 | Phase 2 | Pending |
 | CHAT-03 | Phase 2 | Pending |
