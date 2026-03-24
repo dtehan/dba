@@ -7,7 +7,7 @@
 
 ### Foundation
 
-- [ ] **FOUN-01**: App launches as a local Electron desktop application
+- [x] **FOUN-01**: App launches as a local Electron desktop application
 - [ ] **FOUN-02**: User can configure Teradata connection credentials (host, username, password)
 - [ ] **FOUN-03**: Credentials are stored securely via OS keychain (Electron safeStorage)
 - [ ] **FOUN-04**: App connects to Teradata via MCP server (tdsql-mcp / teradata-mcp-server)
@@ -73,7 +73,7 @@
 
 ### UI & Branding
 
-- [ ] **UIBR-01**: UI uses Teradata brand colors (orange #F37440, dark charcoal #1D1D1D)
+- [x] **UIBR-01**: UI uses Teradata brand colors (orange #F37440, dark charcoal #1D1D1D)
 - [ ] **UIBR-02**: UI has a clean, modern aesthetic consistent with Teradata product family
 - [ ] **UIBR-03**: Chat interface has a sidebar with subagent launcher
 - [ ] **UIBR-04**: Responsive layout that works well on typical DBA monitor sizes
@@ -108,13 +108,13 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUN-01 | Phase 1 | Pending |
+| FOUN-01 | Phase 1 | Complete |
 | FOUN-02 | Phase 1 | Pending |
 | FOUN-03 | Phase 1 | Pending |
 | FOUN-04 | Phase 1 | Pending |
 | FOUN-05 | Phase 1 | Pending |
 | FOUN-06 | Phase 1 | Pending |
-| UIBR-01 | Phase 1 | Pending |
+| UIBR-01 | Phase 1 | Complete |
 | UIBR-02 | Phase 1 | Pending |
 | UIBR-04 | Phase 1 | Pending |
 | CHAT-01 | Phase 2 | Pending |

@@ -31,7 +31,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. UI displays Teradata brand colors (orange #F37440, charcoal #1D1D1D) with a clean modern aesthetic on standard DBA monitor sizes
 **Plans:** 5 plans
 Plans:
-- [ ] 01-01-PLAN.md — Scaffold electron-vite project, TailwindCSS v4 + shadcn/ui with Teradata design tokens
+- [x] 01-01-PLAN.md — Scaffold electron-vite project, TailwindCSS v4 + shadcn/ui with Teradata design tokens
 - [ ] 01-02-PLAN.md — IPC contract types, preload bridge, credential storage (safeStorage + electron-store)
 - [ ] 01-03-PLAN.md — MCP server process manager, Claude API test, health polling service
 - [ ] 01-04-PLAN.md — App shell layout, sidebar, status bar, welcome state, Zustand store
