@@ -1,70 +1,61 @@
 import { useEffect, useRef, useState } from 'react';
-import { getElectronAPI } from '@/lib/ipc';
 import { TeradataForm } from './TeradataForm';
 import { ClaudeApiForm } from './ClaudeApiForm';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 
 export function SettingsScreen(): JSX.Element {
   const [confirmClear, setConfirmClear] = useState(false);
   const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Clean up timer on unmount
   useEffect(() => {
     return () => {
-      if (confirmTimerRef.current) {
-        clearTimeout(confirmTimerRef.current);
-      }
+      if (confirmTimerRef.current) clearTimeout(confirmTimerRef.current);
     };
   }, []);
 
   const handleClearCredentials = async (): Promise<void> => {
     if (!confirmClear) {
-      // First click: enter confirmation mode, revert after 5 seconds
       setConfirmClear(true);
-      confirmTimerRef.current = setTimeout(() => {
-        setConfirmClear(false);
-      }, 5000);
+      confirmTimerRef.current = setTimeout(() => setConfirmClear(false), 5000);
       return;
     }
-
-    // Second click: confirmed — clear all credentials
     if (confirmTimerRef.current) {
       clearTimeout(confirmTimerRef.current);
       confirmTimerRef.current = null;
     }
     setConfirmClear(false);
-
     try {
-      await getElectronAPI().clearAllCredentials();
+      const api = (window as any).electronAPI;
+      await api?.clearAllCredentials?.();
     } catch {
-      // Ignore errors — credentials cleared best-effort
+      // best-effort
     }
   };
 
   return (
-    <div className="p-8 overflow-auto h-full">
-      <h1 className="text-2xl font-semibold text-[#F5F5F5] mb-6">Settings</h1>
+    <div style={{ padding: '32px', overflow: 'auto', height: '100%' }}>
+      <h1 style={{ fontSize: '24px', fontWeight: 600, color: '#F5F5F5', marginBottom: '24px' }}>Settings</h1>
 
-      <div className="max-w-2xl space-y-6">
+      <div style={{ maxWidth: '672px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <TeradataForm />
-
-        <Separator className="bg-border" />
-
         <ClaudeApiForm />
 
-        <Separator className="bg-border" />
-
-        {/* Clear all credentials — right-aligned, destructive */}
-        <div className="flex justify-end">
-          <Button
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <button
             type="button"
-            variant="outline"
             onClick={handleClearCredentials}
-            className="border-destructive text-destructive hover:bg-destructive/10 focus-visible:outline-2 focus-visible:outline-destructive focus-visible:outline-offset-2"
+            style={{
+              height: '36px',
+              padding: '0 16px',
+              border: '1px solid #EF4444',
+              borderRadius: '6px',
+              backgroundColor: 'transparent',
+              color: '#EF4444',
+              fontSize: '14px',
+              cursor: 'pointer',
+            }}
           >
             {confirmClear ? 'Confirm — this cannot be undone' : 'Clear All Credentials'}
-          </Button>
+          </button>
         </div>
       </div>
     </div>
