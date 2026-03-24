@@ -5,16 +5,27 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    resolve: {
+      alias: {
+        '@shared': resolve(__dirname, 'src/shared')
+      }
+    }
   },
   preload: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    resolve: {
+      alias: {
+        '@shared': resolve(__dirname, 'src/shared')
+      }
+    }
   },
   renderer: {
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
-        '@': resolve(__dirname, 'src/renderer/src')
+        '@': resolve(__dirname, 'src/renderer/src'),
+        '@shared': resolve(__dirname, 'src/shared')
       }
     }
   }
