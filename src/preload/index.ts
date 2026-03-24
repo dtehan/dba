@@ -1,39 +1,21 @@
-import { contextBridge, ipcRenderer } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
+import { contextBridge, ipcRenderer } from 'electron';
+import { IpcChannels } from '../shared/types';
+import type { TeradataCredentials, ConnectionStatus } from '../shared/types';
 
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('electronAPI', {
-      // Credentials
-      saveTeradataCredentials: (creds: {
-        host: string
-        username: string
-        password: string
-      }) => ipcRenderer.invoke('credentials:save-teradata', creds),
-      loadTeradataHost: () => ipcRenderer.invoke('credentials:load-teradata-host'),
-      saveClaudeApiKey: (key: string) => ipcRenderer.invoke('credentials:save-claude-key', key),
-
-      // MCP / health
-      testTeradataConnection: () => ipcRenderer.invoke('mcp:test-connection'),
-      testClaudeConnection: () => ipcRenderer.invoke('claude:test-connection'),
-
-      // Status updates pushed from main → renderer
-      onConnectionStatus: (
-        callback: (status: { teradata: string; claude: string }) => void
-      ) => {
-        ipcRenderer.on('connection:status-update', (_event, status) => callback(status))
-      },
-      removeConnectionStatusListener: () =>
-        ipcRenderer.removeAllListeners('connection:status-update')
-    })
-  } catch (error) {
-    console.error(error)
-  }
-} else {
-  // @ts-ignore (define in global d.ts file if you want type support)
-  window.electron = electronAPI
-}
+contextBridge.exposeInMainWorld('electronAPI', {
+  saveTeradataCredentials: (creds: TeradataCredentials) =>
+    ipcRenderer.invoke(IpcChannels.SAVE_TERADATA_CREDENTIALS, creds),
+  loadTeradataHost: () => ipcRenderer.invoke(IpcChannels.LOAD_TERADATA_HOST),
+  saveClaudeApiKey: (key: string) => ipcRenderer.invoke(IpcChannels.SAVE_CLAUDE_KEY, key),
+  clearAllCredentials: () => ipcRenderer.invoke(IpcChannels.CLEAR_ALL_CREDENTIALS),
+  hasTeradataCredentials: () => ipcRenderer.invoke(IpcChannels.HAS_TERADATA_CREDENTIALS),
+  hasClaudeKey: () => ipcRenderer.invoke(IpcChannels.HAS_CLAUDE_KEY),
+  testTeradataConnection: () => ipcRenderer.invoke(IpcChannels.TEST_TERADATA_CONNECTION),
+  testClaudeConnection: () => ipcRenderer.invoke(IpcChannels.TEST_CLAUDE_CONNECTION),
+  onConnectionStatus: (callback: (status: ConnectionStatus) => void) => {
+    ipcRenderer.on(IpcChannels.CONNECTION_STATUS_UPDATE, (_event, status) => callback(status));
+  },
+  removeConnectionStatusListener: () => {
+    ipcRenderer.removeAllListeners(IpcChannels.CONNECTION_STATUS_UPDATE);
+  },
+});
