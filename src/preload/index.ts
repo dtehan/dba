@@ -14,6 +14,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   testClaudeConnection: () => ipcRenderer.invoke(IpcChannels.TEST_CLAUDE_CONNECTION),
   saveBedrockRegion: (region: string) => ipcRenderer.invoke('claude:save-region', region),
   loadBedrockRegion: () => ipcRenderer.invoke('claude:load-region'),
+  saveBedrockConfig: (config: { roleArn?: string; modelId?: string }) => ipcRenderer.invoke('claude:save-config', config),
+  loadBedrockConfig: () => ipcRenderer.invoke('claude:load-config'),
   onConnectionStatus: (callback: (status: ConnectionStatus) => void) => {
     ipcRenderer.on(IpcChannels.CONNECTION_STATUS_UPDATE, (_event, status) => callback(status));
   },

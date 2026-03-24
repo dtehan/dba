@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin({ exclude: ['electron-store', '@anthropic-ai/bedrock-sdk', '@anthropic-ai/sdk'] })],
+    plugins: [externalizeDepsPlugin({ exclude: ['electron-store', '@anthropic-ai/bedrock-sdk', '@anthropic-ai/sdk', '@aws-sdk/client-sts'] })],
     resolve: {
       alias: {
         '@shared': resolve(__dirname, 'src/shared')
