@@ -4,10 +4,11 @@ import store from '../store';
 import { IpcChannels } from '@shared/types';
 
 export function registerClaudeHandlers(): void {
-  // Save Claude bearer key encrypted via safeStorage
+  // Save AWS credentials encrypted via safeStorage
+  // Expects JSON string: { accessKeyId, secretKey }
   ipcMain.handle(IpcChannels.SAVE_CLAUDE_KEY, async (_event, key: unknown) => {
     if (typeof key !== 'string' || !key) {
-      throw new Error('Invalid bearer key');
+      throw new Error('Invalid credentials');
     }
     const encryptedApiKey = safeStorage.encryptString(key).toString('base64');
     store.set('claude.encryptedApiKey', encryptedApiKey);
@@ -26,22 +27,22 @@ export function registerClaudeHandlers(): void {
     return (store as any).get('claude.region') || 'us-west-2';
   });
 
-  // Check if Claude bearer key is configured
+  // Check if AWS credentials are configured
   ipcMain.handle(IpcChannels.HAS_CLAUDE_KEY, async () => {
     const encryptedApiKey = store.get('claude.encryptedApiKey');
     return typeof encryptedApiKey === 'string' && encryptedApiKey.length > 0;
   });
 
-  // Test Claude API connectivity via Bedrock with a minimal request and 10s timeout
+  // Test Claude API connectivity via Bedrock
   ipcMain.handle(IpcChannels.TEST_CLAUDE_CONNECTION, async () => {
     try {
-      const bearerKey = getDecryptedClaudeKey();
+      const { accessKeyId, secretKey } = getDecryptedAwsCredentials();
       const region = (store as any).get('claude.region') || 'us-west-2';
 
       const client = new AnthropicBedrock({
         awsRegion: region,
-        awsAccessKey: bearerKey,
-        awsSecretKey: bearerKey,
+        awsAccessKey: accessKeyId,
+        awsSecretKey: secretKey,
       });
 
       const controller = new AbortController();
@@ -73,13 +74,24 @@ export function registerClaudeHandlers(): void {
 }
 
 /**
- * Get decrypted Claude bearer key.
+ * Get decrypted AWS credentials for Bedrock.
  * Internal use only — NOT exposed via IPC.
  */
-export function getDecryptedClaudeKey(): string {
+export function getDecryptedAwsCredentials(): { accessKeyId: string; secretKey: string } {
   const encryptedApiKey = store.get('claude.encryptedApiKey');
   if (!encryptedApiKey) {
-    throw new Error('Claude bearer key not configured');
+    throw new Error('AWS credentials not configured');
   }
-  return safeStorage.decryptString(Buffer.from(encryptedApiKey, 'base64'));
+  const decrypted = safeStorage.decryptString(Buffer.from(encryptedApiKey, 'base64'));
+
+  try {
+    const parsed = JSON.parse(decrypted);
+    if (!parsed.accessKeyId || !parsed.secretKey) {
+      throw new Error('Invalid credential format');
+    }
+    return { accessKeyId: parsed.accessKeyId, secretKey: parsed.secretKey };
+  } catch {
+    // Legacy format — treat entire string as a single key
+    throw new Error('AWS credentials need to be re-saved. Please enter your Access Key ID and Secret Access Key.');
+  }
 }

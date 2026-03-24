@@ -7,31 +7,36 @@ type FeedbackState =
   | { type: 'error'; message: string };
 
 export function ClaudeApiForm(): JSX.Element {
-  const [bearerKey, setBearerKey] = useState('');
+  const [accessKeyId, setAccessKeyId] = useState('');
+  const [secretKey, setSecretKey] = useState('');
   const [region, setRegion] = useState('us-west-2');
-  const [showKey, setShowKey] = useState(false);
+  const [showSecret, setShowSecret] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackState>({ type: 'none' });
 
   useEffect(() => {
-    // Load saved region
     const api = (window as any).electronAPI;
     api?.loadBedrockRegion?.().then((r: string | null) => {
       if (r) setRegion(r);
     }).catch(() => {});
   }, []);
 
+  const saveAll = async (): Promise<void> => {
+    const api = (window as any).electronAPI;
+    if (accessKeyId && secretKey) {
+      // Store both keys — accessKeyId as the "api key" and secretKey separately
+      await api?.saveClaudeApiKey?.(JSON.stringify({ accessKeyId, secretKey }));
+    }
+    await api?.saveBedrockRegion?.(region);
+  };
+
   const handleTest = async (): Promise<void> => {
     setIsTesting(true);
     setFeedback({ type: 'none' });
     try {
+      await saveAll();
       const api = (window as any).electronAPI;
-      // Auto-save before testing so the key is in the keychain
-      if (bearerKey) {
-        await api?.saveClaudeApiKey?.(bearerKey);
-        await api?.saveBedrockRegion?.(region);
-      }
       const result = await api?.testClaudeConnection?.();
       if (result?.success) {
         setFeedback({ type: 'success', message: 'Connection successful. Claude API is reachable.' });
@@ -48,14 +53,12 @@ export function ClaudeApiForm(): JSX.Element {
 
   const handleSave = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
-    if (!bearerKey) return;
+    if (!accessKeyId || !secretKey) return;
     setIsSaving(true);
     setFeedback({ type: 'none' });
     try {
-      const api = (window as any).electronAPI;
-      await api?.saveClaudeApiKey?.(bearerKey);
-      await api?.saveBedrockRegion?.(region);
-      setFeedback({ type: 'success', message: 'Bearer key and region saved securely.' });
+      await saveAll();
+      setFeedback({ type: 'success', message: 'AWS credentials and region saved securely.' });
       setTimeout(() => setFeedback({ type: 'none' }), 3000);
     } catch (err) {
       setFeedback({ type: 'error', message: err instanceof Error ? err.message : 'Failed to save' });
@@ -75,19 +78,6 @@ export function ClaudeApiForm(): JSX.Element {
   const inputStyle: React.CSSProperties = {
     width: '100%',
     height: '40px',
-    padding: '8px 40px 8px 12px',
-    backgroundColor: '#1A1A1A',
-    border: '1px solid #333333',
-    borderRadius: '6px',
-    color: '#F5F5F5',
-    fontSize: '14px',
-    outline: 'none',
-    boxSizing: 'border-box' as const,
-  };
-
-  const selectStyle: React.CSSProperties = {
-    width: '100%',
-    height: '40px',
     padding: '8px 12px',
     backgroundColor: '#1A1A1A',
     border: '1px solid #333333',
@@ -97,6 +87,13 @@ export function ClaudeApiForm(): JSX.Element {
     outline: 'none',
     boxSizing: 'border-box' as const,
   };
+
+  const secretInputStyle: React.CSSProperties = {
+    ...inputStyle,
+    paddingRight: '40px',
+  };
+
+  const selectStyle: React.CSSProperties = { ...inputStyle };
 
   const labelStyle: React.CSSProperties = {
     display: 'block',
@@ -136,11 +133,7 @@ export function ClaudeApiForm(): JSX.Element {
       <form onSubmit={handleSave}>
         <div style={{ marginBottom: '16px' }}>
           <label style={labelStyle}>AWS Region</label>
-          <select
-            value={region}
-            onChange={(e) => setRegion(e.target.value)}
-            style={selectStyle}
-          >
+          <select value={region} onChange={(e) => setRegion(e.target.value)} style={selectStyle}>
             <option value="us-west-2">us-west-2 (Oregon)</option>
             <option value="us-east-1">us-east-1 (N. Virginia)</option>
             <option value="eu-west-1">eu-west-1 (Ireland)</option>
@@ -150,19 +143,30 @@ export function ClaudeApiForm(): JSX.Element {
         </div>
 
         <div style={{ marginBottom: '16px' }}>
-          <label style={labelStyle}>Bearer Key</label>
+          <label style={labelStyle}>AWS Access Key ID</label>
+          <input
+            type="text"
+            value={accessKeyId}
+            onChange={(e) => setAccessKeyId(e.target.value)}
+            placeholder="AKIA..."
+            style={inputStyle}
+          />
+        </div>
+
+        <div style={{ marginBottom: '16px' }}>
+          <label style={labelStyle}>AWS Secret Access Key</label>
           <div style={{ position: 'relative' }}>
             <input
-              type={showKey ? 'text' : 'password'}
-              value={bearerKey}
-              onChange={(e) => setBearerKey(e.target.value)}
-              placeholder="Enter your Bedrock bearer key"
-              style={inputStyle}
+              type={showSecret ? 'text' : 'password'}
+              value={secretKey}
+              onChange={(e) => setSecretKey(e.target.value)}
+              placeholder="Enter your AWS secret access key"
+              style={secretInputStyle}
             />
             <button
               type="button"
-              onClick={() => setShowKey((v) => !v)}
-              aria-label={showKey ? 'Hide bearer key' : 'Show bearer key'}
+              onClick={() => setShowSecret((v) => !v)}
+              aria-label={showSecret ? 'Hide secret key' : 'Show secret key'}
               style={{
                 position: 'absolute',
                 right: 0,
@@ -178,11 +182,11 @@ export function ClaudeApiForm(): JSX.Element {
                 cursor: 'pointer',
               }}
             >
-              {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
+              {showSecret ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
           <p style={{ fontSize: '12px', color: '#A3A3A3', marginTop: '6px' }}>
-            Stored securely via OS keychain — never saved in plaintext.
+            Both keys stored securely via OS keychain — never saved in plaintext.
           </p>
         </div>
 
