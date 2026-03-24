@@ -55,14 +55,13 @@ Declared values (must be multiples of 4):
 | md | 16px | Default form field spacing, card internal padding, sidebar item padding |
 | lg | 24px | Section padding within settings panels, form group gaps |
 | xl | 32px | Settings panel outer padding, major layout gutters |
-| touch | 40px | Password field reveal toggle click target; sidebar navigation item height |
-| 2xl | 48px | Page-level vertical rhythm between settings sections |
+| 2xl | 48px | Password field reveal toggle click target; sidebar navigation item height; page-level vertical rhythm between settings sections |
 | 3xl | 64px | Not used in Phase 1 |
 
 Exceptions:
 - Connection status indicator touch target: minimum 32px height (keyboard-accessible, not a touch target but must be readable at a glance)
-- Password field reveal toggle: 40px × 40px click target (accessibility, WCAG 2.5.5) — uses `touch` token
-- Sidebar navigation items: 40px height (comfortable click target on desktop, consistent with shadcn sidebar defaults) — uses `touch` token
+- Password field reveal toggle: 48px × 48px click target (accessibility, WCAG 2.5.5 minimum 44px — uses `2xl` token)
+- Sidebar navigation items: 48px height (comfortable click target on desktop, exceeds 44px WCAG 2.5.5 minimum — uses `2xl` token)
 
 **Source:** Default 8-point scale, UIBR-04 (DBA monitor sizes — desktop-first, no mobile exceptions needed)
 
@@ -70,16 +69,16 @@ Exceptions:
 
 ## Typography
 
-| Role | Size | Weight | Line Height |
-|------|------|--------|-------------|
-| Body | 14px | 400 (Regular) | 1.5 |
-| Label | 12px | 400 (Regular) | 1.4 |
-| Heading | 18px | 600 (Semibold) | 1.3 |
-| Display | 24px | 600 (Semibold) | 1.2 |
+| Role | Size | Weight | Line Height | Letter Spacing |
+|------|------|--------|-------------|----------------|
+| Body | 14px | 400 (Regular) | 1.5 | 0 |
+| Label | 12px | 400 (Regular) | 1.4 | 0.02em |
+| Heading | 18px | 600 (Semibold) | 1.3 | 0 |
+| Display | 24px | 600 (Semibold) | 1.2 | 0 |
 
 **Notes:**
 - Body (14px) is the default for form field values, settings text, and status descriptions. DBAs work at 1080p–1440p where 14px renders crisply without crowding.
-- Label (12px / Regular) is used for form field labels, status indicator text ("Connected", "Disconnected"), and section subheadings. The visual distinction from Body is size (12px vs 14px), not weight.
+- Label (12px / Regular) is used for form field labels, status indicator text ("Connected", "Disconnected"), and section subheadings. The visual distinction from Body is size (12px vs 14px) reinforced by `letter-spacing: 0.02em` on Label — no third weight is introduced.
 - Heading (18px / Semibold) is used for settings panel section headings ("Teradata Connection", "Claude API").
 - Display (24px / Semibold) is used for the app title in the welcome/placeholder state only. Not used in settings forms.
 - No italic weight. No thin (100–300) weights anywhere in this phase.
@@ -98,6 +97,7 @@ Exceptions:
 | Accent (10%) | `#F37440` | See "Accent reserved for" below |
 | Destructive | `#EF4444` | Remove credentials confirmation button only |
 | Success | `#22C55E` | Connected status indicator dot and label only |
+| Amber | `#EAB308` | Checking / connecting intermediate connection status state only |
 | Border | `#333333` | Form field borders, card borders, dividers |
 | Text Primary | `#F5F5F5` | All primary text on dark surfaces |
 | Text Muted | `#A3A3A3` | Placeholder text, secondary labels, helper text, disabled states |
@@ -118,7 +118,7 @@ Accent is NOT used for: body text, headings, form labels, status indicators, bac
 **Semantic colors:**
 - `#EF4444` (destructive red) is used exclusively on the "Remove / Clear Credentials" confirmation button in the settings screen. No other element uses red.
 - `#22C55E` (success green) is used exclusively for the connected status indicator. No other element uses green.
-- `#EAB308` (amber) is used exclusively for the "checking / connecting" intermediate connection status state.
+- `#EAB308` (amber) is used exclusively for the "checking / connecting" intermediate connection status state. No other element uses amber.
 
 **Source:** REQUIREMENTS.md UIBR-01 (`#F37440`, `#1D1D1D`); CLAUDE.md ("Teradata orange `#F37440` and charcoal `#1D1D1D` as design tokens"); REQUIREMENTS.md FOUN-06 (green/red connection status)
 
@@ -163,7 +163,7 @@ These are the shadcn/ui components the executor must add via `npx shadcn add`. N
 │              │                                       │
 │              │                                       │
 ├──────────────┴──────────────────────────────────────┤
-│  [Connection Status Bar — 40px height]               │
+│  [Connection Status Bar — 48px height]               │
 │  Teradata: ● Connected    Claude API: ● Connected    │
 └─────────────────────────────────────────────────────┘
 ```
@@ -171,7 +171,7 @@ These are the shadcn/ui components the executor must add via `npx shadcn add`. N
 - **Sidebar width:** 220px fixed. Not collapsible in Phase 1.
 - **Minimum window size:** 1024px × 640px (enforced via Electron `minWidth`/`minHeight`).
 - **Target monitor:** 1920×1080 primary; must be usable at 1280×800 (minimum DBA laptop).
-- **Connection status bar:** Always visible at the bottom. 40px height. Background `#262626`. Border-top `#333333`.
+- **Connection status bar:** Always visible at the bottom. 48px height (uses `2xl` token). Background `#262626`. Border-top `#333333`.
 - **Sidebar background:** `#1A1A1A`. Border-right `#333333` (1px).
 - **Main content background:** `#1A1A1A`.
 
@@ -190,14 +190,14 @@ Teradata Connection
 │  Username      [________________________]│
 │  Password      [__________________][👁] │
 │                                          │
-│  [Test Connection]        [Save]         │
+│  [Test Connection]   [Save Credentials]  │
 └─────────────────────────────────────────┘
 
 Claude API
 ┌─────────────────────────────────────────┐
 │  API Key       [__________________][👁] │
 │                                          │
-│  [Test Connection]        [Save]         │
+│  [Test Connection]   [Save Credentials]  │
 └─────────────────────────────────────────┘
 
                           [Clear All Credentials]
@@ -206,9 +206,9 @@ Claude API
 - Settings panels use `Card` component with `lg` (24px) internal padding.
 - Each section has a `Heading` (18px / Semibold) label.
 - Form fields stack vertically with `md` (16px) gap between rows.
-- "Test Connection" button: outlined variant (border `#F37440`, text `#F37440`, no fill). "Save" button: filled accent variant (background `#F37440`, text white).
+- "Test Connection" button: outlined variant (border `#F37440`, text `#F37440`, no fill). "Save Credentials" button: filled accent variant (background `#F37440`, text white).
 - "Clear All Credentials" button: destructive variant (border `#EF4444`, text `#EF4444`). Requires inline confirmation — button changes to "Confirm Clear" on first click, reverts after 5 seconds if not confirmed.
-- Inline error after failed connection test: `Alert` component with destructive variant, shown below the affected section's Save button.
+- Inline error after failed connection test: `Alert` component with destructive variant, shown below the affected section's Save Credentials button.
 - Success after test: `Alert` with success variant (green border), shown for 3 seconds then auto-dismissed.
 
 ---
@@ -294,7 +294,7 @@ All interactive elements must implement these states explicitly:
 
 | Element | Default | Hover | Focus | Active | Disabled |
 |---------|---------|-------|-------|--------|----------|
-| Accent button (Save) | `#F37440` bg | `#E55C20` bg (10% darker) | `#F37440` bg + 2px orange outline offset 2px | `#CC4A10` bg | 40% opacity, cursor-not-allowed |
+| Accent button (Save Credentials) | `#F37440` bg | `#E55C20` bg (10% darker) | `#F37440` bg + 2px orange outline offset 2px | `#CC4A10` bg | 40% opacity, cursor-not-allowed |
 | Outlined button (Test) | transparent bg, `#F37440` border | `#F37440` bg at 10% opacity | 2px orange outline offset 2px | `#F37440` bg at 20% opacity | 40% opacity, cursor-not-allowed |
 | Destructive button | transparent bg, `#EF4444` border | `#EF4444` bg at 10% opacity | 2px red outline offset 2px | `#EF4444` bg at 20% opacity | 40% opacity |
 | Input field | `#262626` bg, `#333333` border | `#333333` border (no change) | `#F37440` border, 0 ring | — | `#1A1A1A` bg, muted text |
