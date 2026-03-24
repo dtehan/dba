@@ -55,13 +55,14 @@ Declared values (must be multiples of 4):
 | md | 16px | Default form field spacing, card internal padding, sidebar item padding |
 | lg | 24px | Section padding within settings panels, form group gaps |
 | xl | 32px | Settings panel outer padding, major layout gutters |
+| touch | 40px | Password field reveal toggle click target; sidebar navigation item height |
 | 2xl | 48px | Page-level vertical rhythm between settings sections |
 | 3xl | 64px | Not used in Phase 1 |
 
 Exceptions:
 - Connection status indicator touch target: minimum 32px height (keyboard-accessible, not a touch target but must be readable at a glance)
-- Password field reveal toggle: 40px × 40px click target (accessibility, WCAG 2.5.5)
-- Sidebar navigation items: 40px height (comfortable click target on desktop, consistent with shadcn sidebar defaults)
+- Password field reveal toggle: 40px × 40px click target (accessibility, WCAG 2.5.5) — uses `touch` token
+- Sidebar navigation items: 40px height (comfortable click target on desktop, consistent with shadcn sidebar defaults) — uses `touch` token
 
 **Source:** Default 8-point scale, UIBR-04 (DBA monitor sizes — desktop-first, no mobile exceptions needed)
 
@@ -72,17 +73,17 @@ Exceptions:
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
 | Body | 14px | 400 (Regular) | 1.5 |
-| Label | 12px | 500 (Medium) | 1.4 |
+| Label | 12px | 400 (Regular) | 1.4 |
 | Heading | 18px | 600 (Semibold) | 1.3 |
 | Display | 24px | 600 (Semibold) | 1.2 |
 
 **Notes:**
 - Body (14px) is the default for form field values, settings text, and status descriptions. DBAs work at 1080p–1440p where 14px renders crisply without crowding.
-- Label (12px / Medium) is used for form field labels, status indicator text ("Connected", "Disconnected"), and section subheadings.
+- Label (12px / Regular) is used for form field labels, status indicator text ("Connected", "Disconnected"), and section subheadings. The visual distinction from Body is size (12px vs 14px), not weight.
 - Heading (18px / Semibold) is used for settings panel section headings ("Teradata Connection", "Claude API").
 - Display (24px / Semibold) is used for the app title in the welcome/placeholder state only. Not used in settings forms.
 - No italic weight. No thin (100–300) weights anywhere in this phase.
-- Code/monospace: `font-mono` (Cascadia Code, ui-monospace, Menlo, Monaco, monospace) at 13px for host/port fields and API key masked display.
+- Code/monospace: `font-mono` (Cascadia Code, ui-monospace, Menlo, Monaco, monospace) at 14px (Body size) for host/port fields and API key masked display. The mono treatment is a font-family change only — no new size point is introduced.
 
 **Source:** Default — sensible for enterprise desktop app; UIBR-02 (clean, modern aesthetic)
 
