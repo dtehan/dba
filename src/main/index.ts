@@ -3,8 +3,11 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerCredentialHandlers } from './ipc/credentials'
 import { registerClaudeHandlers } from './ipc/claude'
+import { registerMcpHandlers } from './ipc/mcp'
+import { startHealthPolling, stopHealthPolling } from './services/health-poller'
+import { killMcpServer } from './services/mcp-manager'
 
-function createWindow(): void {
+function createWindow(): BrowserWindow {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1280,
@@ -36,6 +39,8 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  return mainWindow
 }
 
 // This method will be called when Electron has finished initialization
@@ -54,6 +59,7 @@ app.whenReady().then(() => {
   // Register IPC handlers before creating the window
   registerCredentialHandlers()
   registerClaudeHandlers()
+  registerMcpHandlers()
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -61,7 +67,10 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  createWindow()
+  const mainWindow = createWindow()
+
+  // Start health polling — pauses on blur, resumes on focus
+  startHealthPolling(mainWindow)
 
   app.on('activate', function () {
     // On macOS re-create a window when the dock icon is clicked and there are no other windows open.
@@ -74,4 +83,18 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+// Clean up MCP server and polling on app quit
+app.on('before-quit', () => {
+  stopHealthPolling()
+  killMcpServer()
+})
+
+app.on('will-quit', () => {
+  killMcpServer() // safety net
+})
+
+process.on('exit', () => {
+  killMcpServer() // final safety net for HMR restarts
 })
