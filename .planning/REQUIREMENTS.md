@@ -108,58 +108,58 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUN-01 | — | Pending |
-| FOUN-02 | — | Pending |
-| FOUN-03 | — | Pending |
-| FOUN-04 | — | Pending |
-| FOUN-05 | — | Pending |
-| FOUN-06 | — | Pending |
-| CHAT-01 | — | Pending |
-| CHAT-02 | — | Pending |
-| CHAT-03 | — | Pending |
-| CHAT-04 | — | Pending |
-| CHAT-05 | — | Pending |
-| CHAT-06 | — | Pending |
-| AGEN-01 | — | Pending |
-| AGEN-02 | — | Pending |
-| AGEN-03 | — | Pending |
-| AGEN-04 | — | Pending |
-| AGEN-05 | — | Pending |
-| SECU-01 | — | Pending |
-| SECU-02 | — | Pending |
-| SECU-03 | — | Pending |
-| SECU-04 | — | Pending |
-| SECU-05 | — | Pending |
-| MVCA-01 | — | Pending |
-| MVCA-02 | — | Pending |
-| MVCA-03 | — | Pending |
-| MVCA-04 | — | Pending |
-| MVCA-05 | — | Pending |
-| STAT-01 | — | Pending |
-| STAT-02 | — | Pending |
-| STAT-03 | — | Pending |
-| STAT-04 | — | Pending |
-| STAT-05 | — | Pending |
-| SKEW-01 | — | Pending |
-| SKEW-02 | — | Pending |
-| SKEW-03 | — | Pending |
-| SKEW-04 | — | Pending |
-| SKEW-05 | — | Pending |
-| SPAC-01 | — | Pending |
-| SPAC-02 | — | Pending |
-| SPAC-03 | — | Pending |
-| SPAC-04 | — | Pending |
-| SPAC-05 | — | Pending |
-| UIBR-01 | — | Pending |
-| UIBR-02 | — | Pending |
-| UIBR-03 | — | Pending |
-| UIBR-04 | — | Pending |
+| FOUN-01 | Phase 1 | Pending |
+| FOUN-02 | Phase 1 | Pending |
+| FOUN-03 | Phase 1 | Pending |
+| FOUN-04 | Phase 1 | Pending |
+| FOUN-05 | Phase 1 | Pending |
+| FOUN-06 | Phase 1 | Pending |
+| UIBR-01 | Phase 1 | Pending |
+| UIBR-02 | Phase 1 | Pending |
+| UIBR-04 | Phase 1 | Pending |
+| CHAT-01 | Phase 2 | Pending |
+| CHAT-02 | Phase 2 | Pending |
+| CHAT-03 | Phase 2 | Pending |
+| CHAT-04 | Phase 2 | Pending |
+| CHAT-05 | Phase 2 | Pending |
+| CHAT-06 | Phase 2 | Pending |
+| AGEN-01 | Phase 2 | Pending |
+| AGEN-02 | Phase 2 | Pending |
+| AGEN-03 | Phase 2 | Pending |
+| AGEN-04 | Phase 2 | Pending |
+| AGEN-05 | Phase 2 | Pending |
+| UIBR-03 | Phase 2 | Pending |
+| SECU-01 | Phase 3 | Pending |
+| SECU-02 | Phase 3 | Pending |
+| SECU-03 | Phase 3 | Pending |
+| SECU-04 | Phase 3 | Pending |
+| SECU-05 | Phase 3 | Pending |
+| MVCA-01 | Phase 3 | Pending |
+| MVCA-02 | Phase 3 | Pending |
+| MVCA-03 | Phase 3 | Pending |
+| MVCA-04 | Phase 3 | Pending |
+| MVCA-05 | Phase 3 | Pending |
+| STAT-01 | Phase 3 | Pending |
+| STAT-02 | Phase 3 | Pending |
+| STAT-03 | Phase 3 | Pending |
+| STAT-04 | Phase 3 | Pending |
+| STAT-05 | Phase 3 | Pending |
+| SKEW-01 | Phase 4 | Pending |
+| SKEW-02 | Phase 4 | Pending |
+| SKEW-03 | Phase 4 | Pending |
+| SKEW-04 | Phase 4 | Pending |
+| SKEW-05 | Phase 4 | Pending |
+| SPAC-01 | Phase 4 | Pending |
+| SPAC-02 | Phase 4 | Pending |
+| SPAC-03 | Phase 4 | Pending |
+| SPAC-04 | Phase 4 | Pending |
+| SPAC-05 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 44 total
-- Mapped to phases: 0
-- Unmapped: 44 ⚠️
+- Mapped to phases: 44
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-24*
-*Last updated: 2026-03-24 after initial definition*
+*Last updated: 2026-03-24 after roadmap creation*
