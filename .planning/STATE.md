@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-03-25T22:43:11.353Z"
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-03-25T22:45:20.082Z"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 10
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-24)
 ## Current Position
 
 Phase: 02 (chat) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Plan: 3 of 5
 | Phase 01-foundation P05 | 45 | 3 tasks | 4 files |
 | Phase 02 P01 | 2 | 2 tasks | 7 files |
 | Phase 02-chat P03 | 5 | 2 tasks | 3 files |
+| Phase 02-chat P02 | 12 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,9 @@ Recent decisions affecting current work:
 - [Phase 02]: Schema IPC placeholders in preload added for type completeness; handlers implemented in Plan 03
 - [Phase 02-chat]: MCP session ID tracking: store header value if present, proceed without if absent — stateless servers work fine
 - [Phase 02-chat]: Token budget enforced as character count (~4000 chars) for schema context — cheap to compute, conservative enough for Claude system prompt injection
+- [Phase 02-chat]: IPC chat listeners registered once in App.tsx useEffect to prevent listener accumulation across re-mounts
+- [Phase 02-chat]: AppShell main overflow:hidden + flex column so ChatScreen's MessageList owns scroll, no competing scrollbars
+- [Phase 02-chat]: Streamdown mode+isAnimating props for streaming vs static rendering -- no createAnimatePlugin needed
 
 ### Pending Todos
 
@@ -96,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T22:43:11.351Z
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-03-25T22:45:20.080Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
