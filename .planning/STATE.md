@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-03-25T22:40:11.182Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-03-25T22:43:11.353Z"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 10
-  completed_plans: 6
+  completed_plans: 7
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-24)
 ## Current Position
 
 Phase: 02 (chat) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Plan: 2 of 5
 | Phase 01 P03 | 4 | 2 tasks | 5 files |
 | Phase 01-foundation P05 | 45 | 3 tasks | 4 files |
 | Phase 02 P01 | 2 | 2 tasks | 7 files |
+| Phase 02-chat P03 | 5 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: Destructive confirmation uses 5-second setTimeout with inline button text change -- no modal needed, matches UI-SPEC copywriting contract
 - [Phase 02]: Abort existing stream before starting new CHAT_SEND to prevent token interleave
 - [Phase 02]: Schema IPC placeholders in preload added for type completeness; handlers implemented in Plan 03
+- [Phase 02-chat]: MCP session ID tracking: store header value if present, proceed without if absent — stateless servers work fine
+- [Phase 02-chat]: Token budget enforced as character count (~4000 chars) for schema context — cheap to compute, conservative enough for Claude system prompt injection
 
 ### Pending Todos
 
@@ -93,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T22:40:11.179Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-03-25T22:43:11.351Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None

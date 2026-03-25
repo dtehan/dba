@@ -52,7 +52,7 @@ Plans:
 Plans:
 - [x] 02-01-PLAN.md — Install deps, chat types, Zustand store with immer, Bedrock streaming IPC handler
 - [ ] 02-02-PLAN.md — Chat UI components (ChatScreen, MessageList, MessageBubble, ChatInput), streamdown, AppShell wiring
-- [ ] 02-03-PLAN.md — MCP schema context service, system prompt injection, schema IPC handlers
+- [x] 02-03-PLAN.md — MCP schema context service, system prompt injection, schema IPC handlers
 - [ ] 02-04-PLAN.md — Subagent framework scaffold (registry, echo agent, launcher panel, result cards)
 - [ ] 02-05-PLAN.md — Visual checkpoint: end-to-end chat verification
 **UI hint**: yes

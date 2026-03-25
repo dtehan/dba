@@ -18,10 +18,10 @@
 
 - [x] **CHAT-01**: User can send freeform messages and receive Claude-powered responses
 - [x] **CHAT-02**: Chat responses stream in real-time (not wait-for-complete)
-- [ ] **CHAT-03**: Chat has access to Teradata schema context (databases, tables, columns) via MCP
+- [x] **CHAT-03**: Chat has access to Teradata schema context (databases, tables, columns) via MCP
 - [x] **CHAT-04**: Session memory — follow-up questions retain conversation context
 - [ ] **CHAT-05**: Rich formatted output — markdown tables, code blocks, summaries rendered in chat
-- [ ] **CHAT-06**: User can translate natural language to Teradata SQL via chat
+- [x] **CHAT-06**: User can translate natural language to Teradata SQL via chat
 
 ### Subagents
 
@@ -119,10 +119,10 @@
 | UIBR-04 | Phase 1 | Complete |
 | CHAT-01 | Phase 2 | Complete |
 | CHAT-02 | Phase 2 | Complete |
-| CHAT-03 | Phase 2 | Pending |
+| CHAT-03 | Phase 2 | Complete |
 | CHAT-04 | Phase 2 | Complete |
 | CHAT-05 | Phase 2 | Pending |
-| CHAT-06 | Phase 2 | Pending |
+| CHAT-06 | Phase 2 | Complete |
 | AGEN-01 | Phase 2 | Pending |
 | AGEN-02 | Phase 2 | Pending |
 | AGEN-03 | Phase 2 | Pending |
