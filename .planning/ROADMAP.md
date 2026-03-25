@@ -48,7 +48,13 @@ Plans:
   3. Claude can answer questions about specific databases and tables using live schema context from MCP without hallucinating table names or column types
   4. User can translate a plain-English request into a valid Teradata SQL query via chat
   5. User can see a subagent launcher panel, browse available subagents, and launch one — with results appearing as a distinct rich card in the chat thread, isolated from the main conversation history
-**Plans**: TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 02-01-PLAN.md — Install deps, chat types, Zustand store with immer, Bedrock streaming IPC handler
+- [ ] 02-02-PLAN.md — Chat UI components (ChatScreen, MessageList, MessageBubble, ChatInput), streamdown, AppShell wiring
+- [ ] 02-03-PLAN.md — MCP schema context service, system prompt injection, schema IPC handlers
+- [ ] 02-04-PLAN.md — Subagent framework scaffold (registry, echo agent, launcher panel, result cards)
+- [ ] 02-05-PLAN.md — Visual checkpoint: end-to-end chat verification
 **UI hint**: yes
 
 ### Phase 3: Core Subagents
@@ -82,6 +88,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-03-24 |
-| 2. Chat | 0/TBD | Not started | - |
+| 2. Chat | 0/5 | Planning complete | - |
 | 3. Core Subagents | 0/TBD | Not started | - |
 | 4. Analysis Expansion | 0/TBD | Not started | - |
