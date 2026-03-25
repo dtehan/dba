@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { ConnectionStatus } from '@shared/types';
 
-type NavPage = 'welcome' | 'settings';
+type NavPage = 'chat' | 'settings';
 
 interface AppState {
   // Navigation
@@ -14,7 +14,7 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>((set) => ({
-  currentPage: 'welcome',
+  currentPage: 'chat',
   setCurrentPage: (page) => set({ currentPage: page }),
 
   connectionStatus: {

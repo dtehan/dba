@@ -1,4 +1,4 @@
-import { Database, Settings } from 'lucide-react';
+import { Database, MessageSquare, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/app-store';
 
@@ -16,6 +16,21 @@ export function Sidebar(): JSX.Element {
 
       {/* Navigation */}
       <nav className="flex flex-col flex-1">
+        <button
+          type="button"
+          onClick={() => setCurrentPage('chat')}
+          className={cn(
+            'flex items-center gap-2 h-[48px] w-full px-4 text-sm transition-colors',
+            'hover:bg-[#262626]',
+            currentPage === 'chat'
+              ? 'bg-[#262626] border-l-4 border-[#F37440] text-[#F5F5F5]'
+              : 'text-[#A3A3A3] border-l-4 border-transparent'
+          )}
+          aria-current={currentPage === 'chat' ? 'page' : undefined}
+        >
+          <MessageSquare size={16} />
+          <span>Chat</span>
+        </button>
         <button
           type="button"
           onClick={() => setCurrentPage('settings')}
