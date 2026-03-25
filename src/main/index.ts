@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { registerCredentialHandlers } from './ipc/credentials'
 import { registerClaudeHandlers } from './ipc/claude'
 import { registerMcpHandlers } from './ipc/mcp'
+import { registerChatHandlers } from './ipc/chat'
 import { startHealthPolling, stopHealthPolling } from './services/health-poller'
 // MCP server runs externally — no process to manage
 
@@ -60,6 +61,7 @@ app.whenReady().then(() => {
   registerCredentialHandlers()
   registerClaudeHandlers()
   registerMcpHandlers()
+  registerChatHandlers()
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.

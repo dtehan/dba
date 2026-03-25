@@ -22,4 +22,22 @@ contextBridge.exposeInMainWorld('electronAPI', {
   removeConnectionStatusListener: () => {
     ipcRenderer.removeAllListeners(IpcChannels.CONNECTION_STATUS_UPDATE);
   },
+  sendChat: (messages: Array<{ role: string; content: string }>, systemPrompt: string) =>
+    ipcRenderer.invoke(IpcChannels.CHAT_SEND, messages, systemPrompt),
+  abortChat: () => ipcRenderer.invoke(IpcChannels.CHAT_ABORT),
+  onChatToken: (cb: (delta: string) => void) =>
+    ipcRenderer.on(IpcChannels.CHAT_TOKEN, (_e, delta) => cb(delta)),
+  onChatDone: (cb: (result: { stopReason: string }) => void) =>
+    ipcRenderer.on(IpcChannels.CHAT_DONE, (_e, result) => cb(result)),
+  onChatError: (cb: (error: string) => void) =>
+    ipcRenderer.on(IpcChannels.CHAT_ERROR, (_e, err) => cb(err)),
+  removeChatListeners: () => {
+    ipcRenderer.removeAllListeners(IpcChannels.CHAT_TOKEN);
+    ipcRenderer.removeAllListeners(IpcChannels.CHAT_DONE);
+    ipcRenderer.removeAllListeners(IpcChannels.CHAT_ERROR);
+  },
+  fetchSchemaContext: (databaseName: string) =>
+    ipcRenderer.invoke(IpcChannels.SCHEMA_FETCH, databaseName),
+  listDatabases: () =>
+    ipcRenderer.invoke(IpcChannels.SCHEMA_LIST_DATABASES),
 });
