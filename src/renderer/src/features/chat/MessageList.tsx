@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { MessageSquare } from 'lucide-react';
 import type { ChatMessage } from '@shared/types';
 import type { SubagentResultEntry } from '@/store/chat-store';
@@ -16,7 +16,9 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages, error }: MessageListProps): JSX.Element {
+  const containerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const userScrolledUp = useRef(false);
   const subagentResults = useChatStore((s) => s.subagentResults);
   const lastMessage = messages[messages.length - 1];
 
@@ -30,9 +32,26 @@ export function MessageList({ messages, error }: MessageListProps): JSX.Element 
     return tsA - tsB;
   });
 
+  // Detect if user has scrolled up from the bottom
+  const handleScroll = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    userScrolledUp.current = distanceFromBottom > 100;
+  }, []);
+
+  // Auto-scroll only when user is near the bottom
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!userScrolledUp.current) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages.length, subagentResults.length, lastMessage?.content.length]);
+
+  // Always scroll to bottom when a new user message is added
+  useEffect(() => {
+    userScrolledUp.current = false;
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages.filter((m) => m.role === 'user').length]);
 
   if (timeline.length === 0 && !error) {
     return (
@@ -57,7 +76,7 @@ export function MessageList({ messages, error }: MessageListProps): JSX.Element 
   }
 
   return (
-    <div style={{ overflowY: 'auto', flex: 1, padding: '16px' }}>
+    <div ref={containerRef} onScroll={handleScroll} style={{ overflowY: 'auto', flex: 1, padding: '16px' }}>
       {timeline.map((entry) => {
         if (entry.type === 'message') {
           return <MessageBubble key={entry.data.id} message={entry.data} />;
