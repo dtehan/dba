@@ -40,4 +40,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke(IpcChannels.SCHEMA_FETCH, databaseName),
   listDatabases: () =>
     ipcRenderer.invoke(IpcChannels.SCHEMA_LIST_DATABASES),
+  listSubagents: () =>
+    ipcRenderer.invoke(IpcChannels.SUBAGENT_LIST),
+  runSubagent: (agentId: string) =>
+    ipcRenderer.invoke(IpcChannels.SUBAGENT_RUN, agentId),
 });

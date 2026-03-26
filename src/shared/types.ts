@@ -48,6 +48,8 @@ export const IpcChannels = {
   CHAT_ERROR: 'chat:error',
   SCHEMA_FETCH: 'schema:fetch',
   SCHEMA_LIST_DATABASES: 'schema:list-databases',
+  SUBAGENT_LIST: 'subagent:list',
+  SUBAGENT_RUN: 'subagent:run',
 } as const;
 
 // Preload API surface exposed to renderer
@@ -70,4 +72,6 @@ export interface ElectronAPI {
   removeChatListeners: () => void;
   fetchSchemaContext: (databaseName: string) => Promise<{ success: boolean; context?: string; error?: string }>;
   listDatabases: () => Promise<{ success: boolean; databases?: string[]; error?: string }>;
+  listSubagents: () => Promise<Array<{ id: string; name: string; description: string; icon: string }>>;
+  runSubagent: (agentId: string) => Promise<{ success: boolean; content?: string; error?: string }>;
 }
