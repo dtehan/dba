@@ -1,5 +1,4 @@
 import type { SubagentDefinition, SubagentContext, SubagentRunResult } from '../../shared/subagent-types';
-import { echoSubagentDef, runEchoSubagent } from './echo';
 import { securityAuditDef, runSecurityAudit, getSecurityAuditConfig } from './security-audit';
 import { mvcAnalysisDef, runMvcAnalysis, getMvcAnalysisConfig } from './mvc-analysis';
 import { statsAnalysisDef, runStatsAnalysis, getStatsAnalysisConfig } from './stats-analysis';
@@ -21,7 +20,6 @@ interface SubagentEntry {
 }
 
 const registry: SubagentEntry[] = [
-  { definition: echoSubagentDef, run: runEchoSubagent },
   { definition: securityAuditDef, run: runSecurityAudit, getConfig: getSecurityAuditConfig },
   { definition: mvcAnalysisDef, run: runMvcAnalysis, getConfig: getMvcAnalysisConfig },
   { definition: statsAnalysisDef, run: runStatsAnalysis, getConfig: getStatsAnalysisConfig },
