@@ -34,10 +34,10 @@
 ### Security Auditing Subagent
 
 - [x] **SECU-01**: User can run a security audit on a database or the full system
-- [ ] **SECU-02**: Audit analyzes access rights, roles, and role membership
-- [ ] **SECU-03**: Audit identifies overly permissive grants and orphaned access
-- [ ] **SECU-04**: Audit reviews logon/logoff activity for anomalies
-- [ ] **SECU-05**: Audit produces a prioritized findings summary with remediation steps
+- [x] **SECU-02**: Audit analyzes access rights, roles, and role membership
+- [x] **SECU-03**: Audit identifies overly permissive grants and orphaned access
+- [x] **SECU-04**: Audit reviews logon/logoff activity for anomalies
+- [x] **SECU-05**: Audit produces a prioritized findings summary with remediation steps
 
 ### MVC Analysis Subagent
 
@@ -130,10 +130,10 @@
 | AGEN-05 | Phase 2 | Complete |
 | UIBR-03 | Phase 2 | Complete |
 | SECU-01 | Phase 3 | Complete |
-| SECU-02 | Phase 3 | Pending |
-| SECU-03 | Phase 3 | Pending |
-| SECU-04 | Phase 3 | Pending |
-| SECU-05 | Phase 3 | Pending |
+| SECU-02 | Phase 3 | Complete |
+| SECU-03 | Phase 3 | Complete |
+| SECU-04 | Phase 3 | Complete |
+| SECU-05 | Phase 3 | Complete |
 | MVCA-01 | Phase 3 | Complete |
 | MVCA-02 | Phase 3 | Pending |
 | MVCA-03 | Phase 3 | Pending |

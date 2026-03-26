@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-26T02:30:14.737Z"
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-03-26T02:33:25.749Z"
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 15
-  completed_plans: 11
+  completed_plans: 12
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-24)
 ## Current Position
 
 Phase: 03 (core-subagents) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Plan: 2 of 5
 | Phase 02-chat P02 | 12 | 2 tasks | 9 files |
 | Phase 02-chat P04 | 25 | 2 tasks | 11 files |
 | Phase 03 P01 | 2 | 2 tasks | 8 files |
+| Phase 03 P02 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -94,6 +95,8 @@ Recent decisions affecting current work:
 - [Phase 02-chat]: DatabaseSelector degrades gracefully: MCP unavailable sets error state, chat continues without schema context
 - [Phase 03]: Bedrock client extracted to shared service so all Phase 3 subagents can import without duplicating AssumeRole logic
 - [Phase 03]: SubagentLauncher uses pendingAgent toggle pattern: clicking a parameterized agent shows/hides form inline
+- [Phase 03]: SECURITY_TOOLS filter isolates sec_userRoles, sec_userDbPermissions, sec_rolePermissions, base_readQuery — each subagent only sees tools it needs
+- [Phase 03]: Non-streaming messages.create used for security subagent — complete report collected, not streamed incrementally to renderer
 
 ### Pending Todos
 
@@ -107,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T02:30:14.734Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-03-26T02:33:25.746Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None
