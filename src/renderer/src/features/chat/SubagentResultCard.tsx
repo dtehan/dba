@@ -12,52 +12,20 @@ export function SubagentResultCard({ agentName, content, timestamp }: SubagentRe
   const timeStr = format(timestamp, 'HH:mm');
 
   return (
-    <div
-      style={{
-        border: '2px solid #F37440',
-        borderRadius: '12px',
-        overflow: 'hidden',
-        margin: '16px 0',
-      }}
-    >
+    <div className="border-2 border-td-orange rounded-xl overflow-hidden">
       {/* Header bar */}
-      <div
-        style={{
-          backgroundColor: '#F37440',
-          padding: '8px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-        }}
-      >
-        <Bot size={16} style={{ color: 'white', flexShrink: 0 }} />
-        <span
-          style={{
-            color: 'white',
-            fontSize: '14px',
-            fontWeight: 600,
-            flex: 1,
-          }}
-        >
+      <div className="bg-td-orange px-4 py-2 flex items-center gap-2">
+        <Bot size={16} className="text-white shrink-0" />
+        <span className="text-white text-sm font-semibold flex-1">
           {agentName}
         </span>
-        <span
-          style={{
-            color: 'rgba(255, 255, 255, 0.8)',
-            fontSize: '12px',
-          }}
-        >
+        <span className="text-white/80 text-xs">
           {timeStr}
         </span>
       </div>
 
       {/* Content area */}
-      <div
-        style={{
-          padding: '16px',
-          backgroundColor: '#262626',
-        }}
-      >
+      <div className="p-4 bg-[#262626]">
         <Streamdown mode="static" isAnimating={false}>
           {content}
         </Streamdown>

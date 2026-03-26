@@ -48,74 +48,41 @@ export function ChatInput({ isStreaming, onSubmit }: ChatInputProps): JSX.Elemen
   };
 
   return (
-    <div
-      style={{
-        padding: '16px',
-        borderTop: '1px solid #333333',
-        backgroundColor: '#1A1A1A',
-        display: 'flex',
-        gap: '8px',
-        alignItems: 'flex-end',
-      }}
-    >
-      <textarea
-        ref={textareaRef}
-        value={value}
-        onChange={handleInput}
-        onKeyDown={handleKeyDown}
-        placeholder="Message DBA Agent... (Shift+Enter for new line)"
-        rows={1}
-        style={{
-          flex: 1,
-          backgroundColor: '#262626',
-          border: '1px solid #333333',
-          borderRadius: '12px',
-          padding: '12px 16px',
-          color: '#F5F5F5',
-          resize: 'none',
-          width: '100%',
-          fontSize: '14px',
-          fontFamily: 'inherit',
-          outline: 'none',
-          lineHeight: '1.5',
-          maxHeight: '200px',
-          overflowY: 'auto',
-        }}
-        onFocus={(e) => { e.target.style.borderColor = '#F37440'; }}
-        onBlur={(e) => { e.target.style.borderColor = '#333333'; }}
-      />
-      {isStreaming ? (
-        <Button
-          type="button"
-          onClick={handleStop}
-          variant="outline"
-          size="icon"
-          style={{
-            border: '1px solid #EF4444',
-            color: '#EF4444',
-            backgroundColor: 'transparent',
-            flexShrink: 0,
-          }}
-          aria-label="Stop generation"
-        >
-          <Square size={16} />
-        </Button>
-      ) : (
-        <Button
-          type="button"
-          onClick={handleSubmit}
-          size="icon"
-          disabled={!value.trim()}
-          style={{
-            backgroundColor: '#F37440',
-            color: '#FFFFFF',
-            flexShrink: 0,
-          }}
-          aria-label="Send message"
-        >
-          <Send size={16} />
-        </Button>
-      )}
+    <div className="border-t border-surface-border bg-[#1A1A1A] px-4 py-4">
+      <div className="max-w-3xl mx-auto w-full flex gap-2 items-end">
+        <textarea
+          ref={textareaRef}
+          value={value}
+          onChange={handleInput}
+          onKeyDown={handleKeyDown}
+          placeholder="Message DBA Agent... (Shift+Enter for new line)"
+          rows={1}
+          className="flex-1 bg-[#262626] border border-surface-border rounded-xl px-4 py-3 text-text-primary text-sm font-[inherit] leading-relaxed resize-none outline-none max-h-[200px] overflow-y-auto focus:border-td-orange transition-colors duration-200"
+        />
+        {isStreaming ? (
+          <Button
+            type="button"
+            onClick={handleStop}
+            variant="outline"
+            size="icon"
+            className="shrink-0 border-red-500 text-red-500 bg-transparent hover:bg-red-500/10"
+            aria-label="Stop generation"
+          >
+            <Square size={16} />
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            size="icon"
+            disabled={!value.trim()}
+            className="shrink-0 bg-td-orange text-white hover:bg-td-orange/90"
+            aria-label="Send message"
+          >
+            <Send size={16} />
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

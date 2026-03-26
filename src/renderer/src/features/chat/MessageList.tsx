@@ -55,20 +55,9 @@ export function MessageList({ messages, error }: MessageListProps): JSX.Element 
 
   if (timeline.length === 0 && !error) {
     return (
-      <div
-        style={{
-          overflowY: 'auto',
-          flex: 1,
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '12px',
-        }}
-      >
-        <MessageSquare size={32} style={{ color: '#A3A3A3' }} />
-        <p style={{ fontSize: '14px', color: '#A3A3A3', margin: 0 }}>
+      <div className="overflow-y-auto flex-1 px-4 flex flex-col items-center justify-center gap-3">
+        <MessageSquare size={32} className="text-text-muted" />
+        <p className="text-sm text-text-muted m-0">
           Ask anything about your Teradata environment
         </p>
       </div>
@@ -76,36 +65,28 @@ export function MessageList({ messages, error }: MessageListProps): JSX.Element 
   }
 
   return (
-    <div ref={containerRef} onScroll={handleScroll} style={{ overflowY: 'auto', flex: 1, padding: '16px' }}>
-      {timeline.map((entry) => {
-        if (entry.type === 'message') {
-          return <MessageBubble key={entry.data.id} message={entry.data} />;
-        }
-        return (
-          <SubagentResultCard
-            key={entry.data.id}
-            agentName={entry.data.agentName}
-            content={entry.data.content}
-            timestamp={entry.data.timestamp}
-          />
-        );
-      })}
-      {error && (
-        <div
-          style={{
-            border: '1px solid #EF4444',
-            borderRadius: '8px',
-            padding: '12px 16px',
-            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-            color: '#EF4444',
-            fontSize: '14px',
-            marginTop: '8px',
-          }}
-        >
-          <strong>Error:</strong> {error}
-        </div>
-      )}
-      <div ref={bottomRef} />
+    <div ref={containerRef} onScroll={handleScroll} className="overflow-y-auto flex-1 px-4">
+      <div className="max-w-3xl mx-auto w-full py-6 space-y-6">
+        {timeline.map((entry) => {
+          if (entry.type === 'message') {
+            return <MessageBubble key={entry.data.id} message={entry.data} />;
+          }
+          return (
+            <SubagentResultCard
+              key={entry.data.id}
+              agentName={entry.data.agentName}
+              content={entry.data.content}
+              timestamp={entry.data.timestamp}
+            />
+          );
+        })}
+        {error && (
+          <div className="border border-red-500 rounded-lg px-4 py-3 bg-[rgba(239,68,68,0.1)] text-red-500 text-sm">
+            <strong>Error:</strong> {error}
+          </div>
+        )}
+        <div ref={bottomRef} />
+      </div>
     </div>
   );
 }
