@@ -26,20 +26,25 @@ Users can run Security Audit, MVC Analysis, and Statistics Analysis against thei
 - Checks: access rights, role membership, overly permissive grants (ALL/WITH GRANT OPTION), orphaned access. Logon anomalies via DBQL if available. Matches SECU-01 through SECU-05.
 
 ### MVC Analysis Subagent
-- Database name required, optional table name to narrow scope. Uses `base_columnDescription` + `base_readQuery` for value distribution analysis.
-- Output: ranked list of compression candidates — table, column, distinct values, current compression, estimated savings %, ready-to-copy ALTER TABLE statement.
-- **User has existing MVC scripts** — to be provided and incorporated into the subagent prompt/logic.
+- Database name required, optional table name to narrow scope.
+- **User has provided complete MVC agent definitions** at `/Users/Daniel.Tehan/Code/MVC Agent/.claude/agents/`:
+  - `mvc-compression-advisor.md` — Orchestrator: enumerates eligible tables (TableKind='T', >=100 rows), spawns parallel worker analysis per table, aggregates results into compression script, rollback script, and executive report.
+  - `mvc-table-analyzer.md` — Worker: analyzes a single table using the **Package Bit-Cost Model** (Jim Calvert, Teradata/NCR). Determines optimal compression values per column using bit-cost packages, value savings ranking, extended length checks, and cumulative header limits (40KB).
+- Key algorithm parameters: min 100 rows, HAVING threshold 0.00055×RowCount, extended length limit 8100, 255 max values/column, sampling at 10% for >10M rows.
+- Uses MCP tools: `base_readQuery`, `base_columnDescription`, `base_tableDDL`, `dba_tableSpace`, `base_tableList`.
+- Output: three files per analysis — `{db}_mvc_compression.sql`, `{db}_mvc_rollback.sql`, `{db}_mvc_report.md`. Priority classification: CRITICAL (>=25%), HIGH (10-24%), MEDIUM (5-9%), SKIP (<5%).
+- In the DBA Agent app, the MVC subagent should adapt this orchestrator/worker pattern to run within the chat interface, with results rendered as a rich result card.
 
 ### Statistics Analysis Subagent
 - Database name required, optional table name. Uses `base_readQuery` with DBC.StatsV and DBC.ColumnsV to find missing/stale stats.
 - Output: prioritized list — table, column, status (missing/stale/aged), last collected date, COLLECT STATISTICS statement for copy-paste. Sorted by query plan impact (most-joined columns first).
 
 ### Claude's Discretion
-- Exact system prompt wording for each subagent
-- How to detect "system-wide" vs user vs database scope from input
-- MVC value distribution query design (unless user provides scripts)
+- Exact system prompt wording for Security and Statistics subagents
+- How to detect "system-wide" vs user vs database scope from Security audit input
 - Statistics staleness thresholds (days since last collect)
 - Result card visual layout within existing SubagentResultCard component
+- How to adapt the MVC orchestrator/worker file-output pattern to in-app result cards
 
 </decisions>
 
@@ -70,7 +75,7 @@ Users can run Security Audit, MVC Analysis, and Statistics Analysis against thei
 <specifics>
 ## Specific Ideas
 
-- User has existing MVC analysis scripts to incorporate — will be provided during planning/execution
+- User's complete MVC agent definitions are at `/Users/Daniel.Tehan/Code/MVC Agent/.claude/agents/mvc-compression-advisor.md` and `mvc-table-analyzer.md` — these contain the full Package Bit-Cost Model algorithm, SQL queries, output formats, and priority classification. Planner and executor MUST read these files.
 - The MCP server already exposes `sec_*` tools for security analysis — use them directly
 - `base_readQuery` can run arbitrary SQL for custom analysis queries not covered by specific tools
 - Subagent execution should show tool-call status in the result card as they run
