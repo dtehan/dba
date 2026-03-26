@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Database, MessageSquare, Settings, Plus, Trash2 } from 'lucide-react';
+import { Database, Settings, Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/app-store';
 import { useChatStore } from '@/store/chat-store';
