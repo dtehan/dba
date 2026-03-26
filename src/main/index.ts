@@ -7,6 +7,7 @@ import { registerMcpHandlers } from './ipc/mcp'
 import { registerChatHandlers } from './ipc/chat'
 import { registerSchemaHandlers } from './ipc/schema'
 import { registerSubagentHandlers } from './ipc/subagent'
+import { registerChatHistoryHandlers } from './ipc/chat-history'
 import { startHealthPolling, stopHealthPolling } from './services/health-poller'
 // MCP server runs externally — no process to manage
 
@@ -66,6 +67,7 @@ app.whenReady().then(() => {
   registerChatHandlers()
   registerSchemaHandlers()
   registerSubagentHandlers()
+  registerChatHistoryHandlers()
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.

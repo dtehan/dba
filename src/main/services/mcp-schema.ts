@@ -1,5 +1,11 @@
 import { getMcpUrl } from './mcp-manager';
 
+/** Ensure MCP URL has trailing slash (some servers redirect without it) */
+function mcpUrl(): string {
+  const url = getMcpUrl();
+  return url.endsWith('/') ? url : url + '/';
+}
+
 /**
  * Tracks MCP session ID if the server provides one.
  * Stateless servers will not set this — we proceed without it.
@@ -16,7 +22,7 @@ async function initializeMcpSession(): Promise<void> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 15_000);
 
-    const response = await fetch(getMcpUrl(), {
+    const response = await fetch(mcpUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -53,7 +59,7 @@ async function initializeMcpSession(): Promise<void> {
  * Call an MCP tool via JSON-RPC tools/call method.
  * Handles session initialization, session ID headers, and retries on 404.
  */
-async function callMcpTool(toolName: string, args: Record<string, string> = {}): Promise<string> {
+export async function callMcpTool(toolName: string, args: Record<string, string> = {}): Promise<string> {
   if (mcpSessionId === null) {
     await initializeMcpSession();
   }
@@ -72,7 +78,7 @@ async function callMcpTool(toolName: string, args: Record<string, string> = {}):
     }
 
     try {
-      const response = await fetch(getMcpUrl(), {
+      const response = await fetch(mcpUrl(), {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -105,7 +111,12 @@ async function callMcpTool(toolName: string, args: Record<string, string> = {}):
     throw new Error(`MCP server returned ${response.status}: ${response.statusText}`);
   }
 
-  const json = await response.json() as {
+  // Server returns SSE text/event-stream — parse data: line
+  const text = await response.text();
+  const dataLine = text.split('\n').find((line) => line.startsWith('data:'));
+  if (!dataLine) throw new Error('No data in MCP response');
+
+  const json = JSON.parse(dataLine.slice(5).trim()) as {
     result?: { content: Array<{ type: string; text: string }> };
     error?: { message: string };
   };
@@ -119,9 +130,22 @@ async function callMcpTool(toolName: string, args: Record<string, string> = {}):
 
 /**
  * List all databases available on the Teradata MCP server.
+ * The MCP tool returns JSON with a `results` array of {DatabaseName, DBType, CommentString}.
  */
 export async function listDatabases(): Promise<string[]> {
-  const raw = await callMcpTool('base_databaseList');
+  const raw = await callMcpTool('base_databaseList', { scope: 'user' });
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed.results && Array.isArray(parsed.results)) {
+      return parsed.results
+        .map((r: { DatabaseName?: string }) => r.DatabaseName)
+        .filter((name: unknown): name is string => typeof name === 'string' && name.length > 0)
+        .sort((a: string, b: string) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+    }
+  } catch {
+    // Fall through to line-based parsing
+  }
+  // Fallback: if not JSON, try line-based
   return raw
     .split('\n')
     .map((line) => line.trim())
@@ -221,4 +245,59 @@ export async function fetchSchemaContext(databaseName: string): Promise<string> 
   }
 
   return lines.join('\n');
+}
+
+/**
+ * Discover all tools exposed by the MCP server via tools/list.
+ * Returns the raw tool definitions from the server.
+ */
+export async function discoverMcpTools(): Promise<
+  Array<{ name: string; description: string; inputSchema: Record<string, unknown> }>
+> {
+  if (mcpSessionId === null) {
+    await initializeMcpSession();
+  }
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json, text/event-stream',
+  };
+  if (mcpSessionId) {
+    headers['Mcp-Session-Id'] = mcpSessionId;
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15_000);
+
+  const response = await fetch(mcpUrl(), {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: Date.now(),
+      method: 'tools/list',
+      params: {},
+    }),
+    signal: controller.signal,
+  });
+
+  clearTimeout(timeoutId);
+
+  if (!response.ok) {
+    throw new Error(`MCP tools/list returned ${response.status}`);
+  }
+
+  const text = await response.text();
+  // SSE response: extract JSON from "data:" line
+  const dataLine = text.split('\n').find((line) => line.startsWith('data:'));
+  if (!dataLine) throw new Error('No data in MCP tools/list response');
+
+  const json = JSON.parse(dataLine.slice(5).trim()) as {
+    result?: { tools: Array<{ name: string; description: string; inputSchema: Record<string, unknown> }> };
+    error?: { message: string };
+  };
+
+  if (json.error) throw new Error(json.error.message);
+
+  return json.result?.tools ?? [];
 }

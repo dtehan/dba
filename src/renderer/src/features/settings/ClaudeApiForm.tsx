@@ -16,6 +16,8 @@ export function ClaudeApiForm(): JSX.Element {
   const [isTesting, setIsTesting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackState>({ type: 'none' });
+  const [hasStoredKeys, setHasStoredKeys] = useState(false);
+  const [keysEdited, setKeysEdited] = useState(false);
 
   useEffect(() => {
     const api = (window as any).electronAPI;
@@ -26,11 +28,19 @@ export function ClaudeApiForm(): JSX.Element {
       if (cfg?.roleArn) setRoleArn(cfg.roleArn);
       if (cfg?.modelId) setModelId(cfg.modelId);
     }).catch(() => {});
+    api?.loadClaudeKeyHints?.().then((hints: { accessKeyId: string; secretKey: string } | null) => {
+      if (hints) {
+        setAccessKeyId(hints.accessKeyId);
+        setSecretKey(hints.secretKey);
+        setHasStoredKeys(true);
+      }
+    }).catch(() => {});
   }, []);
 
   const saveAll = async (): Promise<void> => {
     const api = (window as any).electronAPI;
-    if (accessKeyId && secretKey) {
+    // Only save keys if user entered new values (not the masked hints)
+    if (keysEdited && accessKeyId && secretKey) {
       await api?.saveClaudeApiKey?.(JSON.stringify({ accessKeyId, secretKey }));
     }
     await api?.saveBedrockRegion?.(region);
@@ -59,7 +69,7 @@ export function ClaudeApiForm(): JSX.Element {
 
   const handleSave = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
-    if (!accessKeyId || !secretKey) return;
+    if (!hasStoredKeys && (!accessKeyId || !secretKey)) return;
     setIsSaving(true);
     setFeedback({ type: 'none' });
     try {
@@ -97,13 +107,13 @@ export function ClaudeApiForm(): JSX.Element {
 
         <div style={{ marginBottom: '16px' }}>
           <label style={labelStyle}>AWS Access Key ID</label>
-          <input type="text" value={accessKeyId} onChange={(e) => setAccessKeyId(e.target.value)} placeholder="AKIA..." style={inputStyle} />
+          <input type="text" value={accessKeyId} onFocus={() => { if (hasStoredKeys && !keysEdited) { setAccessKeyId(''); setSecretKey(''); setKeysEdited(true); } }} onChange={(e) => { setAccessKeyId(e.target.value); setKeysEdited(true); }} placeholder="AKIA..." style={inputStyle} />
         </div>
 
         <div style={{ marginBottom: '16px' }}>
           <label style={labelStyle}>AWS Secret Access Key</label>
           <div style={{ position: 'relative' }}>
-            <input type={showSecret ? 'text' : 'password'} value={secretKey} onChange={(e) => setSecretKey(e.target.value)} placeholder="Enter your AWS secret access key" style={{ ...inputStyle, paddingRight: '40px' }} />
+            <input type={showSecret ? 'text' : 'password'} value={secretKey} onFocus={() => { if (hasStoredKeys && !keysEdited) { setAccessKeyId(''); setSecretKey(''); setKeysEdited(true); } }} onChange={(e) => { setSecretKey(e.target.value); setKeysEdited(true); }} placeholder="Enter your AWS secret access key" style={{ ...inputStyle, paddingRight: '40px' }} />
             <button type="button" onClick={() => setShowSecret((v) => !v)} aria-label={showSecret ? 'Hide' : 'Show'} style={{ position: 'absolute', right: 0, top: 0, height: '40px', width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', color: '#A3A3A3', cursor: 'pointer' }}>
               {showSecret ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>

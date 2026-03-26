@@ -37,6 +37,7 @@ export const IpcChannels = {
   CLEAR_ALL_CREDENTIALS: 'credentials:clear-all',
   HAS_TERADATA_CREDENTIALS: 'credentials:has-teradata',
   HAS_CLAUDE_KEY: 'credentials:has-claude-key',
+  LOAD_CLAUDE_KEY_HINTS: 'credentials:load-claude-key-hints',
   TEST_TERADATA_CONNECTION: 'mcp:test-connection',
   TEST_CLAUDE_CONNECTION: 'claude:test-connection',
   CONNECTION_STATUS_UPDATE: 'connection:status-update',
@@ -50,7 +51,19 @@ export const IpcChannels = {
   SCHEMA_LIST_DATABASES: 'schema:list-databases',
   SUBAGENT_LIST: 'subagent:list',
   SUBAGENT_RUN: 'subagent:run',
+  CHAT_SESSIONS_LIST: 'chat:sessions-list',
+  CHAT_SESSION_SAVE: 'chat:session-save',
+  CHAT_SESSION_DELETE: 'chat:session-delete',
 } as const;
+
+// Chat session for persistence
+export interface ChatSession {
+  id: string;
+  title: string;
+  createdAt: number;
+  updatedAt: number;
+  messages: ChatMessage[];
+}
 
 // Preload API surface exposed to renderer
 export interface ElectronAPI {
@@ -60,6 +73,7 @@ export interface ElectronAPI {
   clearAllCredentials: () => Promise<void>;
   hasTeradataCredentials: () => Promise<boolean>;
   hasClaudeKey: () => Promise<boolean>;
+  loadClaudeKeyHints: () => Promise<{ accessKeyId: string; secretKey: string } | null>;
   testTeradataConnection: () => Promise<{ success: boolean; error?: string }>;
   testClaudeConnection: () => Promise<{ success: boolean; error?: string }>;
   onConnectionStatus: (callback: (status: ConnectionStatus) => void) => void;
@@ -74,4 +88,7 @@ export interface ElectronAPI {
   listDatabases: () => Promise<{ success: boolean; databases?: string[]; error?: string }>;
   listSubagents: () => Promise<Array<{ id: string; name: string; description: string; icon: string }>>;
   runSubagent: (agentId: string) => Promise<{ success: boolean; content?: string; error?: string }>;
+  listChatSessions: () => Promise<Array<{ id: string; title: string; createdAt: number; updatedAt: number; messageCount: number }>>;
+  saveChatSession: (session: ChatSession) => Promise<void>;
+  deleteChatSession: (id: string) => Promise<void>;
 }

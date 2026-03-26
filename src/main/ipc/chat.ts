@@ -2,12 +2,17 @@ import { ipcMain, BrowserWindow } from 'electron';
 import AnthropicBedrock from '@anthropic-ai/bedrock-sdk';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import { getDecryptedAwsCredentials } from './claude';
+import { callMcpTool, discoverMcpTools } from '../services/mcp-schema';
 import store from '../store';
 import { IpcChannels } from '@shared/types';
 
-const DEFAULT_MODEL = 'anthropic.claude-sonnet-4-20250514-v1:0';
+const DEFAULT_MODEL = 'us.anthropic.claude-sonnet-4-20250514-v1:0';
+const MAX_TOOL_ROUNDS = 10;
 
-let activeStream: { controller: AbortController } | null = null;
+let activeAbort: AbortController | null = null;
+
+/** Cached MCP tools in Anthropic tool format */
+let cachedTools: Array<{ name: string; description: string; input_schema: Record<string, unknown> }> | null = null;
 
 async function getBedrockClient(): Promise<{ client: AnthropicBedrock; modelId: string }> {
   const { accessKeyId, secretKey } = getDecryptedAwsCredentials();
@@ -55,64 +60,190 @@ async function getBedrockClient(): Promise<{ client: AnthropicBedrock; modelId: 
   return { client, modelId };
 }
 
+/** Fetch MCP tools and convert to Anthropic tool format. Caches after first call. */
+async function getMcpToolsForClaude(): Promise<
+  Array<{ name: string; description: string; input_schema: Record<string, unknown> }>
+> {
+  if (cachedTools) return cachedTools;
+
+  try {
+    const mcpTools = await discoverMcpTools();
+    cachedTools = mcpTools.map((tool) => ({
+      name: tool.name,
+      description: tool.description,
+      input_schema: tool.inputSchema,
+    }));
+    return cachedTools;
+  } catch {
+    // MCP not available — return empty, chat works without tools
+    return [];
+  }
+}
+
+/** Execute an MCP tool call by forwarding to the MCP server */
+async function executeTool(name: string, input: Record<string, unknown>): Promise<string> {
+  try {
+    // Convert all input values to strings for callMcpTool
+    const stringArgs: Record<string, string> = {};
+    for (const [key, value] of Object.entries(input)) {
+      if (value !== null && value !== undefined) {
+        stringArgs[key] = typeof value === 'string' ? value : JSON.stringify(value);
+      }
+    }
+    return await callMcpTool(name, stringArgs);
+  } catch (err) {
+    return `Error: ${err instanceof Error ? err.message : String(err)}`;
+  }
+}
+
 export function registerChatHandlers(): void {
-  ipcMain.handle(IpcChannels.CHAT_SEND, async (event, messages: Array<{ role: string; content: string }>, systemPrompt: string) => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    if (!win) {
-      return { success: false, error: 'No browser window found' };
-    }
-
-    // Abort any existing stream before starting a new one (prevents interleave)
-    if (activeStream) {
-      activeStream.controller.abort();
-      activeStream = null;
-    }
-
-    try {
-      const { client, modelId } = await getBedrockClient();
-
-      const controller = new AbortController();
-      activeStream = { controller };
-
-      const stream = client.messages.stream(
-        {
-          model: modelId,
-          max_tokens: 4096,
-          system: systemPrompt,
-          messages: messages as Array<{ role: 'user' | 'assistant'; content: string }>,
-        },
-        { signal: controller.signal }
-      );
-
-      stream.on('text', (delta) => {
-        win.webContents.send(IpcChannels.CHAT_TOKEN, delta);
-      });
-
-      stream.on('message', (msg) => {
-        win.webContents.send(IpcChannels.CHAT_DONE, { stopReason: msg.stop_reason });
-        activeStream = null;
-      });
-
-      stream.on('error', (err) => {
-        // Ignore abort errors — they are intentional
-        if (err.name !== 'AbortError') {
-          win.webContents.send(IpcChannels.CHAT_ERROR, err.message);
-        }
-        activeStream = null;
-      });
-
-      return { success: true };
-    } catch (err) {
-      activeStream = null;
-      const message = err instanceof Error ? err.message : String(err);
-      return { success: false, error: message };
-    }
+  // Allow renderer to force-refresh the MCP tools cache
+  ipcMain.handle('chat:refresh-tools', async () => {
+    cachedTools = null;
+    const tools = await getMcpToolsForClaude();
+    return { count: tools.length };
   });
 
+  ipcMain.handle(
+    IpcChannels.CHAT_SEND,
+    async (
+      event,
+      messages: Array<{ role: string; content: string }>,
+      systemPrompt: string
+    ) => {
+      const win = BrowserWindow.fromWebContents(event.sender);
+      if (!win) {
+        return { success: false, error: 'No browser window found' };
+      }
+
+      // Abort any existing request
+      if (activeAbort) {
+        activeAbort.abort();
+        activeAbort = null;
+      }
+
+      const controller = new AbortController();
+      activeAbort = controller;
+
+      try {
+        const { client, modelId } = await getBedrockClient();
+        const tools = await getMcpToolsForClaude();
+
+        // Build the conversation — we'll extend it as tool calls happen
+        const conversationMessages: Array<{
+          role: 'user' | 'assistant';
+          content: string | Array<Record<string, unknown>>;
+        }> = messages.map((m) => ({
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+        }));
+
+        let round = 0;
+        while (round < MAX_TOOL_ROUNDS) {
+          if (controller.signal.aborted) break;
+          round++;
+
+          // Build request — include tools only if MCP has them
+          const requestParams: Record<string, unknown> = {
+            model: modelId,
+            max_tokens: 4096,
+            system: systemPrompt,
+            messages: conversationMessages,
+          };
+          if (tools.length > 0) {
+            requestParams.tools = tools;
+          }
+
+          const stream = client.messages.stream(requestParams as any, {
+            signal: controller.signal,
+          });
+
+          // Collect text deltas for streaming display
+          stream.on('text', (delta) => {
+            if (!controller.signal.aborted) {
+              win.webContents.send(IpcChannels.CHAT_TOKEN, delta);
+            }
+          });
+
+          let finalMessage: any;
+          try {
+            finalMessage = await stream.finalMessage();
+          } catch (err: any) {
+            if (err?.name === 'AbortError') break;
+            throw err;
+          }
+
+          // Check if Claude wants to use tools
+          if (finalMessage.stop_reason === 'tool_use') {
+            const toolUseBlocks = finalMessage.content.filter(
+              (block: any) => block.type === 'tool_use'
+            );
+            if (toolUseBlocks.length === 0) break;
+
+            // Add assistant message with tool_use to conversation
+            conversationMessages.push({
+              role: 'assistant',
+              content: finalMessage.content,
+            });
+
+            // Execute each tool and build tool_result blocks
+            const toolResults: Array<Record<string, unknown>> = [];
+            for (const toolBlock of toolUseBlocks) {
+              if (controller.signal.aborted) break;
+
+              // Show status to user
+              win.webContents.send(
+                IpcChannels.CHAT_TOKEN,
+                `\n\n*Querying Teradata: ${toolBlock.name}...*\n\n`
+              );
+
+              const result = await executeTool(toolBlock.name, toolBlock.input as any);
+              toolResults.push({
+                type: 'tool_result',
+                tool_use_id: toolBlock.id,
+                content: result,
+              });
+            }
+
+            if (controller.signal.aborted) break;
+
+            // Add tool results as user message and loop back
+            conversationMessages.push({
+              role: 'user',
+              content: toolResults,
+            });
+            continue;
+          }
+
+          // No tool use — done
+          win.webContents.send(IpcChannels.CHAT_DONE, {
+            stopReason: finalMessage.stop_reason,
+          });
+          activeAbort = null;
+          return { success: true };
+        }
+
+        // Exited loop (max rounds or abort)
+        if (!controller.signal.aborted) {
+          win.webContents.send(IpcChannels.CHAT_DONE, { stopReason: 'end_turn' });
+        }
+        activeAbort = null;
+        return { success: true };
+      } catch (err) {
+        activeAbort = null;
+        const message = err instanceof Error ? err.message : String(err);
+        if (!controller.signal.aborted) {
+          win.webContents.send(IpcChannels.CHAT_ERROR, message);
+        }
+        return { success: false, error: message };
+      }
+    }
+  );
+
   ipcMain.handle(IpcChannels.CHAT_ABORT, async () => {
-    if (activeStream) {
-      activeStream.controller.abort();
-      activeStream = null;
+    if (activeAbort) {
+      activeAbort.abort();
+      activeAbort = null;
     }
   });
 }

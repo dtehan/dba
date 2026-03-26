@@ -4,7 +4,7 @@ import AnthropicBedrock from '@anthropic-ai/bedrock-sdk';
 import store from '../store';
 import { IpcChannels } from '@shared/types';
 
-const DEFAULT_MODEL = 'anthropic.claude-sonnet-4-20250514-v1:0';
+const DEFAULT_MODEL = 'us.anthropic.claude-sonnet-4-20250514-v1:0';
 
 export function registerClaudeHandlers(): void {
   // Save AWS credentials encrypted via safeStorage
@@ -44,6 +44,20 @@ export function registerClaudeHandlers(): void {
   ipcMain.handle(IpcChannels.HAS_CLAUDE_KEY, async () => {
     const encrypted = store.get('claude.encryptedApiKey');
     return typeof encrypted === 'string' && encrypted.length > 0;
+  });
+
+  // Return masked key hints so the form can show keys are saved
+  ipcMain.handle(IpcChannels.LOAD_CLAUDE_KEY_HINTS, async () => {
+    try {
+      const { accessKeyId, secretKey } = getDecryptedAwsCredentials();
+      const maskKey = (key: string): string => {
+        if (key.length <= 8) return '••••••••';
+        return key.slice(0, 4) + '••••' + key.slice(-4);
+      };
+      return { accessKeyId: maskKey(accessKeyId), secretKey: maskKey(secretKey) };
+    } catch {
+      return null;
+    }
   });
 
   // Test Claude API connectivity via Bedrock

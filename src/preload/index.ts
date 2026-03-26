@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   clearAllCredentials: () => ipcRenderer.invoke(IpcChannels.CLEAR_ALL_CREDENTIALS),
   hasTeradataCredentials: () => ipcRenderer.invoke(IpcChannels.HAS_TERADATA_CREDENTIALS),
   hasClaudeKey: () => ipcRenderer.invoke(IpcChannels.HAS_CLAUDE_KEY),
+  loadClaudeKeyHints: () => ipcRenderer.invoke(IpcChannels.LOAD_CLAUDE_KEY_HINTS),
   testTeradataConnection: () => ipcRenderer.invoke(IpcChannels.TEST_TERADATA_CONNECTION),
   testClaudeConnection: () => ipcRenderer.invoke(IpcChannels.TEST_CLAUDE_CONNECTION),
   saveBedrockRegion: (region: string) => ipcRenderer.invoke('claude:save-region', region),
@@ -44,4 +45,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke(IpcChannels.SUBAGENT_LIST),
   runSubagent: (agentId: string) =>
     ipcRenderer.invoke(IpcChannels.SUBAGENT_RUN, agentId),
+  listChatSessions: () =>
+    ipcRenderer.invoke(IpcChannels.CHAT_SESSIONS_LIST),
+  saveChatSession: (session: any) =>
+    ipcRenderer.invoke(IpcChannels.CHAT_SESSION_SAVE, session),
+  deleteChatSession: (id: string) =>
+    ipcRenderer.invoke(IpcChannels.CHAT_SESSION_DELETE, id),
+  loadChatSession: (id: string) =>
+    ipcRenderer.invoke('chat:session-load', id),
 });

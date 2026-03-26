@@ -3,34 +3,20 @@ import { getElectronAPI } from '@/lib/ipc';
 import { MessageList } from './MessageList';
 import { ChatInput } from './ChatInput';
 
-function buildSystemPrompt(schemaContext: string | null, activeDatabaseName: string | null): string {
-  const base = `You are an expert Teradata DBA assistant. You help database administrators analyze their Teradata environment, write optimized SQL queries, and understand performance characteristics.
+const SYSTEM_PROMPT = `You are an expert Teradata DBA assistant. You help database administrators analyze their Teradata environment, write optimized SQL queries, and understand performance characteristics.
+
+You have access to tools that connect directly to the user's Teradata system via MCP. Use these tools to answer questions — list databases, describe tables, run queries, check space usage, analyze security, etc.
 
 Rules:
-- Never execute SQL automatically. Always present SQL as copy-paste recommendations.
+- Never execute DDL or DML automatically. Only use tools for read-only queries and metadata inspection.
+- Present any SQL modifications (ALTER, CREATE, DROP, INSERT, UPDATE, DELETE) as copy-paste recommendations only.
 - All SQL must be valid Teradata SQL syntax (not ANSI or Oracle syntax).
-- Reference actual table and column names from the schema context when available.
-- When you cannot determine something from the schema, say so — don't hallucinate column names.`;
-
-  if (schemaContext) {
-    return `${base}
-
-## Active Database: ${activeDatabaseName ?? 'Unknown'}
-## Schema Context
-${schemaContext}
-Use the above schema when answering questions about tables and columns.`;
-  }
-
-  return `${base}
-
-No schema context is currently loaded. Ask the user to select a database if they need schema-aware responses.`;
-}
+- Use your tools to look up actual table and column names — don't guess or hallucinate them.
+- When a tool returns an error, tell the user what happened and suggest how to fix it.`;
 
 export function ChatScreen(): JSX.Element {
   const messages = useChatStore((s) => s.messages);
   const isStreaming = useChatStore((s) => s.isStreaming);
-  const schemaContext = useChatStore((s) => s.schemaContext);
-  const activeDatabaseName = useChatStore((s) => s.activeDatabaseName);
   const error = useChatStore((s) => s.error);
 
   const sendMessage = async (content: string) => {
@@ -42,9 +28,6 @@ export function ChatScreen(): JSX.Element {
     // Add placeholder for assistant response
     const assistantId = store.addAssistantMessagePlaceholder();
 
-    // Build system prompt
-    const systemPrompt = buildSystemPrompt(schemaContext, activeDatabaseName);
-
     // Prepare messages for the API (use current messages excluding the empty placeholder)
     const currentMessages = useChatStore.getState().messages;
     const messagesForApi = currentMessages
@@ -53,7 +36,7 @@ export function ChatScreen(): JSX.Element {
 
     try {
       const api = getElectronAPI();
-      const result = await api.sendChat(messagesForApi, systemPrompt);
+      const result = await api.sendChat(messagesForApi, SYSTEM_PROMPT);
       if (!result.success && result.error) {
         store.setError(result.error);
         store.finalizeMessage(assistantId);
