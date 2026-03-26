@@ -57,11 +57,11 @@
 
 ### Skew Analysis Subagent
 
-- [ ] **SKEW-01**: User can run skew analysis on a database or specific tables
-- [ ] **SKEW-02**: Analysis identifies tables with significant data distribution skew
-- [ ] **SKEW-03**: Analysis explains the cause of skew (PI choice, data patterns)
-- [ ] **SKEW-04**: Analysis suggests primary index alternatives to reduce skew
-- [ ] **SKEW-05**: Analysis ranks tables by skew severity
+- [x] **SKEW-01**: User can run skew analysis on a database or specific tables
+- [x] **SKEW-02**: Analysis identifies tables with significant data distribution skew
+- [x] **SKEW-03**: Analysis explains the cause of skew (PI choice, data patterns)
+- [x] **SKEW-04**: Analysis suggests primary index alternatives to reduce skew
+- [x] **SKEW-05**: Analysis ranks tables by skew severity
 
 ### Space Usage Subagent
 
@@ -144,11 +144,11 @@
 | STAT-03 | Phase 3 | Complete |
 | STAT-04 | Phase 3 | Complete |
 | STAT-05 | Phase 3 | Complete |
-| SKEW-01 | Phase 4 | Pending |
-| SKEW-02 | Phase 4 | Pending |
-| SKEW-03 | Phase 4 | Pending |
-| SKEW-04 | Phase 4 | Pending |
-| SKEW-05 | Phase 4 | Pending |
+| SKEW-01 | Phase 4 | Complete |
+| SKEW-02 | Phase 4 | Complete |
+| SKEW-03 | Phase 4 | Complete |
+| SKEW-04 | Phase 4 | Complete |
+| SKEW-05 | Phase 4 | Complete |
 | SPAC-01 | Phase 4 | Pending |
 | SPAC-02 | Phase 4 | Pending |
 | SPAC-03 | Phase 4 | Pending |

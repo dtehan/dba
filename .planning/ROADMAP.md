@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Electron shell, credential storage, MCP/Claude connectivity, and Teradata brand identity (completed 2026-03-24)
 - [x] **Phase 2: Chat** - Freeform chat with streaming, schema grounding, session memory, and subagent launcher framework (completed 2026-03-26)
 - [x] **Phase 3: Core Subagents** - Security Audit, MVC Analysis, and Statistics Analysis subagents with rich output (completed 2026-03-26)
-- [ ] **Phase 4: Analysis Expansion** - Skew Analysis and Space Usage subagents completing the v1 subagent set
+- [x] **Phase 4: Analysis Expansion** - Skew Analysis and Space Usage subagents completing the v1 subagent set (completed 2026-03-26)
 
 ## Phase Details
 
@@ -85,10 +85,10 @@ Plans:
   2. User can run Space Usage analysis on a database or full system and see current perm space vs. allocation per database, with databases approaching limits clearly flagged
   3. Space analysis surfaces the top space-consuming tables and provides concrete recommendations for space recovery
   4. Both new subagents follow the same result-capping and output schema patterns established in Phase 3
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
-- [ ] 04-01-PLAN.md — Skew Analysis subagent (skew factor calculation, PI cause analysis, ALTER TABLE recommendations)
-- [ ] 04-02-PLAN.md — Space Usage subagent (perm space utilization, capacity alerts, space recovery recommendations)
+- [x] 04-01-PLAN.md — Skew Analysis subagent (skew factor calculation, PI cause analysis, ALTER TABLE recommendations)
+- [x] 04-02-PLAN.md — Space Usage subagent (perm space utilization, capacity alerts, space recovery recommendations)
 **UI hint**: no
 
 ## Progress
@@ -101,4 +101,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Foundation | 5/5 | Complete   | 2026-03-24 |
 | 2. Chat | 5/5 | Complete   | 2026-03-26 |
 | 3. Core Subagents | 5/5 | Complete   | 2026-03-26 |
-| 4. Analysis Expansion | 0/2 | Not started | - |
+| 4. Analysis Expansion | 2/2 | Complete   | 2026-03-26 |
