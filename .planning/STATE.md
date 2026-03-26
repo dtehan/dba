@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Phase complete — ready for verification
-stopped_at: Completed 04-analysis-expansion 04-01-PLAN.md
-last_updated: "2026-03-26T18:44:28.151Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-03-26T18:44:43.280Z"
 progress:
   total_phases: 4
   completed_phases: 3
@@ -60,6 +60,7 @@ Plan: 2 of 2
 | Phase 03 P03 | 2 | 2 tasks | 2 files |
 | Phase 03 P04 | 2 | 2 tasks | 2 files |
 | Phase 04-analysis-expansion P01 | 1 | 1 tasks | 1 files |
+| Phase 04 P02 | 2 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -106,6 +107,8 @@ Recent decisions affecting current work:
 - [Phase 03]: MAX_TOOL_ROUNDS=20 for stats — simpler DBC view lookups vs MVC 100-round per-column distributions
 - [Phase 03]: STATS_TOOLS=['base_readQuery'] only — no DDL or table inspection tools needed for statistics analysis
 - [Phase 04-analysis-expansion]: Skew Analysis: single-AMP detection gate at Step 1, NULLIF guards for division-by-zero, IndexType IN P/Q for both NUPI and UPI, DBC.ColumnsV cardinality check before PI suggestions
+- [Phase 04]: Use DBC.AllSpaceV (not DiskSpaceV) for database-level summaries — already aggregated, one row per database
+- [Phase 04]: MaxPerm=0 databases report no explicit limit instead of percentage — avoids division by zero and misleading display
 
 ### Pending Todos
 
@@ -119,6 +122,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T18:44:12.892Z
-Stopped at: Completed 04-analysis-expansion 04-01-PLAN.md
+Last session: 2026-03-26T18:44:43.277Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None

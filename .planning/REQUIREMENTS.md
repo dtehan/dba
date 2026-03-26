@@ -65,11 +65,11 @@
 
 ### Space Usage Subagent
 
-- [ ] **SPAC-01**: User can run space analysis on a database or the full system
-- [ ] **SPAC-02**: Analysis shows current perm space usage vs allocation per database
-- [ ] **SPAC-03**: Analysis identifies databases approaching space limits
-- [ ] **SPAC-04**: Analysis surfaces the largest tables consuming space
-- [ ] **SPAC-05**: Analysis provides recommendations for space recovery
+- [x] **SPAC-01**: User can run space analysis on a database or the full system
+- [x] **SPAC-02**: Analysis shows current perm space usage vs allocation per database
+- [x] **SPAC-03**: Analysis identifies databases approaching space limits
+- [x] **SPAC-04**: Analysis surfaces the largest tables consuming space
+- [x] **SPAC-05**: Analysis provides recommendations for space recovery
 
 ### UI & Branding
 
@@ -149,11 +149,11 @@
 | SKEW-03 | Phase 4 | Complete |
 | SKEW-04 | Phase 4 | Complete |
 | SKEW-05 | Phase 4 | Complete |
-| SPAC-01 | Phase 4 | Pending |
-| SPAC-02 | Phase 4 | Pending |
-| SPAC-03 | Phase 4 | Pending |
-| SPAC-04 | Phase 4 | Pending |
-| SPAC-05 | Phase 4 | Pending |
+| SPAC-01 | Phase 4 | Complete |
+| SPAC-02 | Phase 4 | Complete |
+| SPAC-03 | Phase 4 | Complete |
+| SPAC-04 | Phase 4 | Complete |
+| SPAC-05 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 44 total
