@@ -1,13 +1,15 @@
 import { Database, MessageSquare, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/app-store';
+import { DatabaseSelector } from '@/components/DatabaseSelector';
+import { SubagentLauncher } from '@/components/SubagentLauncher';
 
 export function Sidebar(): JSX.Element {
   const currentPage = useAppStore((s) => s.currentPage);
   const setCurrentPage = useAppStore((s) => s.setCurrentPage);
 
   return (
-    <aside style={{ width: '220px', minWidth: '220px', backgroundColor: '#1A1A1A', borderRight: '1px solid #333333', display: 'flex', flexDirection: 'column' }}>
+    <aside style={{ width: '220px', minWidth: '220px', backgroundColor: '#1A1A1A', borderRight: '1px solid #333333', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
       {/* Logo / header area */}
       <div className="flex items-center gap-2 p-4">
         <Database size={24} className="text-[#F37440] shrink-0" />
@@ -15,7 +17,7 @@ export function Sidebar(): JSX.Element {
       </div>
 
       {/* Navigation */}
-      <nav className="flex flex-col flex-1">
+      <nav className="flex flex-col">
         <button
           type="button"
           onClick={() => setCurrentPage('chat')}
@@ -47,6 +49,16 @@ export function Sidebar(): JSX.Element {
           <span>Settings</span>
         </button>
       </nav>
+
+      {/* Separator */}
+      <div style={{ borderTop: '1px solid #333333', marginTop: '8px', paddingTop: '8px' }}>
+        <DatabaseSelector />
+      </div>
+
+      {/* Separator */}
+      <div style={{ borderTop: '1px solid #333333', marginTop: '8px', paddingTop: '8px' }}>
+        <SubagentLauncher />
+      </div>
     </aside>
   );
 }

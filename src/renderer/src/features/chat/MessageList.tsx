@@ -1,7 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { MessageSquare } from 'lucide-react';
 import type { ChatMessage } from '@shared/types';
+import type { SubagentResultEntry } from '@/store/chat-store';
+import { useChatStore } from '@/store/chat-store';
 import { MessageBubble } from './MessageBubble';
+import { SubagentResultCard } from './SubagentResultCard';
+
+type TimelineEntry =
+  | { type: 'message'; data: ChatMessage }
+  | { type: 'subagent'; data: SubagentResultEntry };
 
 interface MessageListProps {
   messages: ChatMessage[];
@@ -10,13 +17,24 @@ interface MessageListProps {
 
 export function MessageList({ messages, error }: MessageListProps): JSX.Element {
   const bottomRef = useRef<HTMLDivElement>(null);
+  const subagentResults = useChatStore((s) => s.subagentResults);
   const lastMessage = messages[messages.length - 1];
+
+  // Build a unified timeline sorted by timestamp
+  const timeline: TimelineEntry[] = [
+    ...messages.map((m): TimelineEntry => ({ type: 'message', data: m })),
+    ...subagentResults.map((r): TimelineEntry => ({ type: 'subagent', data: r })),
+  ].sort((a, b) => {
+    const tsA = a.type === 'message' ? a.data.timestamp : a.data.timestamp;
+    const tsB = b.type === 'message' ? b.data.timestamp : b.data.timestamp;
+    return tsA - tsB;
+  });
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length, lastMessage?.content.length]);
+  }, [messages.length, subagentResults.length, lastMessage?.content.length]);
 
-  if (messages.length === 0 && !error) {
+  if (timeline.length === 0 && !error) {
     return (
       <div
         style={{
@@ -40,9 +58,19 @@ export function MessageList({ messages, error }: MessageListProps): JSX.Element 
 
   return (
     <div style={{ overflowY: 'auto', flex: 1, padding: '16px' }}>
-      {messages.map((msg) => (
-        <MessageBubble key={msg.id} message={msg} />
-      ))}
+      {timeline.map((entry) => {
+        if (entry.type === 'message') {
+          return <MessageBubble key={entry.data.id} message={entry.data} />;
+        }
+        return (
+          <SubagentResultCard
+            key={entry.data.id}
+            agentName={entry.data.agentName}
+            content={entry.data.content}
+            timestamp={entry.data.timestamp}
+          />
+        );
+      })}
       {error && (
         <div
           style={{
