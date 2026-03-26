@@ -42,10 +42,10 @@
 ### MVC Analysis Subagent
 
 - [x] **MVCA-01**: User can run MVC analysis on a database or specific tables
-- [ ] **MVCA-02**: Analysis identifies columns that are strong candidates for multi-value compression
-- [ ] **MVCA-03**: Analysis estimates space savings from recommended compressions
-- [ ] **MVCA-04**: Analysis produces ALTER TABLE statements for copy-paste application
-- [ ] **MVCA-05**: Analysis prioritizes recommendations by space savings impact
+- [x] **MVCA-02**: Analysis identifies columns that are strong candidates for multi-value compression
+- [x] **MVCA-03**: Analysis estimates space savings from recommended compressions
+- [x] **MVCA-04**: Analysis produces ALTER TABLE statements for copy-paste application
+- [x] **MVCA-05**: Analysis prioritizes recommendations by space savings impact
 
 ### Statistics Analysis Subagent
 
@@ -135,10 +135,10 @@
 | SECU-04 | Phase 3 | Complete |
 | SECU-05 | Phase 3 | Complete |
 | MVCA-01 | Phase 3 | Complete |
-| MVCA-02 | Phase 3 | Pending |
-| MVCA-03 | Phase 3 | Pending |
-| MVCA-04 | Phase 3 | Pending |
-| MVCA-05 | Phase 3 | Pending |
+| MVCA-02 | Phase 3 | Complete |
+| MVCA-03 | Phase 3 | Complete |
+| MVCA-04 | Phase 3 | Complete |
+| MVCA-05 | Phase 3 | Complete |
 | STAT-01 | Phase 3 | Complete |
 | STAT-02 | Phase 3 | Pending |
 | STAT-03 | Phase 3 | Pending |
