@@ -25,10 +25,10 @@
 
 ### Subagents
 
-- [ ] **AGEN-01**: User can browse and launch prebuilt subagents from a launcher UI
-- [ ] **AGEN-02**: Subagent results appear as rich formatted messages in the chat thread
-- [ ] **AGEN-03**: Subagents run in isolated context (don't pollute main chat history)
-- [ ] **AGEN-04**: Subagent output includes actionable recommendations, not just raw data
+- [x] **AGEN-01**: User can browse and launch prebuilt subagents from a launcher UI
+- [x] **AGEN-02**: Subagent results appear as rich formatted messages in the chat thread
+- [x] **AGEN-03**: Subagents run in isolated context (don't pollute main chat history)
+- [x] **AGEN-04**: Subagent output includes actionable recommendations, not just raw data
 - [x] **AGEN-05**: SQL recommendations are surfaced for copy-paste — never auto-executed
 
 ### Security Auditing Subagent
@@ -75,7 +75,7 @@
 
 - [x] **UIBR-01**: UI uses Teradata brand colors (orange #F37440, dark charcoal #1D1D1D)
 - [x] **UIBR-02**: UI has a clean, modern aesthetic consistent with Teradata product family
-- [ ] **UIBR-03**: Chat interface has a sidebar with subagent launcher
+- [x] **UIBR-03**: Chat interface has a sidebar with subagent launcher
 - [x] **UIBR-04**: Responsive layout that works well on typical DBA monitor sizes
 
 ## v2 Requirements
@@ -123,12 +123,12 @@
 | CHAT-04 | Phase 2 | Complete |
 | CHAT-05 | Phase 2 | Complete |
 | CHAT-06 | Phase 2 | Complete |
-| AGEN-01 | Phase 2 | Pending |
-| AGEN-02 | Phase 2 | Pending |
-| AGEN-03 | Phase 2 | Pending |
-| AGEN-04 | Phase 2 | Pending |
+| AGEN-01 | Phase 2 | Complete |
+| AGEN-02 | Phase 2 | Complete |
+| AGEN-03 | Phase 2 | Complete |
+| AGEN-04 | Phase 2 | Complete |
 | AGEN-05 | Phase 2 | Complete |
-| UIBR-03 | Phase 2 | Pending |
+| UIBR-03 | Phase 2 | Complete |
 | SECU-01 | Phase 3 | Pending |
 | SECU-02 | Phase 3 | Pending |
 | SECU-03 | Phase 3 | Pending |
