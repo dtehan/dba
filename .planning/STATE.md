@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to plan
-stopped_at: Completed 02-04-PLAN.md
-last_updated: "2026-03-26T02:00:09.177Z"
+status: Ready to execute
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-26T02:30:14.737Z"
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 10
-  completed_plans: 10
+  total_plans: 15
+  completed_plans: 11
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-24)
 
 **Core value:** DBAs can run expert-level analysis on their Teradata environment through natural conversation, getting actionable results from specialized subagents
-**Current focus:** Phase 02 — chat
+**Current focus:** Phase 03 — core-subagents
 
 ## Current Position
 
-Phase: 3
-Plan: Not started
+Phase: 03 (core-subagents) — EXECUTING
+Plan: 2 of 5
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Plan: Not started
 | Phase 02-chat P03 | 5 | 2 tasks | 3 files |
 | Phase 02-chat P02 | 12 | 2 tasks | 9 files |
 | Phase 02-chat P04 | 25 | 2 tasks | 11 files |
+| Phase 03 P01 | 2 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,8 @@ Recent decisions affecting current work:
 - [Phase 02-chat]: Echo subagent context passed as null for scaffold — Phase 3 real subagents will receive live schema context via IPC payload
 - [Phase 02-chat]: Subagent results rendered in unified timeline merged with chat messages by timestamp, not as separate panel
 - [Phase 02-chat]: DatabaseSelector degrades gracefully: MCP unavailable sets error state, chat continues without schema context
+- [Phase 03]: Bedrock client extracted to shared service so all Phase 3 subagents can import without duplicating AssumeRole logic
+- [Phase 03]: SubagentLauncher uses pendingAgent toggle pattern: clicking a parameterized agent shows/hides form inline
 
 ### Pending Todos
 
@@ -104,6 +107,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T01:12:25.142Z
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-03-26T02:30:14.734Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None

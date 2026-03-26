@@ -33,7 +33,7 @@
 
 ### Security Auditing Subagent
 
-- [ ] **SECU-01**: User can run a security audit on a database or the full system
+- [x] **SECU-01**: User can run a security audit on a database or the full system
 - [ ] **SECU-02**: Audit analyzes access rights, roles, and role membership
 - [ ] **SECU-03**: Audit identifies overly permissive grants and orphaned access
 - [ ] **SECU-04**: Audit reviews logon/logoff activity for anomalies
@@ -41,7 +41,7 @@
 
 ### MVC Analysis Subagent
 
-- [ ] **MVCA-01**: User can run MVC analysis on a database or specific tables
+- [x] **MVCA-01**: User can run MVC analysis on a database or specific tables
 - [ ] **MVCA-02**: Analysis identifies columns that are strong candidates for multi-value compression
 - [ ] **MVCA-03**: Analysis estimates space savings from recommended compressions
 - [ ] **MVCA-04**: Analysis produces ALTER TABLE statements for copy-paste application
@@ -49,7 +49,7 @@
 
 ### Statistics Analysis Subagent
 
-- [ ] **STAT-01**: User can run statistics analysis on a database or specific tables
+- [x] **STAT-01**: User can run statistics analysis on a database or specific tables
 - [ ] **STAT-02**: Analysis identifies missing statistics on indexed and frequently joined columns
 - [ ] **STAT-03**: Analysis identifies stale statistics that need recollection
 - [ ] **STAT-04**: Analysis produces COLLECT STATISTICS statements for copy-paste application
@@ -129,17 +129,17 @@
 | AGEN-04 | Phase 2 | Complete |
 | AGEN-05 | Phase 2 | Complete |
 | UIBR-03 | Phase 2 | Complete |
-| SECU-01 | Phase 3 | Pending |
+| SECU-01 | Phase 3 | Complete |
 | SECU-02 | Phase 3 | Pending |
 | SECU-03 | Phase 3 | Pending |
 | SECU-04 | Phase 3 | Pending |
 | SECU-05 | Phase 3 | Pending |
-| MVCA-01 | Phase 3 | Pending |
+| MVCA-01 | Phase 3 | Complete |
 | MVCA-02 | Phase 3 | Pending |
 | MVCA-03 | Phase 3 | Pending |
 | MVCA-04 | Phase 3 | Pending |
 | MVCA-05 | Phase 3 | Pending |
-| STAT-01 | Phase 3 | Pending |
+| STAT-01 | Phase 3 | Complete |
 | STAT-02 | Phase 3 | Pending |
 | STAT-03 | Phase 3 | Pending |
 | STAT-04 | Phase 3 | Pending |
