@@ -43,8 +43,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke(IpcChannels.SCHEMA_LIST_DATABASES),
   listSubagents: () =>
     ipcRenderer.invoke(IpcChannels.SUBAGENT_LIST),
-  runSubagent: (agentId: string) =>
-    ipcRenderer.invoke(IpcChannels.SUBAGENT_RUN, agentId),
+  runSubagent: (agentId: string, params?: Record<string, string>) =>
+    ipcRenderer.invoke(IpcChannels.SUBAGENT_RUN, agentId, params ?? {}),
   listChatSessions: () =>
     ipcRenderer.invoke(IpcChannels.CHAT_SESSIONS_LIST),
   saveChatSession: (session: any) =>

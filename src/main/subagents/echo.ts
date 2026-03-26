@@ -13,6 +13,7 @@ export async function runEchoSubagent(ctx: SubagentContext): Promise<SubagentRun
     '',
     `**Schema Context Available:** ${ctx.schemaContext ? 'Yes' : 'No'}`,
     `**Active Database:** ${ctx.activeDatabaseName ?? 'None'}`,
+    `**Parameters:** ${Object.keys(ctx.params).length > 0 ? JSON.stringify(ctx.params) : 'None'}`,
     '',
   ];
 

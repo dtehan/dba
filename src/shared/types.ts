@@ -86,8 +86,8 @@ export interface ElectronAPI {
   removeChatListeners: () => void;
   fetchSchemaContext: (databaseName: string) => Promise<{ success: boolean; context?: string; error?: string }>;
   listDatabases: () => Promise<{ success: boolean; databases?: string[]; error?: string }>;
-  listSubagents: () => Promise<Array<{ id: string; name: string; description: string; icon: string }>>;
-  runSubagent: (agentId: string) => Promise<{ success: boolean; content?: string; error?: string }>;
+  listSubagents: () => Promise<Array<{ id: string; name: string; description: string; icon: string; params?: Array<{ key: string; label: string; placeholder: string; required: boolean }> }>>;
+  runSubagent: (agentId: string, params?: Record<string, string>) => Promise<{ success: boolean; content?: string; error?: string }>;
   listChatSessions: () => Promise<Array<{ id: string; title: string; createdAt: number; updatedAt: number; messageCount: number }>>;
   saveChatSession: (session: ChatSession) => Promise<void>;
   deleteChatSession: (id: string) => Promise<void>;

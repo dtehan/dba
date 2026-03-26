@@ -7,13 +7,25 @@ export function registerSubagentHandlers(): void {
     return getSubagentRegistry();
   });
 
-  ipcMain.handle(IpcChannels.SUBAGENT_RUN, async (_event, agentId: unknown) => {
+  ipcMain.handle(IpcChannels.SUBAGENT_RUN, async (_event, agentId: unknown, params: unknown) => {
     if (typeof agentId !== 'string' || agentId.trim().length === 0) {
       return { success: false, error: 'agentId must be a non-empty string' };
     }
 
-    // Context is passed as null for now — Phase 3 real subagents will receive schema context
-    const context = { activeDatabaseName: null, schemaContext: null };
+    const safeParams: Record<string, string> =
+      typeof params === 'object' && params !== null
+        ? Object.fromEntries(
+            Object.entries(params as Record<string, unknown>)
+              .filter(([, v]) => typeof v === 'string')
+              .map(([k, v]) => [k, v as string])
+          )
+        : {};
+
+    const context = {
+      activeDatabaseName: safeParams['databaseName'] ?? null,
+      schemaContext: null,
+      params: safeParams,
+    };
 
     try {
       const result = await runSubagent(agentId.trim(), context);
