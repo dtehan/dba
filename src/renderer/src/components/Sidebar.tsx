@@ -3,7 +3,6 @@ import { Database, Settings, Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/app-store';
 import { useChatStore } from '@/store/chat-store';
-import { SubagentLauncher } from '@/components/SubagentLauncher';
 
 function formatRelativeTime(timestamp: number): string {
   const diff = Date.now() - timestamp;
@@ -42,7 +41,7 @@ export function Sidebar(): JSX.Element {
   };
 
   return (
-    <aside style={{ width: '220px', minWidth: '220px', backgroundColor: '#1A1A1A', borderRight: '1px solid #333333', display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <aside style={{ width: '220px', minWidth: '220px', backgroundColor: '#1A1A1A', borderRight: '1px solid #333333', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       {/* Logo / header area */}
       <div className="flex items-center gap-2 p-4">
         <Database size={24} className="text-[#F37440] shrink-0" />
@@ -95,7 +94,7 @@ export function Sidebar(): JSX.Element {
       </nav>
 
       {/* Chat history */}
-      <div style={{ borderTop: '1px solid #333333', marginTop: '8px', flex: 1, overflowY: 'auto' }}>
+      <div style={{ borderTop: '1px solid #333333', marginTop: '8px', flex: 1, minHeight: 0, overflowY: 'auto' }}>
         <div style={{ padding: '8px 16px 4px', fontSize: '11px', fontWeight: 600, color: '#737373', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
           Recent Chats
         </div>
@@ -168,11 +167,6 @@ export function Sidebar(): JSX.Element {
             </button>
           </div>
         ))}
-      </div>
-
-      {/* Subagent launcher */}
-      <div style={{ borderTop: '1px solid #333333', paddingTop: '8px' }}>
-        <SubagentLauncher />
       </div>
     </aside>
   );

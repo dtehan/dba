@@ -2,6 +2,7 @@
 name: Statistics Analysis
 description: Identifies missing and stale statistics with COLLECT STATISTICS recommendations.
 icon: BarChart3
+category: Performance
 tools: base_readQuery
 max_tool_rounds: 20
 max_tokens: 8192

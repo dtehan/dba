@@ -10,6 +10,7 @@ export interface SubagentDefinition {
   name: string;
   description: string;
   icon: string; // lucide-react icon name
+  category: string; // DBA domain grouping (Security, Performance, Storage, General)
   params?: SubagentParam[]; // input parameters the launcher renders
 }
 
@@ -22,4 +23,13 @@ export interface SubagentContext {
 export interface SubagentRunResult {
   content: string;
   metadata?: Record<string, unknown>;
+}
+
+export interface SubagentRunHistoryEntry {
+  agentId: string;
+  timestamp: number;
+  params: Record<string, string>;
+  sessionId: string;
+  durationMs: number;
+  status: 'completed' | 'failed';
 }

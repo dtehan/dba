@@ -45,8 +45,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke(IpcChannels.SUBAGENT_LIST),
   runSubagent: (agentId: string, params?: Record<string, string>) =>
     ipcRenderer.invoke(IpcChannels.SUBAGENT_RUN, agentId, params ?? {}),
-  runSubagentInChat: (agentId: string, params: Record<string, string>) =>
-    ipcRenderer.invoke(IpcChannels.CHAT_SEND_SUBAGENT, agentId, params),
+  runSubagentInChat: (agentId: string, params: Record<string, string>, sessionId?: string) =>
+    ipcRenderer.invoke(IpcChannels.CHAT_SEND_SUBAGENT, agentId, params, sessionId),
   listChatSessions: () =>
     ipcRenderer.invoke(IpcChannels.CHAT_SESSIONS_LIST),
   saveChatSession: (session: any) =>
@@ -55,4 +55,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke(IpcChannels.CHAT_SESSION_DELETE, id),
   loadChatSession: (id: string) =>
     ipcRenderer.invoke('chat:session-load', id),
+  listSubagentHistory: (agentId?: string) =>
+    ipcRenderer.invoke(IpcChannels.SUBAGENT_HISTORY_LIST, agentId),
+  addSubagentHistory: (entry: any) =>
+    ipcRenderer.invoke(IpcChannels.SUBAGENT_HISTORY_ADD, entry),
+  clearSubagentHistory: () =>
+    ipcRenderer.invoke(IpcChannels.SUBAGENT_HISTORY_CLEAR),
 });

@@ -2,6 +2,7 @@
 name: MVC Analysis
 description: Analyzes tables for multi-value compression opportunities using the Package Bit-Cost Model.
 icon: Database
+category: Storage
 tools: base_readQuery, base_columnDescription, base_tableDDL, dba_tableSpace, base_tableList
 max_tool_rounds: 100
 max_tokens: 16384

@@ -2,6 +2,7 @@
 name: Security Audit
 description: Analyzes access rights, roles, and permissions for security anomalies.
 icon: Shield
+category: Security
 tools: sec_userRoles, sec_userDbPermissions, sec_rolePermissions, base_readQuery
 max_tool_rounds: 20
 max_tokens: 8192

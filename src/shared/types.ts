@@ -55,6 +55,9 @@ export const IpcChannels = {
   CHAT_SESSIONS_LIST: 'chat:sessions-list',
   CHAT_SESSION_SAVE: 'chat:session-save',
   CHAT_SESSION_DELETE: 'chat:session-delete',
+  SUBAGENT_HISTORY_LIST: 'subagent:history-list',
+  SUBAGENT_HISTORY_ADD: 'subagent:history-add',
+  SUBAGENT_HISTORY_CLEAR: 'subagent:history-clear',
 } as const;
 
 // Chat session for persistence
@@ -87,10 +90,13 @@ export interface ElectronAPI {
   removeChatListeners: () => void;
   fetchSchemaContext: (databaseName: string) => Promise<{ success: boolean; context?: string; error?: string }>;
   listDatabases: () => Promise<{ success: boolean; databases?: string[]; error?: string }>;
-  listSubagents: () => Promise<Array<{ id: string; name: string; description: string; icon: string; params?: Array<{ key: string; label: string; placeholder: string; required: boolean }> }>>;
+  listSubagents: () => Promise<Array<{ id: string; name: string; description: string; icon: string; category: string; params?: Array<{ key: string; label: string; placeholder: string; required: boolean }> }>>;
   runSubagent: (agentId: string, params?: Record<string, string>) => Promise<{ success: boolean; content?: string; error?: string }>;
-  runSubagentInChat: (agentId: string, params: Record<string, string>) => Promise<{ success: boolean; error?: string }>;
+  runSubagentInChat: (agentId: string, params: Record<string, string>, sessionId?: string) => Promise<{ success: boolean; error?: string }>;
   listChatSessions: () => Promise<Array<{ id: string; title: string; createdAt: number; updatedAt: number; messageCount: number }>>;
   saveChatSession: (session: ChatSession) => Promise<void>;
   deleteChatSession: (id: string) => Promise<void>;
+  listSubagentHistory: (agentId?: string) => Promise<Array<import('./subagent-types').SubagentRunHistoryEntry>>;
+  addSubagentHistory: (entry: import('./subagent-types').SubagentRunHistoryEntry) => Promise<void>;
+  clearSubagentHistory: () => Promise<void>;
 }

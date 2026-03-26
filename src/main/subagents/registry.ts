@@ -134,6 +134,7 @@ function loadAgents(): ParsedAgent[] {
       const name = (fm.name as string) || id;
       const description = (fm.description as string) || '';
       const icon = (fm.icon as string) || 'Terminal';
+      const category = (fm.category as string) || 'General';
       const toolsRaw = (fm.tools as string) || '';
       const toolFilter = toolsRaw.split(',').map((t) => t.trim()).filter(Boolean);
       const maxToolRounds = (fm.max_tool_rounds as number) || 20;
@@ -154,6 +155,7 @@ function loadAgents(): ParsedAgent[] {
           name,
           description,
           icon,
+          category,
           params: params?.length ? params : undefined,
         },
         body,
