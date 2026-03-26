@@ -45,6 +45,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke(IpcChannels.SUBAGENT_LIST),
   runSubagent: (agentId: string, params?: Record<string, string>) =>
     ipcRenderer.invoke(IpcChannels.SUBAGENT_RUN, agentId, params ?? {}),
+  runSubagentInChat: (agentId: string, params: Record<string, string>) =>
+    ipcRenderer.invoke(IpcChannels.CHAT_SEND_SUBAGENT, agentId, params),
   listChatSessions: () =>
     ipcRenderer.invoke(IpcChannels.CHAT_SESSIONS_LIST),
   saveChatSession: (session: any) =>

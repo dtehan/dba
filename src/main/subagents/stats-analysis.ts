@@ -209,6 +209,20 @@ Copy and review before executing:
 - Composite index columns should be collected as a single INDEX statement, not separate COLUMN statements.`;
 }
 
+export function getStatsAnalysisConfig(ctx: SubagentContext) {
+  const databaseName = ctx.params['databaseName'] || '';
+  const tableNameRaw = ctx.params['tableName'] || '';
+  const tableName = tableNameRaw.trim() || undefined;
+  const targetDesc = tableName ? `table ${databaseName}.${tableName}` : `database ${databaseName}`;
+  return {
+    systemPrompt: buildStatsSystemPrompt(databaseName, tableName),
+    toolFilter: STATS_TOOLS,
+    maxToolRounds: MAX_TOOL_ROUNDS,
+    maxTokens: 8192,
+    initialMessage: `Analyze ${targetDesc} for missing and stale statistics. Follow the analysis workflow in your instructions and produce prioritized COLLECT STATISTICS recommendations.`,
+  };
+}
+
 export async function runStatsAnalysis(ctx: SubagentContext): Promise<SubagentRunResult> {
   const databaseName = ctx.params['databaseName'] || '';
   const tableNameRaw = ctx.params['tableName'] || '';

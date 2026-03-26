@@ -320,6 +320,20 @@ Produce a SINGLE markdown document with these sections:
 - Show progress as you analyze each table.`;
 }
 
+export function getMvcAnalysisConfig(ctx: SubagentContext) {
+  const databaseName = ctx.params['databaseName'] || '';
+  const tableNameRaw = ctx.params['tableName'] || '';
+  const tableName = tableNameRaw.trim() || undefined;
+  const targetDesc = tableName ? `table ${databaseName}.${tableName}` : `all tables in database ${databaseName}`;
+  return {
+    systemPrompt: buildMvcSystemPrompt(databaseName, tableName),
+    toolFilter: MVC_TOOLS,
+    maxToolRounds: MAX_TOOL_ROUNDS,
+    maxTokens: 16384,
+    initialMessage: `Analyze ${targetDesc} for multi-value compression opportunities using the Package Bit-Cost Model. Follow the complete workflow in your instructions.`,
+  };
+}
+
 export async function runMvcAnalysis(ctx: SubagentContext): Promise<SubagentRunResult> {
   const databaseName = ctx.params['databaseName'] || '';
   const tableNameRaw = ctx.params['tableName'] || '';

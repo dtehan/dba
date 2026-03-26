@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight, Terminal, Shield, BarChart3, Database, TrendingUp, Loader2 } from 'lucide-react';
 import { getElectronAPI } from '@/lib/ipc';
 import { useChatStore } from '@/store/chat-store';
+import { useAppStore } from '@/store/app-store';
 
 interface SubagentDef {
   id: string;
@@ -43,19 +44,28 @@ export function SubagentLauncher(): JSX.Element {
     setRunningAgentId(agent.id);
     setPendingAgent(null);
     setFormValues({});
+
+    // Navigate to chat and start a new conversation for this subagent
+    useAppStore.getState().setCurrentPage('chat');
+    const store = useChatStore.getState();
+    store.newChat();
+
+    // Build a descriptive user message
+    const paramDesc = Object.entries(params).filter(([,v]) => v).map(([k,v]) => `${k}: ${v}`).join(', ');
+    const userMsg = `Run ${agent.name}${paramDesc ? ` (${paramDesc})` : ''}`;
+    store.addUserMessage(userMsg);
+    const assistantId = store.addAssistantMessagePlaceholder();
+
     try {
-      const result = await getElectronAPI().runSubagent(agent.id, params);
-      if (result.success && result.content) {
-        useChatStore.getState().addSubagentResult({
-          agentName: agent.name,
-          content: result.content,
-          timestamp: Date.now(),
-        });
-      } else {
-        console.warn('[SubagentLauncher] Subagent error:', result.error);
+      const result = await getElectronAPI().runSubagentInChat(agent.id, params);
+      if (!result.success && result.error) {
+        useChatStore.getState().setError(result.error);
+        useChatStore.getState().finalizeMessage(assistantId);
       }
     } catch (err) {
-      console.warn('[SubagentLauncher] Subagent run failed:', err);
+      const message = err instanceof Error ? err.message : 'Subagent run failed';
+      useChatStore.getState().setError(message);
+      useChatStore.getState().finalizeMessage(assistantId);
     } finally {
       setRunningAgentId(null);
     }

@@ -121,6 +121,17 @@ Produce a markdown report with this structure:
 - Use clear Teradata SQL syntax for all remediation steps.`;
 }
 
+export function getSecurityAuditConfig(ctx: SubagentContext) {
+  const scope = ctx.params['scope'] || 'system-wide';
+  return {
+    systemPrompt: buildSecuritySystemPrompt(scope),
+    toolFilter: SECURITY_TOOLS,
+    maxToolRounds: MAX_TOOL_ROUNDS,
+    maxTokens: 8192,
+    initialMessage: `Please perform a security audit for scope: ${scope}. Follow the analysis checklist in your instructions and produce a prioritized findings report.`,
+  };
+}
+
 export async function runSecurityAudit(ctx: SubagentContext): Promise<SubagentRunResult> {
   const scope = ctx.params['scope'] || 'system-wide';
 
