@@ -13,8 +13,8 @@ Four phases take the project from an empty directory to a fully featured local D
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Electron shell, credential storage, MCP/Claude connectivity, and Teradata brand identity (completed 2026-03-24)
-- [ ] **Phase 2: Chat** - Freeform chat with streaming, schema grounding, session memory, and subagent launcher framework
-- [ ] **Phase 3: Core Subagents** - Security Audit, MVC Analysis, and Statistics Analysis subagents with rich output
+- [x] **Phase 2: Chat** - Freeform chat with streaming, schema grounding, session memory, and subagent launcher framework (completed 2026-03-26)
+- [x] **Phase 3: Core Subagents** - Security Audit, MVC Analysis, and Statistics Analysis subagents with rich output (completed 2026-03-26)
 - [ ] **Phase 4: Analysis Expansion** - Skew Analysis and Space Usage subagents completing the v1 subagent set
 
 ## Phase Details
@@ -48,7 +48,7 @@ Plans:
   3. Claude can answer questions about specific databases and tables using live schema context from MCP without hallucinating table names or column types
   4. User can translate a plain-English request into a valid Teradata SQL query via chat
   5. User can see a subagent launcher panel, browse available subagents, and launch one — with results appearing as a distinct rich card in the chat thread, isolated from the main conversation history
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans complete
 Plans:
 - [x] 02-01-PLAN.md — Install deps, chat types, Zustand store with immer, Bedrock streaming IPC handler
 - [x] 02-02-PLAN.md — Chat UI components (ChatScreen, MessageList, MessageBubble, ChatInput), streamdown, AppShell wiring
@@ -67,13 +67,13 @@ Plans:
   3. User can run Statistics Analysis and receive a prioritized list of missing and stale statistics with COLLECT STATISTICS statements for copy-paste application
   4. All subagent SQL recommendations are surfaced for copy-paste only — no query is auto-executed
   5. Results are capped and pre-aggregated before reaching Claude — no unbounded result sets reach the LLM
-**Plans:** 4/5 plans executed
+**Plans:** 5/5 plans complete
 Plans:
 - [x] 03-01-PLAN.md — Extend subagent types with params, extract shared Bedrock client service, update IPC/preload, launcher parameter form
 - [x] 03-02-PLAN.md — Security Audit subagent (system prompt, run function, registry)
 - [x] 03-03-PLAN.md — MVC Analysis subagent (Package Bit-Cost Model system prompt, run function, registry)
 - [x] 03-04-PLAN.md — Statistics Analysis subagent (missing/stale stats detection, COLLECT STATISTICS, registry)
-- [ ] 03-05-PLAN.md — Visual checkpoint: end-to-end subagent verification
+- [x] 03-05 — Visual checkpoint: build verified, inline styles converted to Tailwind
 **UI hint**: yes
 
 ### Phase 4: Analysis Expansion
@@ -85,7 +85,11 @@ Plans:
   2. User can run Space Usage analysis on a database or full system and see current perm space vs. allocation per database, with databases approaching limits clearly flagged
   3. Space analysis surfaces the top space-consuming tables and provides concrete recommendations for space recovery
   4. Both new subagents follow the same result-capping and output schema patterns established in Phase 3
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 04-01-PLAN.md — Skew Analysis subagent (skew factor calculation, PI cause analysis, ALTER TABLE recommendations)
+- [ ] 04-02-PLAN.md — Space Usage subagent (perm space utilization, capacity alerts, space recovery recommendations)
+**UI hint**: no
 
 ## Progress
 
@@ -95,6 +99,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-03-24 |
-| 2. Chat | 4/5 | In Progress|  |
-| 3. Core Subagents | 4/5 | In Progress|  |
-| 4. Analysis Expansion | 0/TBD | Not started | - |
+| 2. Chat | 5/5 | Complete   | 2026-03-26 |
+| 3. Core Subagents | 5/5 | Complete   | 2026-03-26 |
+| 4. Analysis Expansion | 0/2 | Not started | - |
