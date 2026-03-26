@@ -67,12 +67,12 @@ Plans:
   3. User can run Statistics Analysis and receive a prioritized list of missing and stale statistics with COLLECT STATISTICS statements for copy-paste application
   4. All subagent SQL recommendations are surfaced for copy-paste only — no query is auto-executed
   5. Results are capped and pre-aggregated before reaching Claude — no unbounded result sets reach the LLM
-**Plans:** 3/5 plans executed
+**Plans:** 4/5 plans executed
 Plans:
 - [x] 03-01-PLAN.md — Extend subagent types with params, extract shared Bedrock client service, update IPC/preload, launcher parameter form
 - [x] 03-02-PLAN.md — Security Audit subagent (system prompt, run function, registry)
 - [x] 03-03-PLAN.md — MVC Analysis subagent (Package Bit-Cost Model system prompt, run function, registry)
-- [ ] 03-04-PLAN.md — Statistics Analysis subagent (missing/stale stats detection, COLLECT STATISTICS, registry)
+- [x] 03-04-PLAN.md — Statistics Analysis subagent (missing/stale stats detection, COLLECT STATISTICS, registry)
 - [ ] 03-05-PLAN.md — Visual checkpoint: end-to-end subagent verification
 **UI hint**: yes
 
@@ -96,5 +96,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation | 5/5 | Complete   | 2026-03-24 |
 | 2. Chat | 4/5 | In Progress|  |
-| 3. Core Subagents | 3/5 | In Progress|  |
+| 3. Core Subagents | 4/5 | In Progress|  |
 | 4. Analysis Expansion | 0/TBD | Not started | - |

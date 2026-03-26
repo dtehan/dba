@@ -50,10 +50,10 @@
 ### Statistics Analysis Subagent
 
 - [x] **STAT-01**: User can run statistics analysis on a database or specific tables
-- [ ] **STAT-02**: Analysis identifies missing statistics on indexed and frequently joined columns
-- [ ] **STAT-03**: Analysis identifies stale statistics that need recollection
-- [ ] **STAT-04**: Analysis produces COLLECT STATISTICS statements for copy-paste application
-- [ ] **STAT-05**: Analysis prioritizes recommendations by query plan impact
+- [x] **STAT-02**: Analysis identifies missing statistics on indexed and frequently joined columns
+- [x] **STAT-03**: Analysis identifies stale statistics that need recollection
+- [x] **STAT-04**: Analysis produces COLLECT STATISTICS statements for copy-paste application
+- [x] **STAT-05**: Analysis prioritizes recommendations by query plan impact
 
 ### Skew Analysis Subagent
 
@@ -140,10 +140,10 @@
 | MVCA-04 | Phase 3 | Complete |
 | MVCA-05 | Phase 3 | Complete |
 | STAT-01 | Phase 3 | Complete |
-| STAT-02 | Phase 3 | Pending |
-| STAT-03 | Phase 3 | Pending |
-| STAT-04 | Phase 3 | Pending |
-| STAT-05 | Phase 3 | Pending |
+| STAT-02 | Phase 3 | Complete |
+| STAT-03 | Phase 3 | Complete |
+| STAT-04 | Phase 3 | Complete |
+| STAT-05 | Phase 3 | Complete |
 | SKEW-01 | Phase 4 | Pending |
 | SKEW-02 | Phase 4 | Pending |
 | SKEW-03 | Phase 4 | Pending |
