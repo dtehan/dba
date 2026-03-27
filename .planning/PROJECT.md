@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A local desktop application that gives Teradata DBAs an AI-powered chat interface with specialized subagents for common DBA tasks. Users can have freeform conversations about their Teradata environment and launch prebuilt capabilities like security auditing, multi-value compression analysis, and statistics analysis — all powered by Claude. The UI carries Teradata's visual identity and brand feel.
+A local Electron desktop application that gives Teradata DBAs an AI-powered chat interface with five specialized analysis subagents. Users have freeform conversations about their Teradata environment and launch prebuilt capabilities — Security Audit, MVC Analysis, Statistics Analysis, Skew Analysis, and Space Usage — all powered by Claude via Bedrock. The UI carries Teradata's visual identity.
 
 ## Core Value
 
@@ -12,19 +12,21 @@ DBAs can run expert-level analysis on their Teradata environment through natural
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ Chat interface with Teradata look and feel (colors, typography, brand identity) — v1.0
+- ✓ Claude API integration for powering chat and subagents — v1.0
+- ✓ User-provided Teradata credentials via configuration — v1.0
+- ✓ Security Auditing subagent — analyzes database security posture and surfaces issues — v1.0
+- ✓ Multi-Value Compression (MVC) analysis subagent — evaluates compression opportunities — v1.0
+- ✓ Statistics analysis subagent — reviews and recommends table/column statistics — v1.0
+- ✓ Subagent results rendered as rich chat messages — v1.0
+- ✓ Ability to select and launch prebuilt subagents from the UI — v1.0
+- ✓ Freeform chat about Teradata environment and data — v1.0
+- ✓ Skew Analysis subagent — identifies data distribution skew and PI alternatives — v1.0
+- ✓ Space Usage subagent — perm space utilization and capacity alerts — v1.0
 
 ### Active
 
-- [ ] Chat interface with Teradata look and feel (colors, typography, brand identity)
-- [ ] Claude API integration for powering chat and subagents
-- [ ] User-provided Teradata credentials via configuration
-- [ ] Security Auditing subagent — analyzes database security posture and surfaces issues
-- [ ] Multi-Value Compression (MVC) analysis subagent — evaluates compression opportunities
-- [ ] Statistics analysis subagent — reviews and recommends table/column statistics
-- [ ] Subagent results rendered as rich chat messages
-- [ ] Ability to select and launch prebuilt subagents from the UI
-- [ ] Freeform chat about Teradata environment and data
+(None yet — define for next milestone)
 
 ### Out of Scope
 
@@ -33,38 +35,43 @@ DBAs can run expert-level analysis on their Teradata environment through natural
 - Service account connections — user credentials only
 - Non-DBA audience — expert users assumed
 - Downloadable reports / dashboards — chat-based output for v1
+- DDL/DML execution from chat — catastrophic risk on production; SQL is copy-paste only
+- Automated scheduling / cron — conflicts with local desktop model
+- LLM-generated automated fixes with apply button — risk of unintended production changes
 
 ## Context
 
+- Shipped v1.0 with 11,502 LOC TypeScript/TSX/CSS across 92 commits in 4 days
+- Tech stack: Electron 41, React 19, TailwindCSS v4, shadcn/ui, Zustand, streamdown
+- Claude via AWS Bedrock with AssumeRole + inference profiles (us-west-2)
+- Teradata connectivity via MCP server (tdsql-mcp) spawned as child process
+- 5 subagents shipped: Security Audit, MVC Analysis, Statistics Analysis, Skew Analysis, Space Usage
+- Subagent pattern: markdown definition file + tool-use loop + non-streaming messages.create
+- Brand identity: Teradata orange (#F37440), dark charcoal (#1D1D1D), clean modern aesthetic
 - Target users are experienced Teradata DBAs who know the platform well
-- Teradata brand identity: orange (#F37440), dark charcoal (#1D1D1D), clean modern aesthetic
-- Research phase will identify additional common DBA tasks beyond the initial three subagents
-- Claude API (Anthropic) is the LLM backbone for all AI capabilities
-- Local desktop app — no cloud deployment or shared infrastructure needed
-- Subagents are specialized prompt chains that query Teradata and analyze results
-- **Teradata MCP Servers** available for connectivity:
-  - `tdsql-mcp` (github.com/ksturgeon-td/tdsql-mcp) — provides execute_query, list_databases, list_tables, describe_table, explain_query tools + 21 Teradata SQL syntax reference files
-  - `teradata-mcp-server` (github.com/Teradata/teradata-mcp-server) — official Teradata community MCP server (Python)
-  - These eliminate the need to build raw Teradata connectivity — subagents use MCP tools
 
 ## Constraints
 
-- **LLM Provider**: Claude API (Anthropic) — chosen by user
+- **LLM Provider**: Claude via AWS Bedrock — AssumeRole with inference profiles
 - **Deployment**: Local application on DBA's machine — no server infrastructure
-- **Connectivity**: Requires network access to both Teradata instance and Claude API
+- **Connectivity**: Requires network access to both Teradata instance and Bedrock endpoint
 - **Brand**: UI must reflect Teradata visual identity (colors, feel, typography)
-- **Tech Stack**: Open — research will guide framework selection
+- **Tech Stack**: Electron 41 + React 19 + TypeScript + electron-vite 5.0
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Claude API as LLM backbone | User preference, strong tool-use capabilities | — Pending |
-| Local desktop app | DBA workflows are local, avoids infrastructure complexity | — Pending |
-| Chat-first output | Keeps v1 simple, results inline with conversation | — Pending |
-| Teradata brand identity | Tool should feel native to the Teradata ecosystem | — Pending |
-| Start with 3 subagents | Security, MVC, Statistics — validate pattern before expanding | — Pending |
-| Use Teradata MCP servers | tdsql-mcp + teradata-mcp-server provide ready-made connectivity and SQL tools | — Pending |
+| Claude via Bedrock (not direct API) | Enterprise auth via AssumeRole, no API key management | ✓ Good |
+| Local desktop app | DBA workflows are local, avoids infrastructure complexity | ✓ Good |
+| Chat-first output | Keeps v1 simple, results inline with conversation | ✓ Good |
+| Teradata brand identity | Tool should feel native to the Teradata ecosystem | ✓ Good |
+| Start with 3 subagents, expanded to 5 | Security, MVC, Statistics validated pattern; Skew + Space followed naturally | ✓ Good |
+| MCP server for Teradata connectivity | tdsql-mcp provides ready-made query/schema tools, no raw driver needed | ✓ Good |
+| Markdown-based subagent definitions | Convention-based discovery, system prompts as .md files in subagents/ | ✓ Good |
+| Non-streaming subagent execution | Complete report collected then rendered; avoids partial analysis display | ✓ Good |
+| safeStorage for credentials | OS keychain integration, no plaintext, no extra dependencies | ✓ Good |
+| Streamdown for chat rendering | Handles incomplete markdown during streaming without layout thrashing | ✓ Good |
 
 ## Evolution
 
@@ -84,4 +91,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-24 after initialization*
+*Last updated: 2026-03-27 after v1.0 milestone*
