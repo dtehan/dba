@@ -3,6 +3,8 @@ import { getBedrockClient, getMcpToolsForClaude, executeTool, clearToolsCache } 
 import { getSubagentConfig } from '../subagents/registry';
 import { IpcChannels } from '@shared/types';
 import { addRunEntry } from './subagent-history';
+import { getSyntaxToolDefinition, executeSyntaxTool } from '../services/syntax-tool';
+import { getSyntaxGuidelines, getSyntaxIndex } from '../services/syntax-loader';
 
 const MAX_TOOL_ROUNDS = 10;
 
@@ -106,8 +108,14 @@ async function runAgentLoop(params: AgentLoopParams): Promise<AgentLoopResult> {
       for (const toolBlock of toolUseBlocks) {
         if (controller.signal.aborted) break;
 
-        onToken(`\n\n*Querying Teradata: ${toolBlock.name}...*\n\n`);
-        const result = await executeTool(toolBlock.name, toolBlock.input as any);
+        let result: string;
+        if (toolBlock.name === 'td_syntax') {
+          onToken('\n\n*Looking up syntax reference...*\n\n');
+          result = executeSyntaxTool(toolBlock.input as { topics: string[] });
+        } else {
+          onToken(`\n\n*Querying Teradata: ${toolBlock.name}...*\n\n`);
+          result = await executeTool(toolBlock.name, toolBlock.input as any);
+        }
         toolResults.push({
           type: 'tool_result',
           tool_use_id: toolBlock.id,
@@ -166,7 +174,7 @@ export function registerChatHandlers(): void {
 
       try {
         const { client, modelId } = await getBedrockClient();
-        const allTools = await getMcpToolsForClaude();
+        const allTools = [...(await getMcpToolsForClaude()), getSyntaxToolDefinition()];
 
         const initialMessages = messages.map((m) => ({
           role: m.role as 'user' | 'assistant',
@@ -224,10 +232,11 @@ export function registerChatHandlers(): void {
 
       try {
         const { client, modelId } = await getBedrockClient();
-        const allTools = await getMcpToolsForClaude();
-        const tools = config.toolFilter.length > 0
-          ? allTools.filter((t: any) => config.toolFilter.includes(t.name))
-          : allTools;
+        const allMcpTools = await getMcpToolsForClaude();
+        const filteredTools = config.toolFilter.length > 0
+          ? allMcpTools.filter((t: any) => config.toolFilter.includes(t.name))
+          : allMcpTools;
+        const tools = [...filteredTools, getSyntaxToolDefinition()];
 
         const result = await runAgentLoop({
           client,
@@ -280,6 +289,10 @@ export function registerChatHandlers(): void {
       }
     }
   );
+
+  ipcMain.handle(IpcChannels.SYNTAX_CONTEXT, async () => {
+    return { guidelines: getSyntaxGuidelines(), index: getSyntaxIndex() };
+  });
 
   ipcMain.handle(IpcChannels.CHAT_ABORT, async () => {
     if (activeAbort) {

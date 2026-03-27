@@ -2,6 +2,7 @@ import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { app } from 'electron';
 import type { SubagentDefinition } from '../../shared/subagent-types';
+import { getSyntaxGuidelines, getSyntaxIndex } from '../services/syntax-loader';
 
 export interface SubagentChatConfig {
   systemPrompt: string;
@@ -215,7 +216,15 @@ export function getSubagentConfig(
   const agent = getAgents().find((a) => a.definition.id === agentId);
   if (!agent) return null;
 
-  const systemPrompt = renderTemplate(agent.body, ctx.params);
+  const basePrompt = renderTemplate(agent.body, ctx.params);
+
+  // Append Teradata SQL syntax reference
+  const guidelines = getSyntaxGuidelines();
+  const syntaxIndex = getSyntaxIndex();
+  const syntaxSection = guidelines || syntaxIndex
+    ? `\n\n## Teradata SQL Syntax Reference\n\n${guidelines}\n\nYou have a \`td_syntax\` tool available to look up detailed syntax for specific topics. Available topics:\n\n${syntaxIndex}`
+    : '';
+  const systemPrompt = basePrompt + syntaxSection;
 
   // Build a descriptive initial message from the agent name and params
   const paramDesc = Object.entries(ctx.params)

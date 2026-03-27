@@ -67,4 +67,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke(IpcChannels.QUERY_ACTIVITY_FETCH),
   recheckConnections: () =>
     ipcRenderer.invoke(IpcChannels.CONNECTION_RECHECK),
+  getSyntaxContext: () =>
+    ipcRenderer.invoke(IpcChannels.SYNTAX_CONTEXT),
 });

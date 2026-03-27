@@ -61,6 +61,7 @@ export const IpcChannels = {
   OVERVIEW_FETCH: 'overview:fetch',
   QUERY_ACTIVITY_FETCH: 'query-activity:fetch',
   CONNECTION_RECHECK: 'connection:recheck',
+  SYNTAX_CONTEXT: 'syntax:context',
 } as const;
 
 // Chat session for persistence
@@ -122,4 +123,5 @@ export interface ElectronAPI {
   fetchOverviewMetrics: () => Promise<{ success: boolean; metrics?: OverviewMetrics; error?: string }>;
   fetchQueryActivityMetrics: () => Promise<{ success: boolean; metrics?: QueryActivityMetrics; error?: string }>;
   recheckConnections: () => Promise<void>;
+  getSyntaxContext: () => Promise<{ guidelines: string; index: string }>;
 }
