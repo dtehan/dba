@@ -9,10 +9,12 @@ function App(): JSX.Element {
   useEffect(() => {
     // Subscribe to connection status updates from main process
     try {
-      const api = (window as { electronAPI?: { onConnectionStatus?: (cb: typeof setConnectionStatus) => void; removeConnectionStatusListener?: () => void } }).electronAPI;
+      const api = (window as { electronAPI?: { onConnectionStatus?: (cb: typeof setConnectionStatus) => void; removeConnectionStatusListener?: () => void; recheckConnections?: () => Promise<void> } }).electronAPI;
       if (api?.onConnectionStatus) {
         api.onConnectionStatus(setConnectionStatus);
       }
+      // Request immediate status check now that the listener is registered
+      api?.recheckConnections?.();
     } catch {
       // Not running in Electron (e.g., during tests)
     }

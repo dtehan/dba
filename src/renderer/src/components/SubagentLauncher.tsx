@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Terminal, Shield, BarChart3, Database, TrendingUp, Loader2, RotateCcw, Search, X, ArrowLeft } from 'lucide-react';
+import { Terminal, Shield, BarChart3, Database, TrendingUp, Loader2, RotateCcw, Search, X, ArrowLeft, Activity } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { getElectronAPI } from '@/lib/ipc';
 import { useChatStore } from '@/store/chat-store';
@@ -16,7 +16,7 @@ interface AgentDef {
 }
 
 const ICON_MAP: Record<string, React.ComponentType<{ size?: number; style?: React.CSSProperties }>> = {
-  Terminal, Shield, BarChart3, Database, TrendingUp,
+  Terminal, Shield, BarChart3, Database, TrendingUp, Activity,
 };
 
 // Category → icon mapping
@@ -24,6 +24,7 @@ const CATEGORY_ICONS: Record<string, string> = {
   Security: 'Shield',
   Performance: 'BarChart3',
   Storage: 'Database',
+  'Workload Management': 'Activity',
   General: 'Terminal',
 };
 
@@ -32,6 +33,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   Security: '#F59E0B',
   Performance: '#3B82F6',
   Storage: '#10B981',
+  'Workload Management': '#8B5CF6',
   General: '#A3A3A3',
 };
 
@@ -245,18 +247,24 @@ export function SubagentLauncher(): JSX.Element {
           <div style={{ fontSize: '14px', color: '#F5F5F5', fontWeight: 500, marginBottom: '8px' }}>
             {activeCategory}
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            {activeCategoryAgents.map((agent) => (
-              <AgentListItem
-                key={agent.id}
-                agent={agent}
-                lastRun={getLastRun(agent.id)}
-                isRunning={runningAgentId === agent.id}
-                disabled={runningAgentId !== null}
-                onSelect={() => handleSelectAgent(agent)}
-              />
-            ))}
-          </div>
+          {activeCategoryAgents.length === 0 ? (
+            <p style={{ fontSize: '12px', color: '#525252', margin: '8px 0 0', textAlign: 'center' }}>
+              No agents yet — coming soon
+            </p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+              {activeCategoryAgents.map((agent) => (
+                <AgentListItem
+                  key={agent.id}
+                  agent={agent}
+                  lastRun={getLastRun(agent.id)}
+                  isRunning={runningAgentId === agent.id}
+                  disabled={runningAgentId !== null}
+                  onSelect={() => handleSelectAgent(agent)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 

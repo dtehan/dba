@@ -6,6 +6,7 @@ import store from '../store';
 
 const POLL_INTERVAL_MS = 30_000;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
+let currentWindow: BrowserWindow | null = null;
 
 async function checkTeradataStatus(): Promise<ConnectionState> {
   const mcpUrl = getMcpUrl();
@@ -47,16 +48,18 @@ async function checkBothConnections(): Promise<ConnectionStatus> {
   return { teradata, claude };
 }
 
-export function startHealthPolling(win: BrowserWindow): void {
-  const poll = async (): Promise<void> => {
-    const status = await checkBothConnections();
-    if (!win.isDestroyed()) {
-      win.webContents.send(IpcChannels.CONNECTION_STATUS_UPDATE, status);
-    }
-  };
+async function pollNow(win: BrowserWindow): Promise<void> {
+  const status = await checkBothConnections();
+  if (!win.isDestroyed()) {
+    win.webContents.send(IpcChannels.CONNECTION_STATUS_UPDATE, status);
+  }
+}
 
-  poll();
-  pollTimer = setInterval(poll, POLL_INTERVAL_MS);
+export function startHealthPolling(win: BrowserWindow): void {
+  currentWindow = win;
+
+  pollNow(win);
+  pollTimer = setInterval(() => pollNow(win), POLL_INTERVAL_MS);
 
   win.on('blur', () => {
     if (pollTimer) {
@@ -67,10 +70,17 @@ export function startHealthPolling(win: BrowserWindow): void {
 
   win.on('focus', () => {
     if (!pollTimer) {
-      poll();
-      pollTimer = setInterval(poll, POLL_INTERVAL_MS);
+      pollNow(win);
+      pollTimer = setInterval(() => pollNow(win), POLL_INTERVAL_MS);
     }
   });
+}
+
+/** Force an immediate re-check (e.g., after credentials are saved) */
+export function forcePoll(): void {
+  if (currentWindow && !currentWindow.isDestroyed()) {
+    pollNow(currentWindow);
+  }
 }
 
 export function stopHealthPolling(): void {

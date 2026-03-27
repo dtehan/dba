@@ -12,6 +12,9 @@ function mcpUrl(): string {
  */
 let mcpSessionId: string | null = null;
 
+/** Monotonically increasing JSON-RPC request ID to avoid collisions on concurrent calls */
+let nextRpcId = 1;
+
 /**
  * Initialize an MCP session by sending the JSON-RPC initialize request.
  * Stores the Mcp-Session-Id header value if the server provides one.
@@ -83,7 +86,7 @@ export async function callMcpTool(toolName: string, args: Record<string, string>
         headers,
         body: JSON.stringify({
           jsonrpc: '2.0',
-          id: Date.now(),
+          id: nextRpcId++,
           method: 'tools/call',
           params: { name: toolName, arguments: args },
         }),
@@ -274,7 +277,7 @@ export async function discoverMcpTools(): Promise<
     headers,
     body: JSON.stringify({
       jsonrpc: '2.0',
-      id: Date.now(),
+      id: nextRpcId++,
       method: 'tools/list',
       params: {},
     }),

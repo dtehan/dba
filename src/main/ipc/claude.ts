@@ -3,6 +3,7 @@ import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import AnthropicBedrock from '@anthropic-ai/bedrock-sdk';
 import store from '../store';
 import { IpcChannels } from '@shared/types';
+import { forcePoll } from '../services/health-poller';
 
 const DEFAULT_MODEL = 'us.anthropic.claude-sonnet-4-20250514-v1:0';
 
@@ -12,6 +13,7 @@ export function registerClaudeHandlers(): void {
     if (typeof key !== 'string' || !key) throw new Error('Invalid credentials');
     const encrypted = safeStorage.encryptString(key).toString('base64');
     store.set('claude.encryptedApiKey', encrypted);
+    forcePoll();
   });
 
   // Save Bedrock region

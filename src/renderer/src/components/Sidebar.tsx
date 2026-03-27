@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Database, Settings, Plus, Trash2 } from 'lucide-react';
+import { Database, Settings, LayoutDashboard, ScrollText, Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/store/app-store';
 import { useChatStore } from '@/store/chat-store';
@@ -76,6 +76,36 @@ export function Sidebar(): JSX.Element {
 
       {/* Navigation */}
       <nav className="flex flex-col">
+        <button
+          type="button"
+          onClick={() => setCurrentPage('overview')}
+          className={cn(
+            'flex items-center gap-2 h-[40px] w-full px-4 text-sm transition-colors',
+            'hover:bg-[#262626]',
+            currentPage === 'overview'
+              ? 'bg-[#262626] border-l-4 border-[#F37440] text-[#F5F5F5]'
+              : 'text-[#A3A3A3] border-l-4 border-transparent'
+          )}
+          aria-current={currentPage === 'overview' ? 'page' : undefined}
+        >
+          <LayoutDashboard size={16} />
+          <span>Overview</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setCurrentPage('query-activity')}
+          className={cn(
+            'flex items-center gap-2 h-[40px] w-full px-4 text-sm transition-colors',
+            'hover:bg-[#262626]',
+            currentPage === 'query-activity'
+              ? 'bg-[#262626] border-l-4 border-[#F37440] text-[#F5F5F5]'
+              : 'text-[#A3A3A3] border-l-4 border-transparent'
+          )}
+          aria-current={currentPage === 'query-activity' ? 'page' : undefined}
+        >
+          <ScrollText size={16} />
+          <span>Query Activity</span>
+        </button>
         <button
           type="button"
           onClick={() => setCurrentPage('settings')}

@@ -58,6 +58,9 @@ export const IpcChannels = {
   SUBAGENT_HISTORY_LIST: 'subagent:history-list',
   SUBAGENT_HISTORY_ADD: 'subagent:history-add',
   SUBAGENT_HISTORY_CLEAR: 'subagent:history-clear',
+  OVERVIEW_FETCH: 'overview:fetch',
+  QUERY_ACTIVITY_FETCH: 'query-activity:fetch',
+  CONNECTION_RECHECK: 'connection:recheck',
 } as const;
 
 // Chat session for persistence
@@ -67,6 +70,23 @@ export interface ChatSession {
   createdAt: number;
   updatedAt: number;
   messages: ChatMessage[];
+}
+
+// Overview dashboard metrics
+export interface OverviewMetrics {
+  version: string | null;
+  currentUser: string | null;
+  totalCpuTime: number;
+  storageUsage: Array<{ databaseName: string; currentPerm: number; maxPerm: number }>;
+  largestTables: Array<{ databaseName: string; tableName: string; currentPerm: number }>;
+  topUsersByCpu: Array<{ userName: string; totalCpu: number }>;
+  fetchedAt: number;
+}
+
+// Query Activity dashboard metrics
+export interface QueryActivityMetrics {
+  topQueries: Array<{ queryText: string; userName: string; cpuTime: number; ioCount: number }>;
+  fetchedAt: number;
 }
 
 // Preload API surface exposed to renderer
@@ -99,4 +119,7 @@ export interface ElectronAPI {
   listSubagentHistory: (agentId?: string) => Promise<Array<import('./subagent-types').SubagentRunHistoryEntry>>;
   addSubagentHistory: (entry: import('./subagent-types').SubagentRunHistoryEntry) => Promise<void>;
   clearSubagentHistory: () => Promise<void>;
+  fetchOverviewMetrics: () => Promise<{ success: boolean; metrics?: OverviewMetrics; error?: string }>;
+  fetchQueryActivityMetrics: () => Promise<{ success: boolean; metrics?: QueryActivityMetrics; error?: string }>;
+  recheckConnections: () => Promise<void>;
 }

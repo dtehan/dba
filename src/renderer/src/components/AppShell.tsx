@@ -3,6 +3,8 @@ import { Sidebar } from '@/components/Sidebar';
 import { StatusBar } from '@/components/StatusBar';
 import { ChatScreen } from '@/features/chat/ChatScreen';
 import { SettingsScreen } from '@/features/settings/SettingsScreen';
+import { OverviewScreen } from '@/features/overview/OverviewScreen';
+import { QueryActivityScreen } from '@/features/query-activity/QueryActivityScreen';
 
 export function AppShell(): JSX.Element {
   const currentPage = useAppStore((s) => s.currentPage);
@@ -12,6 +14,8 @@ export function AppShell(): JSX.Element {
       <Sidebar />
       <main style={{ overflow: 'hidden', backgroundColor: '#1A1A1A', display: 'flex', flexDirection: 'column' }}>
         {currentPage === 'chat' && <ChatScreen />}
+        {currentPage === 'overview' && <OverviewScreen />}
+        {currentPage === 'query-activity' && <QueryActivityScreen />}
         {currentPage === 'settings' && <SettingsScreen />}
       </main>
       <StatusBar />

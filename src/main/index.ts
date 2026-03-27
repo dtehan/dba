@@ -9,7 +9,8 @@ import { registerSchemaHandlers } from './ipc/schema'
 import { registerSubagentHandlers } from './ipc/subagent'
 import { registerChatHistoryHandlers } from './ipc/chat-history'
 import { registerSubagentHistoryHandlers } from './ipc/subagent-history'
-import { startHealthPolling, stopHealthPolling } from './services/health-poller'
+import { registerOverviewHandlers } from './ipc/overview'
+import { startHealthPolling, stopHealthPolling, forcePoll } from './services/health-poller'
 // MCP server runs externally — no process to manage
 
 function createWindow(): BrowserWindow {
@@ -70,6 +71,7 @@ app.whenReady().then(() => {
   registerSubagentHandlers()
   registerChatHistoryHandlers()
   registerSubagentHistoryHandlers()
+  registerOverviewHandlers()
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
@@ -81,6 +83,11 @@ app.whenReady().then(() => {
 
   // Start health polling — pauses on blur, resumes on focus
   startHealthPolling(mainWindow)
+
+  // Re-poll once the renderer has finished loading (so the IPC listener is ready)
+  mainWindow.webContents.on('did-finish-load', () => {
+    forcePoll()
+  })
 
   app.on('activate', function () {
     // On macOS re-create a window when the dock icon is clicked and there are no other windows open.

@@ -12,7 +12,7 @@ interface SubagentDef {
   params?: Array<{ key: string; label: string; placeholder: string; required: boolean }>;
 }
 
-const CATEGORY_ORDER = ['Security', 'Performance', 'Storage', 'General'];
+const CATEGORY_ORDER = ['Security', 'Performance', 'Storage', 'Workload Management', 'General'];
 
 interface SubagentState {
   agents: SubagentDef[];
@@ -44,13 +44,12 @@ export const useSubagentStore = create<SubagentState>()(
         grouped.set(cat, list);
       }
       // Sort by fixed order, unknown categories go at the end
+      // Always include categories from CATEGORY_ORDER (even if empty) so cards render
       const result: Array<{ category: string; agents: SubagentDef[] }> = [];
       for (const cat of CATEGORY_ORDER) {
-        const list = grouped.get(cat);
-        if (list?.length) {
-          result.push({ category: cat, agents: list });
-          grouped.delete(cat);
-        }
+        const list = grouped.get(cat) || [];
+        result.push({ category: cat, agents: list });
+        grouped.delete(cat);
       }
       // Any remaining categories
       for (const [cat, list] of grouped) {

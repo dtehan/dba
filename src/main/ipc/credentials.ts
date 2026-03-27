@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron';
 import store from '../store';
 import { IpcChannels } from '@shared/types';
+import { forcePoll } from '../services/health-poller';
 
 export function registerCredentialHandlers(): void {
   // Save MCP server URL (plaintext — it's just a URL, not a secret)
@@ -10,6 +11,12 @@ export function registerCredentialHandlers(): void {
       throw new Error('MCP server URL is required');
     }
     store.set('teradata.host', data.host);
+    forcePoll();
+  });
+
+  // Re-check connections on demand (e.g., after settings change)
+  ipcMain.handle(IpcChannels.CONNECTION_RECHECK, async () => {
+    forcePoll();
   });
 
   // Load MCP server URL

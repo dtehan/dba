@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { ConnectionStatus } from '@shared/types';
 
-type NavPage = 'chat' | 'settings';
+type NavPage = 'chat' | 'overview' | 'query-activity' | 'settings';
 
 interface AppState {
   // Navigation

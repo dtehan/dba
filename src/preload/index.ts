@@ -61,4 +61,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke(IpcChannels.SUBAGENT_HISTORY_ADD, entry),
   clearSubagentHistory: () =>
     ipcRenderer.invoke(IpcChannels.SUBAGENT_HISTORY_CLEAR),
+  fetchOverviewMetrics: () =>
+    ipcRenderer.invoke(IpcChannels.OVERVIEW_FETCH),
+  fetchQueryActivityMetrics: () =>
+    ipcRenderer.invoke(IpcChannels.QUERY_ACTIVITY_FETCH),
+  recheckConnections: () =>
+    ipcRenderer.invoke(IpcChannels.CONNECTION_RECHECK),
 });
