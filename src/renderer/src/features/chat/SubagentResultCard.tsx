@@ -1,6 +1,7 @@
 import { Streamdown } from 'streamdown';
 import { format } from 'date-fns';
 import { Bot } from 'lucide-react';
+import { sharedStreamdownProps } from './streamdown-config';
 
 interface SubagentResultCardProps {
   agentName: string;
@@ -26,7 +27,7 @@ export function SubagentResultCard({ agentName, content, timestamp }: SubagentRe
 
       {/* Content area */}
       <div className="p-4 bg-[#262626]">
-        <Streamdown mode="static" isAnimating={false}>
+        <Streamdown {...sharedStreamdownProps} mode="static" isAnimating={false}>
           {content}
         </Streamdown>
       </div>
