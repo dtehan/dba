@@ -1,0 +1,11 @@
+{
+  "results": [
+    {"ColumnName": "sale_id", "ColumnType": "BIGINT", "Nullable": "N"},
+    {"ColumnName": "customer_id", "ColumnType": "INTEGER", "Nullable": "N"},
+    {"ColumnName": "product_id", "ColumnType": "INTEGER", "Nullable": "N"},
+    {"ColumnName": "sale_date", "ColumnType": "DATE", "Nullable": "N"},
+    {"ColumnName": "amount", "ColumnType": "DECIMAL(18,2)", "Nullable": "Y"},
+    {"ColumnName": "region", "ColumnType": "VARCHAR(50)", "Nullable": "Y"},
+    {"ColumnName": "status", "ColumnType": "CHAR(1)", "Nullable": "Y"}
+  ]
+}

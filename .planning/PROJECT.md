@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A local Electron desktop application that gives Teradata DBAs an AI-powered chat interface with five specialized analysis subagents. Users have freeform conversations about their Teradata environment and launch prebuilt capabilities — Security Audit, MVC Analysis, Statistics Analysis, Skew Analysis, and Space Usage — all powered by Claude via Bedrock. The UI carries Teradata's visual identity.
+A local Electron desktop application that gives Teradata DBAs an AI-powered chat interface with specialized analysis subagents. Users have freeform conversations about their Teradata environment and launch prebuilt capabilities — all powered by Claude via Bedrock. The UI carries Teradata's visual identity.
 
 ## Core Value
 
@@ -23,6 +23,8 @@ DBAs can run expert-level analysis on their Teradata environment through natural
 - ✓ Freeform chat about Teradata environment and data — v1.0
 - ✓ Skew Analysis subagent — identifies data distribution skew and PI alternatives — v1.0
 - ✓ Space Usage subagent — perm space utilization and capacity alerts — v1.0
+- ✓ Redundancy Detection subagent — cross-database schema fingerprinting and data sampling to find redundant tables — post-v1.0
+- ✓ Duplicate Detection subagent — exact row, business key, and fuzzy near-duplicate detection within a database — post-v1.0
 
 ### Active
 
@@ -45,7 +47,7 @@ DBAs can run expert-level analysis on their Teradata environment through natural
 - Tech stack: Electron 41, React 19, TailwindCSS v4, shadcn/ui, Zustand, streamdown
 - Claude via AWS Bedrock with AssumeRole + inference profiles (us-west-2)
 - Teradata connectivity via MCP server (tdsql-mcp) spawned as child process
-- 5 subagents shipped: Security Audit, MVC Analysis, Statistics Analysis, Skew Analysis, Space Usage
+- 12 subagents: Security Audit, MVC Analysis, Statistics Analysis, Skew Analysis, Space Usage, Query Performance, Index Advisor, Lock Contention, System Health, Workload Management, Redundancy Detection, Duplicate Detection
 - Subagent pattern: markdown definition file + tool-use loop + non-streaming messages.create
 - Brand identity: Teradata orange (#F37440), dark charcoal (#1D1D1D), clean modern aesthetic
 - Target users are experienced Teradata DBAs who know the platform well
@@ -66,7 +68,7 @@ DBAs can run expert-level analysis on their Teradata environment through natural
 | Local desktop app | DBA workflows are local, avoids infrastructure complexity | ✓ Good |
 | Chat-first output | Keeps v1 simple, results inline with conversation | ✓ Good |
 | Teradata brand identity | Tool should feel native to the Teradata ecosystem | ✓ Good |
-| Start with 3 subagents, expanded to 5 | Security, MVC, Statistics validated pattern; Skew + Space followed naturally | ✓ Good |
+| Start with 3 subagents, expanded to 12 | Security, MVC, Statistics validated pattern; additional agents followed naturally | ✓ Good |
 | MCP server for Teradata connectivity | tdsql-mcp provides ready-made query/schema tools, no raw driver needed | ✓ Good |
 | Markdown-based subagent definitions | Convention-based discovery, system prompts as .md files in subagents/ | ✓ Good |
 | Non-streaming subagent execution | Complete report collected then rendered; avoids partial analysis display | ✓ Good |

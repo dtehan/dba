@@ -1,0 +1,7 @@
+{
+  "results": [
+    {"DatabaseName": "PROD_DW", "AccessRight": "SELECT", "GrantAuthority": "N", "TableName": "ALL"},
+    {"DatabaseName": "ANALYTICS_DB", "AccessRight": "SELECT", "GrantAuthority": "N", "TableName": "ALL"},
+    {"DatabaseName": "REPORT_DB", "AccessRight": "SELECT", "GrantAuthority": "N", "TableName": "ALL"}
+  ]
+}

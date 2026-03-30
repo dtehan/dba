@@ -1,0 +1,6 @@
+{
+  "results": [
+    {"ExceptionTimestamp": "2026-03-30 03:22:15", "RuleName": "ETL_Priority", "UserName": "etl_user", "ExceptionType": "ABORT", "QueryText": "INSERT INTO ETL_STAGING.fact_sales_temp SELECT * FROM source_db.raw_sales"},
+    {"ExceptionTimestamp": "2026-03-29 14:05:30", "RuleName": "AdHoc_Throttle", "UserName": "analyst_jane", "ExceptionType": "DELAY", "QueryText": "SELECT * FROM PROD_DW.fact_sales WHERE sale_date BETWEEN DATE - 365 AND DATE"}
+  ]
+}

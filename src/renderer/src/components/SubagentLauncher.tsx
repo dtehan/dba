@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Terminal, Shield, BarChart3, Database, TrendingUp, Loader2, RotateCcw, Search, X, ArrowLeft, Activity } from 'lucide-react';
+import { Terminal, Shield, BarChart3, Database, TrendingUp, Loader2, RotateCcw, Search, X, ArrowLeft, Activity, Lock, HeartPulse, Copy, ScanSearch } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { getElectronAPI } from '@/lib/ipc';
 import { useChatStore } from '@/store/chat-store';
@@ -16,7 +16,7 @@ interface AgentDef {
 }
 
 const ICON_MAP: Record<string, React.ComponentType<{ size?: number; style?: React.CSSProperties }>> = {
-  Terminal, Shield, BarChart3, Database, TrendingUp, Activity,
+  Terminal, Shield, BarChart3, Database, TrendingUp, Activity, Search, Lock, HeartPulse, Copy, ScanSearch,
 };
 
 // Category → icon mapping

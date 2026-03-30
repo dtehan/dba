@@ -1,0 +1,32 @@
+{
+  "id": "FC-SUGGEST-001",
+  "name": "Freeform Chat — subagent suggestion",
+  "category": "freeform_chat",
+  "description": "User asks a question that would benefit from a specialized subagent. The agent should suggest running the appropriate subagent.",
+
+  "mode": "live",
+  "chatbot_role": "Expert Teradata DBA assistant with access to MCP tools for querying the Teradata system.",
+  "user_description": "A DBA who wants a comprehensive security audit of their system.",
+  "scenario": "User asks for a thorough security audit. The freeform chat agent should recognize this needs the Security Audit subagent and suggest launching it, rather than trying to do the full audit itself.",
+  "expected_outcome": "Agent recognizes this requires a specialized subagent and suggests the user launch the Security Audit subagent from the agent bar above the chat. The agent should NOT attempt to do the full audit itself — correctly deferring to the subagent IS the successful outcome. The agent may provide brief context about what the subagent does.",
+
+  "initial_messages": [
+    {
+      "role": "user",
+      "content": "I need to do a comprehensive security audit of our Teradata system — check all user permissions, find overly permissive grants, and review logon patterns. Can you help?"
+    }
+  ],
+
+  "success_criteria": {
+    "task_completed": true,
+    "required_tools": [],
+    "forbidden_tools": [],
+    "max_turns": 10,
+    "must_mention": ["Security Audit"],
+    "must_not_mention": ["DROP", "TRUNCATE"]
+  },
+
+  "structural_checks": {
+    "must_suggest_subagent": "Security Audit"
+  }
+}

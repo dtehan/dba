@@ -1,0 +1,5 @@
+{
+  "results": [
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "CurrentPerm": 4294967296, "PeakPerm": 5153960755, "RowCount": 5200000, "SkewFactor": 2.98}
+  ]
+}

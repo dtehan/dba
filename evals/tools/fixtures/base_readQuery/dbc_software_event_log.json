@@ -1,0 +1,7 @@
+{
+  "results": [
+    {"EventTimeStamp": "2026-03-30 03:12:45", "EventType": "WARNING", "Category": "SYSTEM", "Severity": "Medium", "EventText": "AMP vproc 4 experienced temporary high CPU utilization (95%) during ETL window"},
+    {"EventTimeStamp": "2026-03-30 01:05:22", "EventType": "INFO", "Category": "SYSTEM", "Severity": "Low", "EventText": "Automated statistics collection completed successfully for database PROD_DW"},
+    {"EventTimeStamp": "2026-03-29 22:30:00", "EventType": "INFO", "Category": "BACKUP", "Severity": "Low", "EventText": "ARC backup of PROD_DW completed successfully, 45.2GB archived"}
+  ]
+}

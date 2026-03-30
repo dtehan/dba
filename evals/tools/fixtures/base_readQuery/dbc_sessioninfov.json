@@ -1,0 +1,7 @@
+{
+  "results": [
+    {"SessionNo": 10234, "UserName": "etl_user", "DefaultDB": "ETL_STAGING", "LogonDateTime": "2026-03-30 02:15:00", "SessionDuration": "05:45:00", "CurrentState": "ACTIVE", "LastSQL": "INSERT INTO ETL_STAGING.fact_sales SELECT * FROM source_db.raw_sales WHERE sale_date >= DATE - 1"},
+    {"SessionNo": 10567, "UserName": "report_svc", "DefaultDB": "REPORT_DB", "LogonDateTime": "2026-03-30 06:30:00", "SessionDuration": "01:30:00", "CurrentState": "ACTIVE", "LastSQL": "SELECT region, SUM(revenue) FROM PROD_DW.fact_revenue GROUP BY region ORDER BY revenue DESC"},
+    {"SessionNo": 10890, "UserName": "analyst_jane", "DefaultDB": "ANALYTICS_DB", "LogonDateTime": "2026-03-30 07:45:00", "SessionDuration": "00:15:00", "CurrentState": "ACTIVE", "LastSQL": "SELECT product_line, fiscal_quarter, SUM(amount) FROM ANALYTICS_DB.quarterly_sales GROUP BY 1,2"}
+  ]
+}

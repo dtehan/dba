@@ -1,0 +1,8 @@
+{
+  "results": [
+    {"StepNum": 1, "StepName": "RETRIEVE", "MaxAMPCPU": 2.45, "AvgAMPCPU": 0.82, "MaxAMPIO": 125000, "MaxSpool": 1073741824, "EstRows": 50000, "ActRows": 520000},
+    {"StepNum": 2, "StepName": "JOIN", "MaxAMPCPU": 8.91, "AvgAMPCPU": 3.12, "MaxAMPIO": 450000, "MaxSpool": 4294967296, "EstRows": 100000, "ActRows": 2600000},
+    {"StepNum": 3, "StepName": "SORT", "MaxAMPCPU": 1.20, "AvgAMPCPU": 0.95, "MaxAMPIO": 80000, "MaxSpool": 536870912, "EstRows": 2600000, "ActRows": 2600000},
+    {"StepNum": 4, "StepName": "RETRIEVE", "MaxAMPCPU": 0.15, "AvgAMPCPU": 0.12, "MaxAMPIO": 5000, "MaxSpool": 0, "EstRows": 100, "ActRows": 100}
+  ]
+}

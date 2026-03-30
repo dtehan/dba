@@ -1,0 +1,6 @@
+{
+  "results": [
+    {"DatabaseName": "PROD_DW", "CurrentPermBytes": 96636764160, "MaxPermBytes": 107374182400, "PctUsed": 90.01},
+    {"DatabaseName": "ARCHIVE_DB", "CurrentPermBytes": 209715200000, "MaxPermBytes": 214748364800, "PctUsed": 97.66}
+  ]
+}

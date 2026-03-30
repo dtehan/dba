@@ -1,0 +1,9 @@
+{
+  "results": [
+    {"UserName": "etl_user", "LogType": "LOGON", "EventCount": 245, "LastEvent": "2026-03-30"},
+    {"UserName": "report_svc", "LogType": "LOGON", "EventCount": 180, "LastEvent": "2026-03-30"},
+    {"UserName": "analyst_jane", "LogType": "LOGON", "EventCount": 22, "LastEvent": "2026-03-30"},
+    {"UserName": "temp_contractor", "LogType": "LOGON", "EventCount": 15, "LastEvent": "2026-03-28"},
+    {"UserName": "etl_user", "LogType": "LOGOFF", "EventCount": 240, "LastEvent": "2026-03-30"}
+  ]
+}

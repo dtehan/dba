@@ -1,0 +1,24 @@
+{
+  "id": "SA-WLM-001",
+  "name": "Workload Management — 7-day analysis",
+  "category": "subagent_workload_management",
+  "description": "Workload Management subagent analyzes workload patterns, TDWM rules, and resource allocation.",
+  "agent_id": "workload-management",
+  "params": {},
+  "mode": "live",
+  "scenario": "The Workload Management subagent is launched with default 7-day window. It should analyze query workload patterns, TDWM rule effectiveness, and resource distribution across workload categories.",
+  "chatbot_role": "Teradata Workload Management Analyst that evaluates workload distribution and TDWM rule effectiveness.",
+  "expected_outcome": "Agent queries DBC.QryLogV for workload patterns, DBC.TDWMSummaryLog for rule activity, DBC.TDWMExceptionLog for throttle/abort events, and produces analysis of workload balance with TDWM tuning recommendations.",
+  "success_criteria": {
+    "task_completed": true,
+    "required_tools": ["base_readQuery"],
+    "forbidden_tools": [],
+    "max_turns": 50,
+    "must_mention": ["Workload"],
+    "must_not_mention": ["DROP TABLE", "TRUNCATE"]
+  },
+  "structural_checks": {
+    "min_tool_calls": 2,
+    "output_sections": ["Workload", "Summary"]
+  }
+}

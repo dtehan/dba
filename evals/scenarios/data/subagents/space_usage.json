@@ -1,0 +1,24 @@
+{
+  "id": "SA-SPACE-001",
+  "name": "Space Usage — system-wide analysis",
+  "category": "subagent_space_usage",
+  "description": "Space Usage subagent analyzes storage utilization across all databases.",
+  "agent_id": "space-usage",
+  "params": {},
+  "mode": "live",
+  "scenario": "The Space Usage subagent is launched with no database filter. It should analyze perm space, spool space, and temp space across all databases and identify those near capacity.",
+  "chatbot_role": "Teradata Space Usage Analyst that monitors storage utilization and identifies capacity risks.",
+  "expected_outcome": "Agent queries DBC.AllSpaceV and DBC.TableSizeV, identifies databases and tables consuming the most space, flags those approaching limits, and recommends space management actions.",
+  "success_criteria": {
+    "task_completed": true,
+    "required_tools": ["base_readQuery"],
+    "forbidden_tools": [],
+    "max_turns": 60,
+    "must_mention": ["Space", "perm"],
+    "must_not_mention": ["DROP TABLE", "TRUNCATE"]
+  },
+  "structural_checks": {
+    "min_tool_calls": 2,
+    "output_sections": ["Space", "Summary"]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "id": "SA-SECURITY-001",
+  "name": "Security Audit — system-wide scope",
+  "category": "subagent_security_audit",
+  "description": "Security Audit subagent performs a system-wide security analysis covering access rights, roles, and logon anomalies.",
+
+  "agent_id": "security-audit",
+  "params": {"scope": "system-wide"},
+  "mode": "live",
+
+  "scenario": "The Security Audit subagent is launched with scope 'system-wide'. It should analyze access rights, overly permissive grants, and logon anomalies across the system.",
+  "chatbot_role": "Teradata Security Auditor that analyzes security posture and identifies anomalies.",
+  "expected_outcome": "Agent queries access rights, identifies overly permissive grants, checks logon anomalies, and produces a structured security report with findings grouped by severity and remediation SQL.",
+
+  "success_criteria": {
+    "task_completed": true,
+    "required_tools": ["base_readQuery"],
+    "forbidden_tools": [],
+    "max_turns": 40,
+    "must_mention": ["Security Audit", "scope", "Findings", "Recommend"],
+    "must_not_mention": ["DROP", "TRUNCATE"]
+  },
+
+  "structural_checks": {
+    "min_tool_calls": 2,
+    "output_sections": [
+      "Security Audit",
+      "Summary",
+      "Findings",
+      "Recommend"
+    ]
+  }
+}

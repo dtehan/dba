@@ -1,0 +1,10 @@
+{
+  "results": [
+    {"TableName": "fact_sales"},
+    {"TableName": "fact_revenue"},
+    {"TableName": "dim_customer"},
+    {"TableName": "dim_product"},
+    {"TableName": "dim_date"},
+    {"TableName": "stg_daily_load"}
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "results": [
+    {"RoleName": "DBA_ADMIN", "GrantorName": "DBC", "DefaultRole": "Y"},
+    {"RoleName": "ETL_OPERATOR", "GrantorName": "DBC", "DefaultRole": "N"},
+    {"RoleName": "REPORT_READER", "GrantorName": "admin_user", "DefaultRole": "N"}
+  ]
+}

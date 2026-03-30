@@ -1,0 +1,10 @@
+{
+  "results": [
+    {"TheDate": "2026-03-30", "TheTime": "08:00:00", "NodeID": 1, "CPUPct": 45.20, "DiskReadKB": 1250000, "DiskWriteKB": 380000},
+    {"TheDate": "2026-03-30", "TheTime": "07:00:00", "NodeID": 1, "CPUPct": 72.80, "DiskReadKB": 2100000, "DiskWriteKB": 950000},
+    {"TheDate": "2026-03-30", "TheTime": "06:00:00", "NodeID": 1, "CPUPct": 88.50, "DiskReadKB": 3400000, "DiskWriteKB": 1800000},
+    {"TheDate": "2026-03-30", "TheTime": "05:00:00", "NodeID": 1, "CPUPct": 91.30, "DiskReadKB": 3800000, "DiskWriteKB": 2100000},
+    {"TheDate": "2026-03-30", "TheTime": "04:00:00", "NodeID": 2, "CPUPct": 85.10, "DiskReadKB": 3200000, "DiskWriteKB": 1600000},
+    {"TheDate": "2026-03-30", "TheTime": "03:00:00", "NodeID": 2, "CPUPct": 67.40, "DiskReadKB": 1800000, "DiskWriteKB": 720000}
+  ]
+}

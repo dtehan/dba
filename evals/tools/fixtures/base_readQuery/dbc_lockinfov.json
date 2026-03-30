@@ -1,0 +1,7 @@
+{
+  "results": [
+    {"DatabaseName": "ETL_STAGING", "TableName": "fact_sales", "LockType": "TABLE", "LockMode": "WRITE", "LockStatus": "GRANTED", "LockCount": 1},
+    {"DatabaseName": "ETL_STAGING", "TableName": "fact_sales", "LockType": "TABLE", "LockMode": "READ", "LockStatus": "WAITING", "LockCount": 2},
+    {"DatabaseName": "PROD_DW", "TableName": "dim_customer", "LockType": "TABLE", "LockMode": "READ", "LockStatus": "GRANTED", "LockCount": 3}
+  ]
+}

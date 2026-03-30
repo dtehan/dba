@@ -1,0 +1,24 @@
+{
+  "id": "SA-REDUND-001",
+  "name": "Redundancy Detection — cross-database analysis",
+  "category": "subagent_redundancy_detection",
+  "description": "Redundancy Detection subagent finds redundant tables and objects across databases.",
+  "agent_id": "redundancy-detection",
+  "params": {"databases": "PROD_DB, ETL_STAGING"},
+  "mode": "live",
+  "scenario": "The Redundancy Detection subagent is launched for PROD_DB and ETL_STAGING. It should compare table schemas across databases, identify structurally similar or identical tables, and recommend consolidation.",
+  "chatbot_role": "Teradata Redundancy Detection specialist that finds redundant objects across databases.",
+  "expected_outcome": "Agent queries table and column metadata from both databases, compares schemas for structural similarity, identifies tables that appear to be copies or near-copies, and recommends consolidation with storage savings estimates.",
+  "success_criteria": {
+    "task_completed": true,
+    "required_tools": ["base_readQuery"],
+    "forbidden_tools": [],
+    "max_turns": 120,
+    "must_mention": ["Redundan"],
+    "must_not_mention": ["TRUNCATE"]
+  },
+  "structural_checks": {
+    "min_tool_calls": 2,
+    "output_sections": ["Redundan", "Summary"]
+  }
+}

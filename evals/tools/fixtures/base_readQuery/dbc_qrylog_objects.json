@@ -1,0 +1,8 @@
+{
+  "results": [
+    {"QueryID": 30712456, "ObjectDatabaseName": "PROD_DB", "ObjectTableName": "fact_sales", "ObjectColumnName": null, "ObjectType": "Tab", "FreqOfUse": 245},
+    {"QueryID": 30712456, "ObjectDatabaseName": "PROD_DB", "ObjectTableName": "dim_customer", "ObjectColumnName": null, "ObjectType": "Tab", "FreqOfUse": 180},
+    {"QueryID": 30712890, "ObjectDatabaseName": "PROD_DB", "ObjectTableName": "fact_revenue", "ObjectColumnName": null, "ObjectType": "Tab", "FreqOfUse": 120},
+    {"QueryID": 30713500, "ObjectDatabaseName": "PROD_DB", "ObjectTableName": "fact_sales", "ObjectColumnName": "customer_id", "ObjectType": "Col", "FreqOfUse": 95}
+  ]
+}

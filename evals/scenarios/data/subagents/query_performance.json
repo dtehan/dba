@@ -1,0 +1,24 @@
+{
+  "id": "SA-QPERF-001",
+  "name": "Query Performance — top resource consumers system-wide",
+  "category": "subagent_query_performance",
+  "description": "Query Performance subagent analyzes top resource-consuming queries from DBQL.",
+  "agent_id": "query-performance",
+  "params": {},
+  "mode": "live",
+  "scenario": "The Query Performance subagent is launched with no specific query and no database filter. It should identify top resource consumers from DBQL, analyze their execution patterns, check statistics, and recommend optimizations.",
+  "chatbot_role": "Teradata Query Performance Analyst that diagnoses query execution problems and recommends fixes.",
+  "expected_outcome": "Agent queries DBQL for top expensive queries, analyzes step-level details for the worst offenders, checks statistics coverage, and produces a report with findings grouped by severity and actionable COLLECT STATISTICS statements.",
+  "success_criteria": {
+    "task_completed": true,
+    "required_tools": ["base_readQuery"],
+    "forbidden_tools": [],
+    "max_turns": 60,
+    "must_mention": ["Query Performance", "CPU", "Findings"],
+    "must_not_mention": ["DROP TABLE", "TRUNCATE"]
+  },
+  "structural_checks": {
+    "min_tool_calls": 2,
+    "output_sections": ["Performance", "Summary", "Findings"]
+  }
+}

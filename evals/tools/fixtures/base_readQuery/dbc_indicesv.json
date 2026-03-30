@@ -1,0 +1,9 @@
+{
+  "results": [
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "ColumnName": "sale_id", "IndexType": "P", "IndexNumber": 1, "ColumnPosition": 1, "UniqueFlag": "Y"},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "ColumnName": "sale_date", "IndexType": "Q", "IndexNumber": 2, "ColumnPosition": 1, "UniqueFlag": "N"},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "ColumnName": "customer_id", "IndexType": "S", "IndexNumber": 3, "ColumnPosition": 1, "UniqueFlag": "N"},
+    {"DatabaseName": "PROD_DB", "TableName": "dim_customer", "ColumnName": "customer_id", "IndexType": "P", "IndexNumber": 1, "ColumnPosition": 1, "UniqueFlag": "Y"},
+    {"DatabaseName": "PROD_DB", "TableName": "dim_product", "ColumnName": "product_id", "IndexType": "P", "IndexNumber": 1, "ColumnPosition": 1, "UniqueFlag": "Y"}
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "results": [
+    {"UserName": "etl_user", "DatabaseName": "ETL_STAGING", "AccessRight": "INSERT", "GrantAuthority": "Y"},
+    {"UserName": "etl_user", "DatabaseName": "ETL_STAGING", "AccessRight": "DELETE", "GrantAuthority": "Y"},
+    {"UserName": "etl_user", "DatabaseName": "PROD_DW", "AccessRight": "SELECT", "GrantAuthority": "Y"},
+    {"UserName": "analyst_jane", "DatabaseName": "ANALYTICS_DB", "AccessRight": "CREATE TABLE", "GrantAuthority": "Y"},
+    {"UserName": "analyst_jane", "DatabaseName": "PROD_DW", "AccessRight": "SELECT", "GrantAuthority": "Y"},
+    {"UserName": "temp_contractor", "DatabaseName": "PROD_DW", "AccessRight": "SELECT", "GrantAuthority": "Y"},
+    {"UserName": "temp_contractor", "DatabaseName": "PROD_DW", "AccessRight": "UPDATE", "GrantAuthority": "Y"},
+    {"UserName": "temp_contractor", "DatabaseName": "ETL_STAGING", "AccessRight": "INSERT", "GrantAuthority": "Y"}
+  ]
+}

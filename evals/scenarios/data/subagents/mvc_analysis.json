@@ -1,0 +1,24 @@
+{
+  "id": "SA-MVC-001",
+  "name": "MVC Analysis — PROD_DB database",
+  "category": "subagent_mvc_analysis",
+  "description": "MVC Analysis subagent analyzes tables for multi-value compression opportunities using the Package Bit-Cost Model.",
+  "agent_id": "mvc-analysis",
+  "params": {"databaseName": "PROD_DB", "tableName": "fact_sales"},
+  "mode": "live",
+  "scenario": "The MVC Analysis subagent is launched for PROD_DB.fact_sales. It should analyze column value distributions, apply the Package Bit-Cost Model, and generate ALTER TABLE COMPRESS statements.",
+  "chatbot_role": "MVC Compression Advisor that analyzes tables for multi-value compression opportunities using the Package Bit-Cost Model.",
+  "expected_outcome": "Agent gets table metadata, queries value distributions for eligible columns, applies the Bit-Cost Model to determine optimal compression values, and produces ALTER TABLE statements with estimated savings.",
+  "success_criteria": {
+    "task_completed": true,
+    "required_tools": ["base_readQuery"],
+    "forbidden_tools": [],
+    "max_turns": 100,
+    "must_mention": ["Compression", "PROD_DB"],
+    "must_not_mention": ["DROP TABLE", "TRUNCATE"]
+  },
+  "structural_checks": {
+    "min_tool_calls": 3,
+    "output_sections": ["Compression", "Summary"]
+  }
+}

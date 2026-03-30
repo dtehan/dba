@@ -1,0 +1,7 @@
+{
+  "results": [
+    {"RuleName": "ETL_Priority", "RuleType": "THROTTLE", "CategoryName": "ETL", "Sessions": 5, "Queries": 1250, "CPUTime": 4500.00, "IOCount": 85000000},
+    {"RuleName": "Reporting_Limit", "RuleType": "THROTTLE", "CategoryName": "Reporting", "Sessions": 12, "Queries": 3400, "CPUTime": 2100.00, "IOCount": 42000000},
+    {"RuleName": "AdHoc_Throttle", "RuleType": "THROTTLE", "CategoryName": "Ad-Hoc", "Sessions": 25, "Queries": 890, "CPUTime": 890.00, "IOCount": 15000000}
+  ]
+}

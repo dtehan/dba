@@ -1,0 +1,5 @@
+{
+  "results": [
+    {"ExplainText": "Explanation\n  1) First, we lock ROW for read on PROD_DB.fact_sales.\n  2) Next, we do an all-AMPs RETRIEVE step from PROD_DB.fact_sales by way of an all-rows scan with a condition of (\"PROD_DB.fact_sales.sale_date >= DATE - 30\") into Spool 2 (all_amps), which is redistributed by hash code to all AMPs. The estimated row count is 520,000 rows.\n  3) We do an all-AMPs JOIN step from Spool 2 (Last Use) by way of a RowHash match scan, which is joined to PROD_DB.dim_customer by way of a RowHash match scan. PROD_DB.dim_customer is joined using a product join, with a join condition of (\"PROD_DB.fact_sales.customer_id = PROD_DB.dim_customer.customer_id\"). The estimated row count is 520,000 rows.\n  4) Finally, we send out an END TRANSACTION step to all AMPs involved in processing the request.\n  -> The contents of Spool 3 are sent back to the user as the result of statement 1."}
+  ]
+}

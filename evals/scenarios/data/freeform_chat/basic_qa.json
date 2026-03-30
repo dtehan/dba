@@ -1,0 +1,48 @@
+{
+  "id": "FC-QA-001",
+  "name": "Freeform Chat — basic Teradata Q&A",
+  "category": "freeform_chat",
+  "description": "User asks basic Teradata knowledge questions. Agent should answer from expertise without needing tools.",
+
+  "mode": "scripted",
+  "chatbot_role": "Expert Teradata DBA assistant with access to MCP tools for querying the Teradata system.",
+  "user_description": "A junior DBA learning about Teradata internals.",
+  "scenario": "User asks basic questions about Teradata architecture and SQL syntax. The agent should provide accurate, helpful answers.",
+  "expected_outcome": "Agent provides accurate explanations of Teradata concepts like AMPs, primary indexes, and spool space without using tools unnecessarily.",
+
+  "turns": [
+    {
+      "role": "user",
+      "content": "What is an AMP in Teradata and why does it matter for query performance?"
+    },
+    {
+      "role": "assistant",
+      "content": "An AMP (Access Module Processor) is Teradata's fundamental unit of parallelism. Each AMP owns a portion of the data and processes queries against its local data independently.\n\nWhy it matters for performance:\n- **Data distribution**: Rows are hash-distributed across AMPs based on the Primary Index. If the PI is poorly chosen, data skews to a few AMPs while others sit idle — this is called \"AMP skew.\"\n- **Parallel execution**: A well-distributed table means all AMPs work in parallel, giving near-linear scaling.\n- **Spool space**: Each AMP has a spool limit. If one AMP handles disproportionate work, it can hit its spool ceiling and abort the query.\n\nThe key takeaway: choosing the right Primary Index for even data distribution is the single most impactful performance decision in Teradata."
+    },
+    {
+      "role": "user",
+      "content": "How is spool space different from perm space?"
+    },
+    {
+      "role": "assistant",
+      "content": "**Perm space** is persistent storage — it holds your actual table data on disk. When you INSERT rows, they consume perm space. Each database has a MaxPerm limit.\n\n**Spool space** is temporary workspace used during query execution. When Teradata processes a query, intermediate results (joins, aggregations, sorts) are written to spool. Once the query finishes, spool is released.\n\nKey differences:\n\n| | Perm Space | Spool Space |\n|---|---|---|\n| **Duration** | Permanent until DELETE/DROP | Temporary — query lifetime only |\n| **What uses it** | Table rows, indexes | Intermediate query results |\n| **Limit** | MaxPerm per database | MaxSpool per user/database |\n| **When it's a problem** | Database full → can't INSERT | Query too complex → spool exhaustion, query aborts |\n\nSpool exhaustion is one of the most common Teradata performance issues. It typically means a query is producing more intermediate rows than expected — often due to a product join or missing statistics."
+    },
+    {
+      "role": "user",
+      "content": "Makes sense. One more — what's the difference between COLLECT STATISTICS and HELP STATISTICS?"
+    },
+    {
+      "role": "assistant",
+      "content": "`COLLECT STATISTICS` and `HELP STATISTICS` serve very different purposes:\n\n**COLLECT STATISTICS** — *writes* statistics:\n```sql\nCOLLECT STATISTICS ON my_db.my_table COLUMN (customer_id);\n```\nThis scans the column data and stores distribution metadata (number of distinct values, nulls, histogram data). The optimizer uses these statistics to choose good query plans. You need to re-collect when data changes significantly.\n\n**HELP STATISTICS** — *reads* existing statistics metadata:\n```sql\nHELP STATISTICS my_db.my_table;\n```\nThis shows which columns have statistics collected, when they were last collected, and the sample size — but it does NOT collect or update them.\n\nCommon workflow:\n1. `HELP STATISTICS` to see what's collected and how stale it is\n2. `COLLECT STATISTICS` on columns that are missing stats or have outdated ones\n3. Re-check with `HELP STATISTICS` to confirm the collection timestamp updated\n\nMissing or stale statistics are the #1 cause of bad query plans in Teradata."
+    }
+  ],
+
+  "success_criteria": {
+    "task_completed": true,
+    "required_tools": [],
+    "forbidden_tools": [],
+    "max_turns": 10,
+    "must_mention": ["AMP", "spool", "statistics"],
+    "must_not_mention": ["DROP TABLE", "DELETE FROM"]
+  }
+}

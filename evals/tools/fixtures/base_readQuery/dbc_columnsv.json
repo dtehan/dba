@@ -1,0 +1,11 @@
+{
+  "results": [
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "ColumnName": "sale_id", "ColumnType": "I8", "ColumnLength": 8, "Nullable": "N", "IdColType": null},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "ColumnName": "customer_id", "ColumnType": "I", "ColumnLength": 4, "Nullable": "N", "IdColType": null},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "ColumnName": "product_id", "ColumnType": "I", "ColumnLength": 4, "Nullable": "N", "IdColType": null},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "ColumnName": "sale_date", "ColumnType": "DA", "ColumnLength": 4, "Nullable": "N", "IdColType": null},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "ColumnName": "amount", "ColumnType": "D", "ColumnLength": 8, "Nullable": "Y", "IdColType": null},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "ColumnName": "region", "ColumnType": "CV", "ColumnLength": 50, "Nullable": "Y", "IdColType": null},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "ColumnName": "status", "ColumnType": "CF", "ColumnLength": 1, "Nullable": "Y", "IdColType": null}
+  ]
+}

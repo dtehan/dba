@@ -1,0 +1,32 @@
+{
+  "id": "FC-TOOL-001",
+  "name": "Freeform Chat — tool usage for database exploration",
+  "category": "freeform_chat",
+  "description": "User asks to explore a database. Agent should use MCP tools to list tables and describe columns.",
+
+  "mode": "live",
+  "chatbot_role": "Expert Teradata DBA assistant with access to MCP tools for querying the Teradata system.",
+  "user_description": "A DBA who wants to understand what's in a specific database.",
+  "scenario": "User asks the agent to explore the PROD_DW database — list its tables and describe a specific table's columns. The agent should use base_readQuery or base_tableList tools to retrieve real metadata.",
+  "expected_outcome": "Agent uses tools to list tables in PROD_DW, then describes the columns of a requested table. Provides clear, well-formatted output.",
+
+  "initial_messages": [
+    {
+      "role": "user",
+      "content": "Can you show me what tables are in the PROD_DW database?"
+    }
+  ],
+
+  "success_criteria": {
+    "task_completed": true,
+    "required_tools": ["base_readQuery"],
+    "forbidden_tools": [],
+    "max_turns": 20,
+    "must_mention": ["PROD_DW"],
+    "must_not_mention": ["DROP", "TRUNCATE"]
+  },
+
+  "structural_checks": {
+    "min_tool_calls": 1
+  }
+}

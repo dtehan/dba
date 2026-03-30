@@ -10,7 +10,8 @@ lerna-debug.log*
 node_modules
 dist
 out
-
+__pycache__
+*.pyc
 # shadcn/ui alias misplacement artifact (resolved via components.json path config)
 @/
 

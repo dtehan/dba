@@ -1,0 +1,9 @@
+{
+  "results": [
+    {"DatabaseName": "ETL_STAGING", "CurrentSpoolBytes": 8589934592, "MaxSpoolBytes": 10737418240, "PctSpoolUsed": 80.00},
+    {"DatabaseName": "ANALYTICS_DB", "CurrentSpoolBytes": 4294967296, "MaxSpoolBytes": 10737418240, "PctSpoolUsed": 40.00},
+    {"DatabaseName": "PROD_DW", "CurrentSpoolBytes": 2147483648, "MaxSpoolBytes": 10737418240, "PctSpoolUsed": 20.00},
+    {"DatabaseName": "REPORT_DB", "CurrentSpoolBytes": 1073741824, "MaxSpoolBytes": 5368709120, "PctSpoolUsed": 20.00},
+    {"DatabaseName": "SANDBOX", "CurrentSpoolBytes": 536870912, "MaxSpoolBytes": 2147483648, "PctSpoolUsed": 25.00}
+  ]
+}

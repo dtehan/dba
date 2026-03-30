@@ -1,6 +1,6 @@
 # Teradata DBA Agent
 
-AI-powered desktop app for Teradata DBAs. Chat with your Teradata environment, run security audits, compression analysis, statistics reviews, and more — all through natural conversation powered by Claude.
+AI-powered desktop app for Teradata DBAs. Chat with your Teradata environment and run specialized analysis — security audits, compression analysis, statistics reviews, skew detection, space usage, query performance, index advising, lock contention, system health, workload management, cross-table redundancy detection, and duplicate data detection — all through natural conversation powered by Claude.
 
 ## Prerequisites
 

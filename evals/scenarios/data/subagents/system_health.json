@@ -1,0 +1,38 @@
+{
+  "id": "SA-HEALTH-001",
+  "name": "System Health — basic health check",
+  "category": "subagent_system_health",
+  "description": "System Health subagent performs a comprehensive check across all 7 health areas and produces a traffic-light dashboard.",
+
+  "agent_id": "system-health",
+  "params": {},
+  "mode": "live",
+
+  "scenario": "The System Health subagent is launched with no parameters. It should query all 7 DBC views and produce a structured health report with traffic-light ratings.",
+  "chatbot_role": "Teradata System Health Monitor that performs comprehensive health checks and produces traffic-light dashboards.",
+  "expected_outcome": "Agent queries AMP status, spool usage, sessions, locks, events, CPU/IO, and database space. Produces a markdown report with a Health Dashboard table showing GREEN/YELLOW/RED status for each area, detailed findings, and recommended actions.",
+
+  "success_criteria": {
+    "task_completed": true,
+    "required_tools": ["base_readQuery"],
+    "forbidden_tools": [],
+    "max_turns": 60,
+    "must_mention": ["Health Dashboard", "AMP", "Spool", "GREEN", "Recommended"],
+    "must_not_mention": ["DROP", "DELETE FROM", "TRUNCATE"]
+  },
+
+  "structural_checks": {
+    "min_tool_calls": 5,
+    "output_sections": [
+      "Health Dashboard",
+      "AMP",
+      "Spool",
+      "Session",
+      "Lock",
+      "CPU",
+      "Space",
+      "Recommend"
+    ],
+    "traffic_light_present": true
+  }
+}

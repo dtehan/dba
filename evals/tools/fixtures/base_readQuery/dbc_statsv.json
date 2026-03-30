@@ -1,0 +1,9 @@
+{
+  "results": [
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "ColumnName": "sale_date", "StatsType": "COLUMN", "LastCollectTimestamp": "2026-03-15 08:00:00", "SampleSizePct": 100, "UniqueValues": 730},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "ColumnName": "customer_id", "StatsType": "COLUMN", "LastCollectTimestamp": "2026-02-01 12:00:00", "SampleSizePct": 100, "UniqueValues": 45000},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "ColumnName": "product_id", "StatsType": "COLUMN", "LastCollectTimestamp": "2026-01-10 06:00:00", "SampleSizePct": 50, "UniqueValues": 1200},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "ColumnName": "region", "StatsType": "COLUMN", "LastCollectTimestamp": "2025-11-20 10:00:00", "SampleSizePct": 100, "UniqueValues": 8},
+    {"DatabaseName": "PROD_DB", "TableName": "dim_customer", "ColumnName": "customer_id", "StatsType": "COLUMN", "LastCollectTimestamp": "2026-03-28 07:00:00", "SampleSizePct": 100, "UniqueValues": 45000}
+  ]
+}

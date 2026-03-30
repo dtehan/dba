@@ -1,0 +1,24 @@
+{
+  "id": "SA-INDEX-001",
+  "name": "Index Advisor — PROD_DB database",
+  "category": "subagent_index_advisor",
+  "description": "Index Advisor subagent recommends index changes based on query patterns and current indexes.",
+  "agent_id": "index-advisor",
+  "params": {"databaseName": "PROD_DB"},
+  "mode": "live",
+  "scenario": "The Index Advisor subagent is launched for PROD_DB. It should analyze current indexes, query workload patterns from DBQL, and recommend new secondary indexes or index changes.",
+  "chatbot_role": "Teradata Index Advisor that analyzes query patterns and recommends index optimizations.",
+  "expected_outcome": "Agent queries DBC.IndicesV for current indexes, analyzes DBQL for query patterns, identifies frequently accessed columns without indexes, and recommends CREATE INDEX statements with impact estimates.",
+  "success_criteria": {
+    "task_completed": true,
+    "required_tools": ["base_readQuery"],
+    "forbidden_tools": [],
+    "max_turns": 60,
+    "must_mention": ["Index", "PROD_DB"],
+    "must_not_mention": ["DROP TABLE", "TRUNCATE"]
+  },
+  "structural_checks": {
+    "min_tool_calls": 2,
+    "output_sections": ["Index", "Summary"]
+  }
+}

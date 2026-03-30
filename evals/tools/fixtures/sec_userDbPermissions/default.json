@@ -1,0 +1,10 @@
+{
+  "results": [
+    {"DatabaseName": "PROD_DW", "AccessRight": "SELECT", "GrantAuthority": "N", "TableName": "ALL"},
+    {"DatabaseName": "ETL_STAGING", "AccessRight": "INSERT", "GrantAuthority": "Y", "TableName": "ALL"},
+    {"DatabaseName": "ETL_STAGING", "AccessRight": "SELECT", "GrantAuthority": "Y", "TableName": "ALL"},
+    {"DatabaseName": "ETL_STAGING", "AccessRight": "UPDATE", "GrantAuthority": "Y", "TableName": "ALL"},
+    {"DatabaseName": "ETL_STAGING", "AccessRight": "DELETE", "GrantAuthority": "Y", "TableName": "ALL"},
+    {"DatabaseName": "SANDBOX", "AccessRight": "CREATE TABLE", "GrantAuthority": "Y", "TableName": "ALL"}
+  ]
+}

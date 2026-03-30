@@ -1,0 +1,12 @@
+{
+  "results": [
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "Vproc": 0, "CurrentPerm": 536870912, "PeakPerm": 644245094, "RowCount": 650000},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "Vproc": 1, "CurrentPerm": 541065216, "PeakPerm": 649252864, "RowCount": 652000},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "Vproc": 2, "CurrentPerm": 530579456, "PeakPerm": 636485427, "RowCount": 648000},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "Vproc": 3, "CurrentPerm": 1610612736, "PeakPerm": 1932735283, "RowCount": 1950000},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "Vproc": 4, "CurrentPerm": 538968064, "PeakPerm": 646761676, "RowCount": 651000},
+    {"DatabaseName": "PROD_DB", "TableName": "fact_sales", "Vproc": 5, "CurrentPerm": 535822336, "PeakPerm": 642986803, "RowCount": 649000},
+    {"DatabaseName": "PROD_DB", "TableName": "dim_customer", "Vproc": 0, "CurrentPerm": 6553600, "PeakPerm": 7864320, "RowCount": 5625},
+    {"DatabaseName": "PROD_DB", "TableName": "dim_customer", "Vproc": 1, "CurrentPerm": 6553600, "PeakPerm": 7864320, "RowCount": 5625}
+  ]
+}

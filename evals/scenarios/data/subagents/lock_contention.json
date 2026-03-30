@@ -1,0 +1,24 @@
+{
+  "id": "SA-LOCK-001",
+  "name": "Lock Contention — system-wide analysis",
+  "category": "subagent_lock_contention",
+  "description": "Lock Contention subagent analyzes current lock contention and blocking sessions.",
+  "agent_id": "lock-contention",
+  "params": {},
+  "mode": "live",
+  "scenario": "The Lock Contention subagent is launched with no filters. It should analyze current locks, identify blocking chains, and recommend resolution actions.",
+  "chatbot_role": "Teradata Lock Contention Analyst that identifies blocking sessions and recommends resolution strategies.",
+  "expected_outcome": "Agent queries DBC.LockInfoV and DBC.SessionInfoV, identifies waiting locks and blocking sessions, maps blocking chains, and recommends actions to resolve contention.",
+  "success_criteria": {
+    "task_completed": true,
+    "required_tools": ["base_readQuery"],
+    "forbidden_tools": [],
+    "max_turns": 40,
+    "must_mention": ["Lock", "block"],
+    "must_not_mention": ["DROP TABLE", "TRUNCATE"]
+  },
+  "structural_checks": {
+    "min_tool_calls": 2,
+    "output_sections": ["Lock", "Summary"]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "results": [
+    {"TableName": "fact_sales", "TableKind": "T", "RowCount": 5200000, "CurrentPerm": 4294967296},
+    {"TableName": "fact_revenue", "TableKind": "T", "RowCount": 3100000, "CurrentPerm": 2147483648},
+    {"TableName": "dim_customer", "TableKind": "T", "RowCount": 45000, "CurrentPerm": 52428800},
+    {"TableName": "dim_product", "TableKind": "T", "RowCount": 1200, "CurrentPerm": 1048576},
+    {"TableName": "dim_date", "TableKind": "T", "RowCount": 3650, "CurrentPerm": 2097152},
+    {"TableName": "stg_daily_load", "TableKind": "T", "RowCount": 150000, "CurrentPerm": 209715200}
+  ]
+}

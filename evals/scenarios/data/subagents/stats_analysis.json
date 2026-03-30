@@ -1,0 +1,24 @@
+{
+  "id": "SA-STATS-001",
+  "name": "Statistics Analysis — PROD_DB database",
+  "category": "subagent_stats_analysis",
+  "description": "Statistics Analysis subagent evaluates statistics coverage and freshness for a database.",
+  "agent_id": "stats-analysis",
+  "params": {"databaseName": "PROD_DB"},
+  "mode": "live",
+  "scenario": "The Statistics Analysis subagent is launched for PROD_DB. It should evaluate statistics coverage, identify missing or stale statistics, and generate COLLECT STATISTICS statements.",
+  "chatbot_role": "Teradata Statistics Analyst that evaluates statistics coverage and recommends collection strategies.",
+  "expected_outcome": "Agent queries DBC.StatsV, DBC.IndicesV, and DBC.ColumnsV for PROD_DB tables, identifies columns missing statistics or with stale stats, and provides prioritized COLLECT STATISTICS statements.",
+  "success_criteria": {
+    "task_completed": true,
+    "required_tools": ["base_readQuery"],
+    "forbidden_tools": [],
+    "max_turns": 40,
+    "must_mention": ["Statistics", "PROD_DB", "COLLECT"],
+    "must_not_mention": ["DROP TABLE", "TRUNCATE"]
+  },
+  "structural_checks": {
+    "min_tool_calls": 2,
+    "output_sections": ["Statistics", "Summary"]
+  }
+}

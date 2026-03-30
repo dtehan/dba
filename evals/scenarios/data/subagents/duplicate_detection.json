@@ -1,0 +1,24 @@
+{
+  "id": "SA-DUPE-001",
+  "name": "Duplicate Detection — PROD_DB database",
+  "category": "subagent_duplicate_detection",
+  "description": "Duplicate Detection subagent finds duplicate rows and near-duplicate data in tables.",
+  "agent_id": "duplicate-detection",
+  "params": {"databaseName": "PROD_DB"},
+  "mode": "live",
+  "scenario": "The Duplicate Detection subagent is launched for PROD_DB. It should analyze tables for exact and near-duplicate rows, estimate duplicate volumes, and recommend deduplication strategies.",
+  "chatbot_role": "Teradata Duplicate Detection specialist that finds duplicate and near-duplicate data in tables.",
+  "expected_outcome": "Agent queries table metadata, identifies columns suitable for duplicate detection, runs duplicate-checking queries, and produces a report with duplicate counts, affected tables, and deduplication SQL.",
+  "success_criteria": {
+    "task_completed": true,
+    "required_tools": ["base_readQuery"],
+    "forbidden_tools": [],
+    "max_turns": 80,
+    "must_mention": ["Duplicate", "PROD_DB"],
+    "must_not_mention": ["TRUNCATE"]
+  },
+  "structural_checks": {
+    "min_tool_calls": 2,
+    "output_sections": ["Duplicate", "Summary"]
+  }
+}
