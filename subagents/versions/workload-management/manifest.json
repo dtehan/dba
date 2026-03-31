@@ -1,0 +1,18 @@
+[
+  {
+    "version": 1,
+    "timestamp": "2026-03-31T16:39:33.802696+00:00",
+    "score": 0.8400000000000001,
+    "trials": 0,
+    "source": "original",
+    "file": "v1.md"
+  },
+  {
+    "version": 2,
+    "timestamp": "2026-03-31T16:39:33.810896+00:00",
+    "score": 0.8400000000000001,
+    "trials": 5,
+    "source": "dspy-miprov2",
+    "file": "v2.md"
+  }
+]

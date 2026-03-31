@@ -241,8 +241,8 @@ def optimize_subagent(
     # Show the result
     _print_prompt_result(result)
 
-    # Always write back — version the previous prompt first
-    if result.changed:
+    # Only write back if the optimized prompt actually improved
+    if result.changed and best_score > baseline_score:
         try:
             dest = write_optimized_subagent(
                 agent_id, optimized_instruction,
@@ -254,6 +254,8 @@ def optimize_subagent(
         except ValueError as e:
             print(f"\n  WARNING: {e}")
             print(f"  Prompt NOT updated — template variables would be lost.")
+    elif result.changed:
+        print(f"\n  Optimized prompt scored lower ({best_score:.3f}) than baseline ({baseline_score:.3f}). Keeping original.")
     else:
         print(f"\n  No changes to write for {agent_id}.")
 
@@ -354,7 +356,7 @@ def optimize_freeform(
 
     _print_prompt_result(result)
 
-    if result.changed:
+    if result.changed and best_score > baseline_score:
         try:
             dest = write_optimized_freeform(
                 optimized_instruction,
@@ -365,6 +367,8 @@ def optimize_freeform(
             print(f"  Previous version archived to optimization/output/freeform_versions/")
         except Exception as e:
             print(f"\n  WARNING: Failed to write freeform prompt: {e}")
+    elif result.changed:
+        print(f"\n  Optimized prompt scored lower ({best_score:.3f}) than baseline ({baseline_score:.3f}). Keeping original.")
     else:
         print(f"\n  No changes to write for freeform.")
 
@@ -413,26 +417,33 @@ def optimize_all(
     print(f"\n{'=' * 60}")
     print("OPTIMIZATION SUMMARY")
     print("=" * 60)
-    changed = [r for r in results if r.changed]
+    improved = [r for r in results if r.changed and r.best_score > r.baseline_score]
+    regressed = [r for r in results if r.changed and r.best_score <= r.baseline_score]
+    unchanged = [r for r in results if not r.changed]
     print(f"  Total prompts:  {len(results)}")
-    print(f"  Updated:        {len(changed)}")
-    print(f"  Unchanged:      {len(results) - len(changed)}")
+    print(f"  Updated:        {len(improved)}")
+    print(f"  Skipped (no improvement): {len(regressed) + len(unchanged)}")
     print()
     print(f"  {'Agent':<30s} {'Status':<12s} {'Baseline':>8s} {'Best':>8s} {'Delta':>8s}")
     print(f"  {'-'*30} {'-'*12} {'-'*8} {'-'*8} {'-'*8}")
     for r in results:
-        status = "UPDATED" if r.changed else "unchanged"
         if dry_run:
             print(f"  {r.agent_id:<30s} {'dry-run':<12s}")
         else:
             delta = r.best_score - r.baseline_score
             delta_str = f"{'+' if delta >= 0 else ''}{delta:.3f}"
+            if not r.changed:
+                status = "unchanged"
+            elif r.best_score > r.baseline_score:
+                status = "UPDATED"
+            else:
+                status = "SKIPPED"
             print(
                 f"  {r.agent_id:<30s} {status:<12s} "
                 f"{r.baseline_score:>8.3f} {r.best_score:>8.3f} {delta_str:>8s}"
             )
 
-    if changed:
+    if improved:
         print()
         print("  Version history saved to subagents/versions/")
 

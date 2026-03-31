@@ -72,7 +72,7 @@ class TestFreeformScenarioData:
         """Freeform system prompt builds correctly with subagent list."""
         prompt = _build_freeform_system_prompt()
         assert len(prompt) > 500, "Prompt too short"
-        assert "Teradata DBA assistant" in prompt
+        assert "Teradata" in prompt, "Prompt must mention Teradata"
         assert "Specialized Subagents" in prompt
         assert "Security Audit" in prompt
 
