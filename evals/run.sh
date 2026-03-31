@@ -9,6 +9,7 @@
 #   ./run.sh --judge      # LLM judge tests only (expensive)
 #   ./run.sh --full       # All tiers (structural + live + judge)
 #   ./run.sh --gate       # Full run + quality gate report
+#   ./run.sh --optimize   # DSPy prompt optimization (pass extra args after --)
 #
 # Options:
 #   -k PATTERN            # pytest -k filter (e.g., -k "SA-HEALTH-001")
@@ -37,6 +38,7 @@ while [[ $# -gt 0 ]]; do
         --judge)    MODE="judge"; shift ;;
         --full)     MODE="full"; shift ;;
         --gate)     MODE="gate"; shift ;;
+        --optimize) MODE="optimize"; shift ;;
         -v)         VERBOSE="-v"; shift ;;
         -k)         EXTRA_K="$2"; shift 2 ;;
         --timeout)  TIMEOUT="$2"; shift 2 ;;
@@ -44,6 +46,21 @@ while [[ $# -gt 0 ]]; do
         *)          PYTEST_ARGS+=("$1"); shift ;;
     esac
 done
+
+# Handle optimize mode separately — it's not a pytest run
+if [[ "$MODE" == "optimize" ]]; then
+    echo "Running DSPy prompt optimization..."
+    OPT_CMD=(uv run python -m optimization.run_optimization)
+    if [[ -n "$VERBOSE" ]]; then
+        OPT_CMD+=(--validate)
+    fi
+    if [[ ${#PYTEST_ARGS[@]} -gt 0 ]]; then
+        OPT_CMD+=("${PYTEST_ARGS[@]}")
+    fi
+    echo "Command: ${OPT_CMD[*]}"
+    echo ""
+    exec "${OPT_CMD[@]}"
+fi
 
 # Build pytest marker expression
 case "$MODE" in
