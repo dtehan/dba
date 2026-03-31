@@ -2,7 +2,7 @@
 name: Duplicate Detection
 description: Detects exact row duplicates, business key duplicates, and fuzzy near-duplicates within a database.
 icon: ScanSearch
-category: General
+category: Storage
 tools: base_readQuery, base_columnDescription, base_tableDDL
 max_tool_rounds: 40
 max_tokens: 12288

@@ -15,7 +15,7 @@
     "forbidden_tools": [],
     "max_turns": 80,
     "must_mention": ["Duplicate", "PROD_DB"],
-    "must_not_mention": ["TRUNCATE"]
+    "must_not_mention": ["TRUNCATE", "DROP TABLE"]
   },
   "structural_checks": {
     "min_tool_calls": 2,
