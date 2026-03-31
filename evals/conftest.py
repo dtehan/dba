@@ -12,7 +12,16 @@ import pytest
 # Ensure evals package is importable
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from harness.bedrock_client import get_bedrock_client
+# Load .env early so all fixtures pick up env vars
+try:
+    from dotenv import load_dotenv
+    env_path = Path(__file__).resolve().parent / ".env"
+    if env_path.exists():
+        load_dotenv(env_path)
+except ImportError:
+    pass
+
+from harness.llm_client import get_client, get_provider
 from prompts.loader import load_subagent_config, list_subagent_ids
 from prompts.freeform import build_system_prompt
 from tools.definitions import get_tool_definitions
@@ -22,9 +31,20 @@ SCENARIOS_DIR = Path(__file__).resolve().parent / "scenarios" / "data"
 
 
 @pytest.fixture(scope="session")
+def llm_provider():
+    """Session-scoped provider name string."""
+    return get_provider()
+
+
+@pytest.fixture(scope="session")
 def bedrock_client():
-    """Session-scoped Bedrock client. Requires AWS credentials in env."""
-    client, model_id = get_bedrock_client()
+    """Session-scoped LLM client. Works for both Bedrock and Gemini.
+
+    Returns (client, model_id) tuple — matches the original bedrock_client
+    fixture signature for backwards compatibility. The client type depends
+    on the configured provider.
+    """
+    client, model_id, _provider = get_client()
     return client, model_id
 
 
@@ -42,11 +62,10 @@ def all_subagent_ids():
 
 @pytest.fixture(scope="session")
 def judge_model():
-    """Session-scoped DeepEval judge model (Bedrock).
+    """Session-scoped DeepEval judge model.
 
-    Returns None if Bedrock is unreachable, allowing tests to skip gracefully.
-    Tries to create the model — if AWS credentials are available via env vars,
-    ~/.aws/credentials, or IAM role, it will succeed.
+    Returns a Bedrock or Gemini model for use as an LLM judge,
+    depending on EVAL_PROVIDER. Returns None if unavailable.
     """
     try:
         from metrics.custom_metrics import get_judge_model

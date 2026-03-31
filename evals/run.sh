@@ -16,6 +16,7 @@
 #   -v                    # Verbose output
 #   --timeout N           # Override timeout in seconds (default: 600)
 #   --output FILE         # Quality gate report output path
+#   --provider NAME       # LLM provider: bedrock (default) or gemini
 #
 set -euo pipefail
 
@@ -29,6 +30,7 @@ VERBOSE=""
 TIMEOUT=600
 GATE_OUTPUT=""
 EXTRA_K=""
+PROVIDER=""
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -43,9 +45,23 @@ while [[ $# -gt 0 ]]; do
         -k)         EXTRA_K="$2"; shift 2 ;;
         --timeout)  TIMEOUT="$2"; shift 2 ;;
         --output)   GATE_OUTPUT="$2"; shift 2 ;;
+        --provider) PROVIDER="$2"; shift 2 ;;
         *)          PYTEST_ARGS+=("$1"); shift ;;
     esac
 done
+
+# Export provider if specified
+if [[ -n "$PROVIDER" ]]; then
+    export EVAL_PROVIDER="$PROVIDER"
+    echo "Using LLM provider: $PROVIDER"
+fi
+
+# Load .env file if present
+if [[ -f "$SCRIPT_DIR/.env" ]]; then
+    set -a
+    source "$SCRIPT_DIR/.env"
+    set +a
+fi
 
 # Handle optimize mode separately — it's not a pytest run
 if [[ "$MODE" == "optimize" ]]; then

@@ -1,3 +1,6 @@
+// LLM provider types
+export type LlmProvider = 'bedrock' | 'gemini';
+
 // Connection status for each service
 export type ConnectionState = 'connected' | 'disconnected' | 'checking' | 'not-configured';
 
@@ -62,6 +65,19 @@ export const IpcChannels = {
   QUERY_ACTIVITY_FETCH: 'query-activity:fetch',
   CONNECTION_RECHECK: 'connection:recheck',
   SYNTAX_CONTEXT: 'syntax:context',
+  LLM_SAVE_PROVIDER: 'llm:save-provider',
+  LLM_LOAD_PROVIDER: 'llm:load-provider',
+  SAVE_GEMINI_KEY: 'credentials:save-gemini-key',
+  HAS_GEMINI_KEY: 'credentials:has-gemini-key',
+  LOAD_GEMINI_KEY_HINT: 'credentials:load-gemini-key-hint',
+  TEST_GEMINI_CONNECTION: 'gemini:test-connection',
+  GEMINI_SAVE_MODEL: 'gemini:save-model',
+  GEMINI_LOAD_MODEL: 'gemini:load-model',
+  GEMINI_SAVE_AUTH_METHOD: 'gemini:save-auth-method',
+  GEMINI_LOAD_AUTH_METHOD: 'gemini:load-auth-method',
+  GEMINI_SAVE_GCLOUD_CONFIG: 'gemini:save-gcloud-config',
+  GEMINI_LOAD_GCLOUD_CONFIG: 'gemini:load-gcloud-config',
+  GEMINI_TEST_GCLOUD: 'gemini:test-gcloud',
 } as const;
 
 // Chat session for persistence
@@ -103,6 +119,22 @@ export interface ElectronAPI {
   testClaudeConnection: () => Promise<{ success: boolean; error?: string }>;
   onConnectionStatus: (callback: (status: ConnectionStatus) => void) => void;
   removeConnectionStatusListener: () => void;
+  // LLM provider
+  saveLlmProvider: (provider: LlmProvider) => Promise<void>;
+  loadLlmProvider: () => Promise<LlmProvider>;
+  // Gemini
+  saveGeminiApiKey: (key: string) => Promise<void>;
+  hasGeminiKey: () => Promise<boolean>;
+  loadGeminiKeyHint: () => Promise<string | null>;
+  testGeminiConnection: () => Promise<{ success: boolean; error?: string }>;
+  saveGeminiModel: (model: string) => Promise<void>;
+  loadGeminiModel: () => Promise<string>;
+  // Gemini auth method
+  saveGeminiAuthMethod: (method: 'api-key' | 'gcloud') => Promise<void>;
+  loadGeminiAuthMethod: () => Promise<'api-key' | 'gcloud'>;
+  saveGeminiGcloudConfig: (config: { project: string; location: string }) => Promise<void>;
+  loadGeminiGcloudConfig: () => Promise<{ project: string; location: string }>;
+  testGeminiGcloud: () => Promise<{ success: boolean; error?: string }>;
   sendChat: (messages: Array<{ role: MessageRole; content: string }>, systemPrompt: string) => Promise<{ success: boolean; error?: string }>;
   abortChat: () => Promise<void>;
   onChatToken: (callback: (delta: string) => void) => void;

@@ -12,6 +12,9 @@ dist
 out
 __pycache__
 *.pyc
+.env
+.env.local
+evals/.env
 evals/optimization/output/
 # shadcn/ui alias misplacement artifact (resolved via components.json path config)
 @/

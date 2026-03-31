@@ -1,13 +1,34 @@
 import { ipcMain, safeStorage } from 'electron';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import AnthropicBedrock from '@anthropic-ai/bedrock-sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import store from '../store';
 import { IpcChannels } from '@shared/types';
 import { forcePoll } from '../services/health-poller';
+import { getDecryptedGcloudToken } from '../services/gemini-client';
 
 const DEFAULT_MODEL = 'us.anthropic.claude-sonnet-4-20250514-v1:0';
+const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
 
 export function registerClaudeHandlers(): void {
+  // -------------------------------------------------------------------------
+  // LLM Provider selection
+  // -------------------------------------------------------------------------
+
+  ipcMain.handle(IpcChannels.LLM_SAVE_PROVIDER, async (_event, provider: unknown) => {
+    if (provider !== 'bedrock' && provider !== 'gemini') throw new Error('Invalid provider');
+    (store as any).set('llm.provider', provider);
+    forcePoll();
+  });
+
+  ipcMain.handle(IpcChannels.LLM_LOAD_PROVIDER, async () => {
+    return (store as any).get('llm.provider') || 'bedrock';
+  });
+
+  // -------------------------------------------------------------------------
+  // Bedrock (AWS) credentials
+  // -------------------------------------------------------------------------
+
   // Save AWS credentials encrypted via safeStorage
   ipcMain.handle(IpcChannels.SAVE_CLAUDE_KEY, async (_event, key: unknown) => {
     if (typeof key !== 'string' || !key) throw new Error('Invalid credentials');
@@ -132,6 +153,145 @@ export function registerClaudeHandlers(): void {
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       return { success: false, error: message };
+    }
+  });
+
+  // -------------------------------------------------------------------------
+  // Gemini credentials
+  // -------------------------------------------------------------------------
+
+  ipcMain.handle(IpcChannels.SAVE_GEMINI_KEY, async (_event, key: unknown) => {
+    if (typeof key !== 'string' || !key) throw new Error('Invalid Gemini API key');
+    const encrypted = safeStorage.encryptString(key).toString('base64');
+    (store as any).set('llm.geminiEncryptedApiKey', encrypted);
+    forcePoll();
+  });
+
+  ipcMain.handle(IpcChannels.HAS_GEMINI_KEY, async () => {
+    const encrypted = (store as any).get('llm.geminiEncryptedApiKey');
+    return typeof encrypted === 'string' && encrypted.length > 0;
+  });
+
+  ipcMain.handle(IpcChannels.LOAD_GEMINI_KEY_HINT, async () => {
+    try {
+      const encrypted = (store as any).get('llm.geminiEncryptedApiKey');
+      if (!encrypted) return null;
+      const decrypted = safeStorage.decryptString(Buffer.from(encrypted, 'base64'));
+      if (decrypted.length <= 8) return '••••••••';
+      return decrypted.slice(0, 6) + '••••' + decrypted.slice(-4);
+    } catch {
+      return null;
+    }
+  });
+
+  ipcMain.handle(IpcChannels.GEMINI_SAVE_MODEL, async (_event, model: unknown) => {
+    (store as any).set('llm.geminiModel', typeof model === 'string' ? model : '');
+  });
+
+  ipcMain.handle(IpcChannels.GEMINI_LOAD_MODEL, async () => {
+    return (store as any).get('llm.geminiModel') || DEFAULT_GEMINI_MODEL;
+  });
+
+  ipcMain.handle(IpcChannels.TEST_GEMINI_CONNECTION, async () => {
+    try {
+      const encrypted = (store as any).get('llm.geminiEncryptedApiKey');
+      if (!encrypted) return { success: false, error: 'Gemini API key not configured' };
+      const apiKey = safeStorage.decryptString(Buffer.from(encrypted, 'base64'));
+      const modelId = (store as any).get('llm.geminiModel') || DEFAULT_GEMINI_MODEL;
+
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const model = genAI.getGenerativeModel({ model: modelId });
+
+      await model.generateContent('ping');
+      return { success: true };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return { success: false, error: message };
+    }
+  });
+
+  // -------------------------------------------------------------------------
+  // Gemini auth method + gcloud config
+  // -------------------------------------------------------------------------
+
+  ipcMain.handle(IpcChannels.GEMINI_SAVE_AUTH_METHOD, async (_event, method: unknown) => {
+    if (method !== 'api-key' && method !== 'gcloud') throw new Error('Invalid auth method');
+    (store as any).set('llm.geminiAuthMethod', method);
+    forcePoll();
+  });
+
+  ipcMain.handle(IpcChannels.GEMINI_LOAD_AUTH_METHOD, async () => {
+    return (store as any).get('llm.geminiAuthMethod') || 'api-key';
+  });
+
+  ipcMain.handle(IpcChannels.GEMINI_SAVE_GCLOUD_CONFIG, async (_event, config: unknown) => {
+    const cfg = config as { project?: string; location?: string };
+    (store as any).set('llm.geminiProject', cfg?.project || '');
+    (store as any).set('llm.geminiLocation', cfg?.location || 'us-central1');
+  });
+
+  ipcMain.handle(IpcChannels.GEMINI_LOAD_GCLOUD_CONFIG, async () => {
+    return {
+      project: (store as any).get('llm.geminiProject') || '',
+      location: (store as any).get('llm.geminiLocation') || 'us-central1',
+    };
+  });
+
+  ipcMain.handle(IpcChannels.GEMINI_TEST_GCLOUD, async () => {
+    try {
+      const token = getDecryptedGcloudToken();
+      const project: string = (store as any).get('llm.geminiProject') || '';
+      const location: string = (store as any).get('llm.geminiLocation') || 'us-central1';
+      const modelId: string = (store as any).get('llm.geminiModel') || DEFAULT_GEMINI_MODEL;
+
+      if (!project) {
+        return { success: false, error: 'Google Cloud project ID is required' };
+      }
+
+      // Test with a real Vertex AI call using the pasted token
+      const { VertexAI } = await import('@google-cloud/vertexai');
+      const vertexAI = new VertexAI({
+        project,
+        location,
+        googleAuth: {
+          getAccessToken: async () => ({ token }),
+          getRequestHeaders: async () => ({ Authorization: `Bearer ${token}` }),
+        } as any,
+      });
+
+      const model = vertexAI.getGenerativeModel({ model: modelId });
+      await model.generateContent('ping');
+      return { success: true };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return { success: false, error: message };
+    }
+  });
+
+  // Save gcloud access token (encrypted)
+  ipcMain.handle('gemini:save-gcloud-token', async (_event, token: unknown) => {
+    if (typeof token !== 'string' || !token) throw new Error('Invalid access token');
+    const encrypted = safeStorage.encryptString(token).toString('base64');
+    (store as any).set('llm.geminiEncryptedGcloudToken', encrypted);
+    forcePoll();
+  });
+
+  // Check if gcloud token is stored
+  ipcMain.handle('gemini:has-gcloud-token', async () => {
+    const encrypted = (store as any).get('llm.geminiEncryptedGcloudToken');
+    return typeof encrypted === 'string' && encrypted.length > 0;
+  });
+
+  // Return masked hint for the stored gcloud token
+  ipcMain.handle('gemini:load-gcloud-token-hint', async () => {
+    try {
+      const encrypted = (store as any).get('llm.geminiEncryptedGcloudToken');
+      if (!encrypted) return null;
+      const decrypted = safeStorage.decryptString(Buffer.from(encrypted, 'base64'));
+      if (decrypted.length <= 8) return '••••••••';
+      return decrypted.slice(0, 6) + '••••' + decrypted.slice(-4);
+    } catch {
+      return null;
     }
   });
 }

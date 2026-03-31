@@ -1,5 +1,8 @@
 import Store from 'electron-store';
 
+export type LlmProvider = 'bedrock' | 'gemini';
+export type GeminiAuthMethod = 'api-key' | 'gcloud';
+
 interface StoreSchema {
   teradata: {
     host: string;
@@ -8,6 +11,15 @@ interface StoreSchema {
   };
   claude: {
     encryptedApiKey: string;
+  };
+  llm: {
+    provider: LlmProvider;
+    geminiEncryptedApiKey: string;
+    geminiModel: string;
+    geminiAuthMethod: GeminiAuthMethod;
+    geminiProject: string;
+    geminiLocation: string;
+    geminiEncryptedGcloudToken: string;
   };
 }
 
@@ -21,6 +33,15 @@ const store = new Store<StoreSchema>({
     },
     claude: {
       encryptedApiKey: '',
+    },
+    llm: {
+      provider: 'bedrock',
+      geminiEncryptedApiKey: '',
+      geminiModel: '',
+      geminiAuthMethod: 'api-key',
+      geminiProject: '',
+      geminiLocation: 'us-central1',
+      geminiEncryptedGcloudToken: '',
     },
   },
 });

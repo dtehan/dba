@@ -17,6 +17,25 @@ contextBridge.exposeInMainWorld('electronAPI', {
   loadBedrockRegion: () => ipcRenderer.invoke('claude:load-region'),
   saveBedrockConfig: (config: { roleArn?: string; modelId?: string }) => ipcRenderer.invoke('claude:save-config', config),
   loadBedrockConfig: () => ipcRenderer.invoke('claude:load-config'),
+  // LLM Provider
+  saveLlmProvider: (provider: string) => ipcRenderer.invoke(IpcChannels.LLM_SAVE_PROVIDER, provider),
+  loadLlmProvider: () => ipcRenderer.invoke(IpcChannels.LLM_LOAD_PROVIDER),
+  // Gemini
+  saveGeminiApiKey: (key: string) => ipcRenderer.invoke(IpcChannels.SAVE_GEMINI_KEY, key),
+  hasGeminiKey: () => ipcRenderer.invoke(IpcChannels.HAS_GEMINI_KEY),
+  loadGeminiKeyHint: () => ipcRenderer.invoke(IpcChannels.LOAD_GEMINI_KEY_HINT),
+  testGeminiConnection: () => ipcRenderer.invoke(IpcChannels.TEST_GEMINI_CONNECTION),
+  saveGeminiModel: (model: string) => ipcRenderer.invoke(IpcChannels.GEMINI_SAVE_MODEL, model),
+  loadGeminiModel: () => ipcRenderer.invoke(IpcChannels.GEMINI_LOAD_MODEL),
+  // Gemini auth method + gcloud config
+  saveGeminiAuthMethod: (method: string) => ipcRenderer.invoke(IpcChannels.GEMINI_SAVE_AUTH_METHOD, method),
+  loadGeminiAuthMethod: () => ipcRenderer.invoke(IpcChannels.GEMINI_LOAD_AUTH_METHOD),
+  saveGeminiGcloudConfig: (config: { project: string; location: string }) => ipcRenderer.invoke(IpcChannels.GEMINI_SAVE_GCLOUD_CONFIG, config),
+  loadGeminiGcloudConfig: () => ipcRenderer.invoke(IpcChannels.GEMINI_LOAD_GCLOUD_CONFIG),
+  testGeminiGcloud: () => ipcRenderer.invoke(IpcChannels.GEMINI_TEST_GCLOUD),
+  saveGeminiGcloudToken: (token: string) => ipcRenderer.invoke('gemini:save-gcloud-token', token),
+  hasGeminiGcloudToken: () => ipcRenderer.invoke('gemini:has-gcloud-token'),
+  loadGeminiGcloudTokenHint: () => ipcRenderer.invoke('gemini:load-gcloud-token-hint'),
   onConnectionStatus: (callback: (status: ConnectionStatus) => void) => {
     ipcRenderer.on(IpcChannels.CONNECTION_STATUS_UPDATE, (_event, status) => callback(status));
   },

@@ -1,12 +1,14 @@
-"""Configure DSPy to use AWS Bedrock Claude as its language model.
+"""Configure DSPy to use AWS Bedrock Claude or Google Gemini as its language model.
 
-Reads the same environment variables as harness/bedrock_client.py so the
-optimizer uses identical credentials and model configuration.
+Reads the same environment variables as harness/bedrock_client.py and
+harness/gemini_client.py so the optimizer uses identical credentials
+and model configuration.
 """
 
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 import dspy
 
@@ -14,14 +16,29 @@ import dspy
 def configure_dspy_lm(
     model_override: str | None = None,
 ) -> dspy.LM:
-    """Configure and activate a DSPy LM backed by AWS Bedrock.
+    """Configure and activate a DSPy LM backed by the configured provider.
 
-    Uses litellm's ``bedrock/`` prefix under the hood.  Reads credentials
-    from the standard AWS env vars and optionally assumes a role via STS
-    when ``AWS_ROLE_ARN`` is set.
-
+    Reads EVAL_PROVIDER to choose between Bedrock and Gemini.
     Returns the configured ``dspy.LM`` instance (also sets it globally).
     """
+    # Load .env
+    try:
+        from dotenv import load_dotenv
+        env_path = Path(__file__).resolve().parent.parent / ".env"
+        if env_path.exists():
+            load_dotenv(env_path)
+    except ImportError:
+        pass
+
+    provider = os.environ.get("EVAL_PROVIDER", "bedrock").lower()
+
+    if provider == "gemini":
+        return _configure_gemini_lm(model_override)
+    return _configure_bedrock_lm(model_override)
+
+
+def _configure_bedrock_lm(model_override: str | None = None) -> dspy.LM:
+    """Configure DSPy with AWS Bedrock Claude."""
     region = os.environ.get("AWS_REGION", "us-west-2")
     model_id = model_override or os.environ.get(
         "EVAL_MODEL", "us.anthropic.claude-sonnet-4-20250514-v1:0"
@@ -41,6 +58,29 @@ def configure_dspy_lm(
         max_tokens=4096,
         temperature=0.0,
         aws_region_name=region,
+    )
+
+    dspy.configure(lm=lm)
+    return lm
+
+
+def _configure_gemini_lm(model_override: str | None = None) -> dspy.LM:
+    """Configure DSPy with Google Gemini."""
+    model_id = model_override or os.environ.get(
+        "EVAL_GEMINI_MODEL", "gemini-2.5-flash"
+    )
+    api_key = os.environ.get("GEMINI_API_KEY", "")
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY not set for DSPy Gemini configuration")
+
+    # litellm Gemini provider expects the ``gemini/`` prefix.
+    litellm_model = f"gemini/{model_id}"
+
+    lm = dspy.LM(
+        model=litellm_model,
+        max_tokens=4096,
+        temperature=0.0,
+        api_key=api_key,
     )
 
     dspy.configure(lm=lm)

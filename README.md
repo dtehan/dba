@@ -1,6 +1,6 @@
 # Teradata DBA Agent
 
-AI-powered desktop app for Teradata DBAs. Chat with your Teradata environment and run specialized analysis — security audits, compression analysis, statistics reviews, skew detection, space usage, query performance, index advising, lock contention, system health, workload management, cross-table redundancy detection, and duplicate data detection — all through natural conversation powered by Claude.
+AI-powered desktop app for Teradata DBAs. Chat with your Teradata environment and run specialized analysis — security audits, compression analysis, statistics reviews, skew detection, space usage, query performance, index advising, lock contention, system health, workload management, cross-table redundancy detection, and duplicate data detection — all through natural conversation powered by Claude (AWS Bedrock) or Google Gemini.
 
 ## Prerequisites
 
@@ -33,46 +33,32 @@ The app's Settings screen has a "Teradata Connection" section where you enter yo
 
 **MCP Server URL:** By default the app expects the MCP server at `http://127.0.0.1:8001/mcp`. Configure this in the Settings screen if your server runs on a different address.
 
-### Claude via AWS Bedrock
+### LLM Provider
 
-This app uses Claude through AWS Bedrock. To configure:
+The app supports two LLM providers. Select your provider in **Settings > LLM Provider**.
 
-1. **Get your Bearer token** from your AWS Bedrock deployment. This is typically a temporary credential from `aws bedrock-runtime invoke-model` or a gateway token.
+#### Claude via AWS Bedrock
 
-2. **Open Settings** in the app (sidebar → Settings).
+1. **Open Settings** in the app (sidebar → Settings).
+2. **Select "Claude (AWS Bedrock)"** as the LLM provider.
+3. **Enter your AWS credentials:**
+   - **AWS Access Key ID** and **Secret Access Key**
+   - **Region** (e.g., `us-west-2`)
+   - **Role ARN** (optional, for cross-account access)
+   - **Model / Inference Profile ID** (optional override)
+4. **Click "Test Connection"** to verify.
 
-3. **Enter your Bedrock configuration:**
-   - **Bearer Key** — your Bedrock authentication token
-   - The app stores this securely via your OS keychain (macOS Keychain, Windows DPAPI, or Linux secret store)
+All credentials are encrypted via your OS keychain (macOS Keychain, Windows DPAPI, or Linux secret store).
 
-4. **Click "Test Connection"** to verify the app can reach Claude via your Bedrock endpoint.
+#### Google Gemini
 
-#### Bedrock Environment Variables (Alternative)
+1. **Open Settings** in the app (sidebar → Settings).
+2. **Select "Google Gemini"** as the LLM provider.
+3. **Enter your Gemini API key** — get one from [Google AI Studio](https://aistudio.google.com/apikey).
+4. **Select a model** (Gemini 2.5 Flash recommended, or 2.5 Pro for max capability).
+5. **Click "Test Connection"** to verify.
 
-If you prefer environment variables over the UI:
-
-```bash
-# Set before launching the app
-export AWS_REGION=us-east-1              # Your Bedrock region
-export AWS_BEDROCK_BEARER_KEY=your-key   # Your bearer token
-
-npm run dev
-```
-
-#### Bedrock SDK Configuration
-
-Under the hood, the app uses the Anthropic SDK with Bedrock support:
-
-```typescript
-import AnthropicBedrock from '@anthropic-ai/bedrock-sdk';
-
-const client = new AnthropicBedrock({
-  awsRegion: 'us-east-1',
-  // Bearer key authentication
-});
-```
-
-See the [Anthropic Bedrock SDK docs](https://docs.anthropic.com/en/api/claude-on-amazon-bedrock) for full configuration options.
+See the [Gemini API docs](https://ai.google.dev/gemini-api/docs) for more information.
 
 ## Architecture
 
@@ -103,6 +89,40 @@ npm run lint         # ESLint
 npm run typecheck    # TypeScript type checking
 ```
 
+## Evals
+
+The eval harness lives in `evals/` and supports both Bedrock and Gemini as the LLM provider.
+
+```bash
+cd evals
+
+# Structural tests (no LLM calls, instant)
+./run.sh --smoke
+
+# Live agent tests with Bedrock (default)
+./run.sh --live
+
+# Live agent tests with Gemini
+./run.sh --live --provider gemini
+
+# Full suite with LLM judge
+./run.sh --full --provider gemini
+```
+
+Configure credentials in `evals/.env`:
+
+```bash
+# Provider: "bedrock" (default) or "gemini"
+EVAL_PROVIDER=gemini
+
+# Gemini
+GEMINI_API_KEY=your-key-here
+
+# Bedrock (AWS)
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+```
+
 ## Tech Stack
 
 - **Electron** — desktop shell
@@ -112,4 +132,5 @@ npm run typecheck    # TypeScript type checking
 - **shadcn/ui** — accessible component library
 - **Zustand** — state management
 - **Anthropic SDK** (Bedrock) — Claude AI
+- **Google Generative AI SDK** — Gemini AI
 - **Teradata MCP Server** — database connectivity

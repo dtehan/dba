@@ -1,17 +1,24 @@
 import { ipcMain, BrowserWindow } from 'electron';
 import { getBedrockClient, getMcpToolsForClaude, executeTool, clearToolsCache } from '../services/bedrock-client';
+import { getGeminiModel, executeToolGemini, convertToolsToGemini, clearGeminiToolsCache } from '../services/gemini-client';
 import { getSubagentConfig } from '../subagents/registry';
 import { IpcChannels } from '@shared/types';
 import { addRunEntry } from './subagent-history';
 import { getSyntaxToolDefinition, executeSyntaxTool } from '../services/syntax-tool';
 import { getSyntaxGuidelines, getSyntaxIndex } from '../services/syntax-loader';
+import store, { type LlmProvider } from '../store';
+import type { Content, Part } from '@google/generative-ai';
 
 const MAX_TOOL_ROUNDS = 10;
 
 let activeAbort: AbortController | null = null;
 
+function getProvider(): LlmProvider {
+  return ((store as any).get('llm.provider') as LlmProvider) || 'bedrock';
+}
+
 // ---------------------------------------------------------------------------
-// Agent loop types
+// Bedrock agent loop types
 // ---------------------------------------------------------------------------
 
 interface AgentLoopParams {
@@ -37,7 +44,7 @@ interface AgentLoopResult {
 }
 
 // ---------------------------------------------------------------------------
-// Core agent loop (shared by freeform chat and subagent launcher)
+// Core Bedrock agent loop (existing)
 // ---------------------------------------------------------------------------
 
 async function runAgentLoop(params: AgentLoopParams): Promise<AgentLoopResult> {
@@ -141,6 +148,241 @@ async function runAgentLoop(params: AgentLoopParams): Promise<AgentLoopResult> {
 }
 
 // ---------------------------------------------------------------------------
+// Gemini agent loop
+// ---------------------------------------------------------------------------
+
+interface GeminiAgentLoopParams {
+  systemPrompt: string;
+  initialMessages: Array<{
+    role: 'user' | 'assistant';
+    content: string | Array<Record<string, unknown>>;
+  }>;
+  tools: Array<{ name: string; description: string; input_schema: Record<string, unknown> }>;
+  maxToolRounds: number;
+  maxTokens: number;
+  controller: AbortController;
+  onToken: (delta: string) => void;
+}
+
+function convertMessagesToGeminiContents(
+  messages: Array<{ role: string; content: string | Array<Record<string, unknown>> }>
+): Content[] {
+  const contents: Content[] = [];
+
+  for (const msg of messages) {
+    const role = msg.role === 'assistant' ? 'model' : 'user';
+
+    if (typeof msg.content === 'string') {
+      contents.push({ role, parts: [{ text: msg.content }] });
+    } else if (Array.isArray(msg.content)) {
+      const parts: Part[] = [];
+      for (const block of msg.content) {
+        if (block.type === 'text') {
+          parts.push({ text: block.text as string });
+        } else if (block.type === 'tool_use') {
+          parts.push({
+            functionCall: {
+              name: block.name as string,
+              args: block.input as Record<string, unknown>,
+            },
+          });
+        } else if (block.type === 'tool_result') {
+          parts.push({
+            functionResponse: {
+              name: (block as any).tool_name || 'unknown',
+              response: { result: block.content as string },
+            },
+          });
+        }
+      }
+      if (parts.length > 0) contents.push({ role, parts });
+    }
+  }
+
+  return contents;
+}
+
+async function runGeminiAgentLoop(params: GeminiAgentLoopParams): Promise<AgentLoopResult> {
+  const {
+    systemPrompt,
+    initialMessages,
+    tools,
+    maxToolRounds,
+    maxTokens,
+    controller,
+    onToken,
+  } = params;
+
+  const { model } = getGeminiModel();
+
+  const geminiTools = convertToolsToGemini(tools);
+  const contents = convertMessagesToGeminiContents(initialMessages);
+  let accumulatedText = '';
+  let lastStopReason = 'end_turn';
+
+  // Build the chat with system instruction and tools
+  const chat = model.startChat({
+    history: contents.slice(0, -1),
+    systemInstruction: { role: 'user', parts: [{ text: systemPrompt }] },
+    ...(geminiTools.length > 0 ? { tools: geminiTools } : {}),
+    generationConfig: { maxOutputTokens: maxTokens },
+  });
+
+  // Get the last message to send
+  const lastContent = contents[contents.length - 1];
+  let currentParts = lastContent?.parts || [{ text: '' }];
+
+  let round = 0;
+  while (round < maxToolRounds) {
+    if (controller.signal.aborted) break;
+    round++;
+
+    try {
+      const result = await chat.sendMessageStream(currentParts);
+
+      let hasToolCalls = false;
+      const functionCalls: Array<{ name: string; args: Record<string, unknown> }> = [];
+
+      for await (const chunk of result.stream) {
+        if (controller.signal.aborted) break;
+
+        for (const candidate of chunk.candidates || []) {
+          for (const part of candidate.content?.parts || []) {
+            if (part.text) {
+              accumulatedText += part.text;
+              onToken(part.text);
+            }
+            if (part.functionCall) {
+              hasToolCalls = true;
+              functionCalls.push({
+                name: part.functionCall.name,
+                args: (part.functionCall.args || {}) as Record<string, unknown>,
+              });
+            }
+          }
+
+          if (candidate.finishReason) {
+            lastStopReason = candidate.finishReason === 'STOP' ? 'end_turn' : candidate.finishReason;
+          }
+        }
+      }
+
+      if (!hasToolCalls || functionCalls.length === 0) {
+        return { success: true, finalText: accumulatedText, stopReason: lastStopReason };
+      }
+
+      // Execute tool calls and send results back
+      const functionResponseParts: Part[] = [];
+      for (const fc of functionCalls) {
+        if (controller.signal.aborted) break;
+
+        let result: string;
+        if (fc.name === 'td_syntax') {
+          onToken('\n\n*Looking up syntax reference...*\n\n');
+          result = executeSyntaxTool(fc.args as { topics: string[] });
+        } else {
+          onToken(`\n\n*Querying Teradata: ${fc.name}...*\n\n`);
+          result = await executeToolGemini(fc.name, fc.args);
+        }
+        functionResponseParts.push({
+          functionResponse: {
+            name: fc.name,
+            response: { result },
+          },
+        });
+      }
+
+      if (controller.signal.aborted) break;
+      currentParts = functionResponseParts;
+      lastStopReason = 'tool_use';
+      continue;
+    } catch (err: any) {
+      if (err?.name === 'AbortError') break;
+      throw err;
+    }
+  }
+
+  return { success: true, finalText: accumulatedText, stopReason: lastStopReason };
+}
+
+// ---------------------------------------------------------------------------
+// Unified dispatch — chooses Bedrock or Gemini based on provider setting
+// ---------------------------------------------------------------------------
+
+async function dispatchChat(
+  messages: Array<{ role: string; content: string | Array<Record<string, unknown>> }>,
+  systemPrompt: string,
+  toolFilter: string[],
+  maxToolRounds: number,
+  maxTokens: number,
+  controller: AbortController,
+  onToken: (delta: string) => void
+): Promise<AgentLoopResult> {
+  const provider = getProvider();
+
+  if (provider === 'gemini') {
+    const allMcpTools: Array<{ name: string; description: string; input_schema: Record<string, unknown> }> = await (async () => {
+      try {
+        const mcpTools = await (await import('../services/mcp-schema')).discoverMcpTools();
+        return mcpTools.map((t: any) => ({
+          name: t.name as string,
+          description: t.description as string,
+          input_schema: t.inputSchema as Record<string, unknown>,
+        }));
+      } catch {
+        return [];
+      }
+    })();
+    const filteredTools = toolFilter.length > 0
+      ? allMcpTools.filter((t) => toolFilter.includes(t.name))
+      : allMcpTools;
+
+    // Add syntax tool
+    const syntaxDef = getSyntaxToolDefinition();
+    const allTools = [...filteredTools, {
+      name: syntaxDef.name as string,
+      description: syntaxDef.description as string,
+      input_schema: syntaxDef.input_schema as Record<string, unknown>,
+    }];
+
+    return runGeminiAgentLoop({
+      systemPrompt,
+      initialMessages: messages.map((m) => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content as string | Array<Record<string, unknown>>,
+      })),
+      tools: allTools,
+      maxToolRounds,
+      maxTokens,
+      controller,
+      onToken,
+    });
+  }
+
+  // Default: Bedrock
+  const { client, modelId } = await getBedrockClient();
+  const allMcpTools = toolFilter.length > 0
+    ? (await getMcpToolsForClaude()).filter((t: any) => toolFilter.includes(t.name))
+    : await getMcpToolsForClaude();
+  const allTools = [...allMcpTools, getSyntaxToolDefinition()];
+
+  return runAgentLoop({
+    client,
+    modelId,
+    systemPrompt,
+    initialMessages: messages.map((m) => ({
+      role: m.role as 'user' | 'assistant',
+      content: m.content as string | Array<Record<string, unknown>>,
+    })),
+    tools: allTools,
+    maxToolRounds,
+    maxTokens,
+    controller,
+    onToken,
+  });
+}
+
+// ---------------------------------------------------------------------------
 // IPC handlers
 // ---------------------------------------------------------------------------
 
@@ -148,6 +390,7 @@ export function registerChatHandlers(): void {
   // Allow renderer to force-refresh the MCP tools cache
   ipcMain.handle('chat:refresh-tools', async () => {
     clearToolsCache();
+    clearGeminiToolsCache();
     const tools = await getMcpToolsForClaude();
     return { count: tools.length };
   });
@@ -173,29 +416,19 @@ export function registerChatHandlers(): void {
       activeAbort = controller;
 
       try {
-        const { client, modelId } = await getBedrockClient();
-        const allTools = [...(await getMcpToolsForClaude()), getSyntaxToolDefinition()];
-
-        const initialMessages = messages.map((m) => ({
-          role: m.role as 'user' | 'assistant',
-          content: m.content as string | Array<Record<string, unknown>>,
-        }));
-
-        const result = await runAgentLoop({
-          client,
-          modelId,
+        const result = await dispatchChat(
+          messages,
           systemPrompt,
-          initialMessages,
-          tools: allTools,
-          maxToolRounds: MAX_TOOL_ROUNDS,
-          maxTokens: 4096,
+          [], // no tool filter for freeform chat
+          MAX_TOOL_ROUNDS,
+          4096,
           controller,
-          onToken: (delta) => {
+          (delta) => {
             if (!controller.signal.aborted && !win.isDestroyed()) {
               win.webContents.send(IpcChannels.CHAT_TOKEN, delta);
             }
           },
-        });
+        );
 
         if (!controller.signal.aborted && !win.isDestroyed()) {
           win.webContents.send(IpcChannels.CHAT_DONE, { stopReason: result.stopReason });
@@ -231,28 +464,19 @@ export function registerChatHandlers(): void {
       const startTime = Date.now();
 
       try {
-        const { client, modelId } = await getBedrockClient();
-        const allMcpTools = await getMcpToolsForClaude();
-        const filteredTools = config.toolFilter.length > 0
-          ? allMcpTools.filter((t: any) => config.toolFilter.includes(t.name))
-          : allMcpTools;
-        const tools = [...filteredTools, getSyntaxToolDefinition()];
-
-        const result = await runAgentLoop({
-          client,
-          modelId,
-          systemPrompt: config.systemPrompt,
-          initialMessages: [{ role: 'user', content: config.initialMessage }],
-          tools,
-          maxToolRounds: config.maxToolRounds,
-          maxTokens: config.maxTokens,
+        const result = await dispatchChat(
+          [{ role: 'user', content: config.initialMessage }],
+          config.systemPrompt,
+          config.toolFilter,
+          config.maxToolRounds,
+          config.maxTokens,
           controller,
-          onToken: (delta) => {
+          (delta) => {
             if (!controller.signal.aborted && !win.isDestroyed()) {
               win.webContents.send(IpcChannels.CHAT_TOKEN, delta);
             }
           },
-        });
+        );
 
         // Record successful run
         addRunEntry({

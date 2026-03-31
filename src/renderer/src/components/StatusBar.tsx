@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import type { ConnectionState } from '@shared/types';
 import { Badge } from '@/components/ui/badge';
 import { useAppStore } from '@/store/app-store';
@@ -53,6 +54,22 @@ function StatusIndicator({ label, state }: StatusIndicatorProps): JSX.Element {
 
 export function StatusBar(): JSX.Element {
   const connectionStatus = useAppStore((s) => s.connectionStatus);
+  const [providerLabel, setProviderLabel] = useState('Claude API:');
+
+  useEffect(() => {
+    const api = (window as any).electronAPI;
+    api?.loadLlmProvider?.().then((p: string) => {
+      setProviderLabel(p === 'gemini' ? 'Gemini API:' : 'Claude API:');
+    }).catch(() => {});
+  }, []);
+
+  // Re-check provider when connection status changes (triggers after provider switch)
+  useEffect(() => {
+    const api = (window as any).electronAPI;
+    api?.loadLlmProvider?.().then((p: string) => {
+      setProviderLabel(p === 'gemini' ? 'Gemini API:' : 'Claude API:');
+    }).catch(() => {});
+  }, [connectionStatus.claude]);
 
   return (
     <div
@@ -60,7 +77,7 @@ export function StatusBar(): JSX.Element {
       aria-label="Connection status"
     >
       <StatusIndicator label="Teradata:" state={connectionStatus.teradata} />
-      <StatusIndicator label="Claude API:" state={connectionStatus.claude} />
+      <StatusIndicator label={providerLabel} state={connectionStatus.claude} />
     </div>
   );
 }

@@ -2,6 +2,9 @@
 
 Provides 7 metrics from the eval spec, using DeepEval's built-in
 conversational metrics with domain-specific configuration.
+
+Supports both AWS Bedrock (Claude) and Google Gemini as judge models
+based on the EVAL_PROVIDER environment variable.
 """
 
 from __future__ import annotations
@@ -16,17 +19,37 @@ from deepeval.metrics import (
     RoleAdherenceMetric,
     ToolUseMetric,
 )
-from deepeval.models import AmazonBedrockModel
 from deepeval.test_case import ToolCall as DEToolCall, TurnParams
 
 
-def get_judge_model() -> AmazonBedrockModel:
-    """Create a Bedrock model for use as an LLM judge.
+def get_judge_model() -> Any:
+    """Create a judge model for DeepEval scoring.
 
-    Uses the same credentials as the agent runner but allows
-    overriding the model via EVAL_JUDGE_MODEL env var (defaults
-    to the same model as EVAL_MODEL).
+    Uses Bedrock or Gemini based on EVAL_PROVIDER env var.
+    For Gemini, uses DeepEval's GeminiModel.
+    For Bedrock, uses DeepEval's AmazonBedrockModel.
     """
+    # Load .env
+    try:
+        from dotenv import load_dotenv
+        from pathlib import Path
+        env_path = Path(__file__).resolve().parent.parent / ".env"
+        if env_path.exists():
+            load_dotenv(env_path)
+    except ImportError:
+        pass
+
+    provider = os.environ.get("EVAL_PROVIDER", "bedrock").lower()
+
+    if provider == "gemini":
+        return _get_gemini_judge()
+    return _get_bedrock_judge()
+
+
+def _get_bedrock_judge() -> Any:
+    """Create a Bedrock model for use as an LLM judge."""
+    from deepeval.models import AmazonBedrockModel
+
     region = os.environ.get("AWS_REGION", "us-west-2")
     model_id = os.environ.get(
         "EVAL_JUDGE_MODEL",
@@ -52,13 +75,35 @@ def get_judge_model() -> AmazonBedrockModel:
     return AmazonBedrockModel(**kwargs)
 
 
+def _get_gemini_judge() -> Any:
+    """Create a Gemini model for use as an LLM judge.
+
+    DeepEval supports Gemini natively via its GeminiModel class.
+    Falls back to a string model identifier via litellm if GeminiModel
+    is not available.
+    """
+    model_id = os.environ.get(
+        "EVAL_JUDGE_MODEL",
+        os.environ.get("EVAL_GEMINI_MODEL", "gemini-2.5-flash"),
+    )
+
+    try:
+        from deepeval.models import GeminiModel
+        return GeminiModel(model=model_id)
+    except (ImportError, AttributeError):
+        # Older DeepEval versions may not have GeminiModel
+        # Fall back to string model identifier which DeepEval
+        # can resolve via litellm
+        return f"gemini/{model_id}"
+
+
 # ---------------------------------------------------------------------------
 # Metric factory functions
 # ---------------------------------------------------------------------------
 
 
 def conversation_quality_metric(
-    model: AmazonBedrockModel | None = None,
+    model: Any | None = None,
     threshold: float = 0.7,
 ) -> ConversationalGEval:
     """Conversation Quality — coherence, accuracy, helpfulness across turns."""
@@ -87,7 +132,7 @@ def conversation_quality_metric(
 
 
 def knowledge_retention_metric(
-    model: AmazonBedrockModel | None = None,
+    model: Any | None = None,
     threshold: float = 0.7,
 ) -> KnowledgeRetentionMetric:
     """Knowledge Retention — remembers facts stated earlier in conversation."""
@@ -99,7 +144,7 @@ def knowledge_retention_metric(
 
 
 def conversation_completeness_metric(
-    model: AmazonBedrockModel | None = None,
+    model: Any | None = None,
     threshold: float = 0.7,
 ) -> ConversationCompletenessMetric:
     """Conversation Completeness — all user intents addressed."""
@@ -112,7 +157,7 @@ def conversation_completeness_metric(
 
 def tool_use_metric(
     available_tools: list[dict],
-    model: AmazonBedrockModel | None = None,
+    model: Any | None = None,
     threshold: float = 0.7,
 ) -> ToolUseMetric:
     """Tool Use Accuracy — right tools called with right arguments.
@@ -137,7 +182,7 @@ def tool_use_metric(
 
 
 def role_adherence_metric(
-    model: AmazonBedrockModel | None = None,
+    model: Any | None = None,
     threshold: float = 0.7,
 ) -> RoleAdherenceMetric:
     """Role Adherence — agent stays in character as defined role."""
@@ -150,7 +195,7 @@ def role_adherence_metric(
 
 def task_completion_metric(
     task: str | None = None,
-    model: AmazonBedrockModel | None = None,
+    model: Any | None = None,
     threshold: float = 0.7,
 ) -> ConversationalGEval:
     """Task Completion — agent achieved the stated goal.
@@ -187,7 +232,7 @@ def task_completion_metric(
 
 
 def trajectory_efficiency_metric(
-    model: AmazonBedrockModel | None = None,
+    model: Any | None = None,
     threshold: float = 0.6,
 ) -> ConversationalGEval:
     """Trajectory Efficiency — no unnecessary steps or wasted calls."""
@@ -223,7 +268,7 @@ def trajectory_efficiency_metric(
 def build_all_metrics(
     available_tools: list[dict],
     task_description: str | None = None,
-    model: AmazonBedrockModel | None = None,
+    model: Any | None = None,
 ) -> dict[str, Any]:
     """Build all 7 metrics for a full evaluation run.
 

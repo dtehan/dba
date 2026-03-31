@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { TeradataForm } from './TeradataForm';
 import { ClaudeApiForm } from './ClaudeApiForm';
+import { GeminiApiForm } from './GeminiApiForm';
+import { LlmProviderSelector, useLlmProvider } from './LlmProviderSelector';
 
 export function SettingsScreen(): JSX.Element {
   const [confirmClear, setConfirmClear] = useState(false);
   const confirmTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [provider, setProvider] = useLlmProvider();
 
   useEffect(() => {
     return () => {
@@ -37,7 +40,9 @@ export function SettingsScreen(): JSX.Element {
 
       <div style={{ maxWidth: '672px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <TeradataForm />
-        <ClaudeApiForm />
+        <LlmProviderSelector value={provider} onChange={setProvider} />
+        {provider === 'bedrock' && <ClaudeApiForm />}
+        {provider === 'gemini' && <GeminiApiForm />}
 
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <button

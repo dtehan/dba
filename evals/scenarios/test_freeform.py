@@ -16,7 +16,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from conftest import collect_freeform_scenarios
-from harness.agent_runner import run_agent_loop
+from harness.llm_client import run_agent, get_provider
 from harness.deepeval_bridge import agent_result_to_test_case, scripted_scenario_to_test_case
 from prompts.freeform import build_system_prompt
 from prompts.loader import load_all_subagent_configs
@@ -153,9 +153,10 @@ class TestFreeformLive:
         tools = get_tool_definitions()
 
         initial = scenario.get("initial_messages", [])
-        result = run_agent_loop(
+        result = run_agent(
             client=client,
-            model=model_id,
+            model_id=model_id,
+            provider=get_provider(),
             system_prompt=system_prompt,
             messages=initial,
             tools=tools,
@@ -184,9 +185,10 @@ class TestFreeformLive:
         tools = get_tool_definitions()
 
         initial = scenario.get("initial_messages", [])
-        result = run_agent_loop(
+        result = run_agent(
             client=client,
-            model=model_id,
+            model_id=model_id,
+            provider=get_provider(),
             system_prompt=system_prompt,
             messages=initial,
             tools=tools,
@@ -319,9 +321,10 @@ class TestFreeformLLMJudge:
         tools = get_tool_definitions()
         initial = scenario.get("initial_messages", [])
 
-        result = run_agent_loop(
+        result = run_agent(
             client=client,
-            model=model_id,
+            model_id=model_id,
+            provider=get_provider(),
             system_prompt=system_prompt,
             messages=initial,
             tools=tools,
@@ -362,9 +365,10 @@ class TestFreeformLLMJudge:
         tools = get_tool_definitions()
         initial = scenario.get("initial_messages", [])
 
-        result = run_agent_loop(
+        result = run_agent(
             client=client,
-            model=model_id,
+            model_id=model_id,
+            provider=get_provider(),
             system_prompt=system_prompt,
             messages=initial,
             tools=tools,

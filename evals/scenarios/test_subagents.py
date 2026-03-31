@@ -17,7 +17,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from conftest import collect_subagent_scenarios
-from harness.agent_runner import run_agent_loop
+from harness.llm_client import run_agent, get_provider
 from harness.deepeval_bridge import agent_result_to_test_case
 from prompts.loader import load_subagent_config
 from tools.definitions import get_tool_definitions
@@ -106,9 +106,10 @@ class TestSubagentLive:
         )
         tools = get_tool_definitions(config.tool_filter)
 
-        result = run_agent_loop(
+        result = run_agent(
             client=client,
-            model=model_id,
+            model_id=model_id,
+            provider=get_provider(),
             system_prompt=config.system_prompt,
             messages=[{"role": "user", "content": config.initial_message}],
             tools=tools,
@@ -139,9 +140,10 @@ class TestSubagentLive:
         )
         tools = get_tool_definitions(config.tool_filter)
 
-        result = run_agent_loop(
+        result = run_agent(
             client=client,
-            model=model_id,
+            model_id=model_id,
+            provider=get_provider(),
             system_prompt=config.system_prompt,
             messages=[{"role": "user", "content": config.initial_message}],
             tools=tools,
@@ -179,9 +181,10 @@ class TestSubagentLive:
         )
         tools = get_tool_definitions(config.tool_filter)
 
-        result = run_agent_loop(
+        result = run_agent(
             client=client,
-            model=model_id,
+            model_id=model_id,
+            provider=get_provider(),
             system_prompt=config.system_prompt,
             messages=[{"role": "user", "content": config.initial_message}],
             tools=tools,
@@ -225,9 +228,10 @@ class TestSubagentLive:
         )
         tools = get_tool_definitions(config.tool_filter)
 
-        result = run_agent_loop(
+        result = run_agent(
             client=client,
-            model=model_id,
+            model_id=model_id,
+            provider=get_provider(),
             system_prompt=config.system_prompt,
             messages=[{"role": "user", "content": config.initial_message}],
             tools=tools,
@@ -274,9 +278,10 @@ class TestSubagentLLMJudge:
         )
         tools = get_tool_definitions(config.tool_filter)
 
-        result = run_agent_loop(
+        result = run_agent(
             client=client,
-            model=model_id,
+            model_id=model_id,
+            provider=get_provider(),
             system_prompt=config.system_prompt,
             messages=[{"role": "user", "content": config.initial_message}],
             tools=tools,

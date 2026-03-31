@@ -3,6 +3,7 @@ import { IpcChannels } from '../../shared/types';
 import type { ConnectionStatus, ConnectionState } from '../../shared/types';
 import { getMcpUrl } from './mcp-manager';
 import store from '../store';
+import type { LlmProvider } from '../store';
 
 const POLL_INTERVAL_MS = 30_000;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
@@ -12,7 +13,7 @@ async function checkTeradataStatus(): Promise<ConnectionState> {
   const mcpUrl = getMcpUrl();
   if (!mcpUrl || mcpUrl === 'http://127.0.0.1:8001/mcp') {
     // Check if user has saved a custom URL
-    const savedHost = store.get('teradata.host');
+    const savedHost = (store as any).get('teradata.host');
     if (!savedHost) return 'not-configured';
   }
 
@@ -33,8 +34,23 @@ async function checkTeradataStatus(): Promise<ConnectionState> {
   }
 }
 
-async function checkClaudeStatus(): Promise<ConnectionState> {
-  const encryptedApiKey = store.get('claude.encryptedApiKey');
+async function checkLlmStatus(): Promise<ConnectionState> {
+  const provider: LlmProvider = ((store as any).get('llm.provider') as LlmProvider) || 'bedrock';
+
+  if (provider === 'gemini') {
+    const authMethod = (store as any).get('llm.geminiAuthMethod') || 'api-key';
+    if (authMethod === 'gcloud') {
+      const project = (store as any).get('llm.geminiProject') || '';
+      const token = (store as any).get('llm.geminiEncryptedGcloudToken') || '';
+      return (project && token) ? 'connected' : 'not-configured';
+    }
+    const encrypted = (store as any).get('llm.geminiEncryptedApiKey');
+    const hasKey = typeof encrypted === 'string' && encrypted.length > 0;
+    return hasKey ? 'connected' : 'not-configured';
+  }
+
+  // Bedrock (default)
+  const encryptedApiKey = (store as any).get('claude.encryptedApiKey');
   const hasKey = typeof encryptedApiKey === 'string' && encryptedApiKey.length > 0;
   if (!hasKey) return 'not-configured';
   return 'connected';
@@ -43,7 +59,7 @@ async function checkClaudeStatus(): Promise<ConnectionState> {
 async function checkBothConnections(): Promise<ConnectionStatus> {
   const [teradata, claude] = await Promise.all([
     checkTeradataStatus(),
-    checkClaudeStatus(),
+    checkLlmStatus(),
   ]);
   return { teradata, claude };
 }
