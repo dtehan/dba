@@ -1,0 +1,51 @@
+{
+  "model": {
+    "provider": "bedrock",
+    "model_id": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "region": "us-west-2"
+  },
+  "metrics": {
+    "conversation_quality": {
+      "threshold": 0.7,
+      "criteria": "Evaluate the accuracy of multi-value compression analysis, including correct application of the Package Bit-Cost Model, appropriate value selection for compression, and clear explanation of storage savings.",
+      "evaluation_steps": [
+        "Verify the agent correctly applies the Package Bit-Cost Model to calculate compression savings.",
+        "Check that recommended compress values are based on actual value frequency distributions.",
+        "Assess whether storage savings estimates are realistic and clearly quantified.",
+        "Confirm the agent explains why specific values were selected or excluded from the compress list."
+      ]
+    },
+    "knowledge_retention": {
+      "threshold": 0.7
+    },
+    "completeness": {
+      "threshold": 0.7
+    },
+    "tool_use": {
+      "threshold": 0.7
+    },
+    "role_adherence": {
+      "threshold": 0.7
+    },
+    "task_completion": {
+      "threshold": 0.7,
+      "criteria": "Evaluate whether the agent produces valid ALTER TABLE ... COMPRESS statements with estimated storage savings per column and a prioritized implementation plan.",
+      "evaluation_steps": [
+        "Check that the agent analyzed value frequency distributions for candidate columns.",
+        "Verify the agent produced syntactically correct ALTER TABLE ... COMPRESS DDL statements.",
+        "Confirm each recommendation includes estimated bytes saved per row and total table savings.",
+        "Assess whether the agent prioritized columns by compression benefit and provided an implementation order."
+      ]
+    },
+    "trajectory_efficiency": {
+      "threshold": 0.6,
+      "criteria": "Evaluate whether the agent efficiently analyzes compression candidates by sampling value distributions without unnecessary full-table scans or redundant frequency queries.",
+      "evaluation_steps": [
+        "Check that the agent used SAMPLE or TOP-N queries for initial value frequency analysis.",
+        "Verify the agent did not run separate frequency queries for columns that could be analyzed together.",
+        "Assess whether the agent checked existing compression definitions before recommending changes.",
+        "Confirm the agent skipped columns with low cardinality gains or existing optimal compression."
+      ]
+    }
+  }
+}

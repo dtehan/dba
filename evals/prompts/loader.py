@@ -103,7 +103,7 @@ def load_subagent_config(
 ) -> SubagentConfig:
     """Load a single subagent by ID and render its system prompt with params."""
     params = params or {}
-    md_path = SUBAGENTS_DIR / f"{agent_id}.md"
+    md_path = SUBAGENTS_DIR / agent_id / "prompt.md"
     if not md_path.exists():
         raise FileNotFoundError(f"Subagent definition not found: {md_path}")
 
@@ -164,7 +164,10 @@ def list_subagent_ids() -> list[str]:
     """Return sorted list of all subagent IDs (filenames without .md)."""
     if not SUBAGENTS_DIR.exists():
         return []
-    return sorted(p.stem for p in SUBAGENTS_DIR.glob("*.md"))
+    return sorted(
+        p.parent.name for p in SUBAGENTS_DIR.glob("*/prompt.md")
+        if not p.parent.name.startswith("_")
+    )
 
 
 def load_all_subagent_configs(

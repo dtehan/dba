@@ -1,0 +1,51 @@
+{
+  "model": {
+    "provider": "bedrock",
+    "model_id": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "region": "us-west-2"
+  },
+  "metrics": {
+    "conversation_quality": {
+      "threshold": 0.7,
+      "criteria": "Evaluate the accuracy of index recommendations, including correct analysis of query patterns, appropriate index type selection (PI, SI, JI, NUSI, USI), and clear explanation of performance trade-offs.",
+      "evaluation_steps": [
+        "Verify the agent correctly analyzes query access patterns and join conditions to identify indexing opportunities.",
+        "Check that recommended index types (PI, SI, JI, NUSI, USI) are appropriate for the workload.",
+        "Assess whether the agent explains the storage cost vs. query performance trade-off for each recommendation.",
+        "Confirm the agent considers existing indexes and avoids recommending redundant indexes."
+      ]
+    },
+    "knowledge_retention": {
+      "threshold": 0.7
+    },
+    "completeness": {
+      "threshold": 0.7
+    },
+    "tool_use": {
+      "threshold": 0.7
+    },
+    "role_adherence": {
+      "threshold": 0.7
+    },
+    "task_completion": {
+      "threshold": 0.7,
+      "criteria": "Evaluate whether the agent produces valid CREATE INDEX or ALTER TABLE statements with estimated performance improvements and storage costs.",
+      "evaluation_steps": [
+        "Check that the agent queried relevant DBC views (DBC.IndicesV, DBC.QryLogV) to assess current index usage.",
+        "Verify the agent produced syntactically correct CREATE INDEX or ALTER TABLE DDL statements.",
+        "Confirm each recommendation includes estimated performance improvement and additional storage cost.",
+        "Assess whether the agent prioritized recommendations by expected impact."
+      ]
+    },
+    "trajectory_efficiency": {
+      "threshold": 0.6,
+      "criteria": "Evaluate whether the agent efficiently gathers index and query metadata without redundant DBC view queries or unnecessary full-table analysis.",
+      "evaluation_steps": [
+        "Check that the agent queried DBC.IndicesV, DBC.QryLogV, and DBC.TableSizeV in a minimal number of calls.",
+        "Verify the agent did not repeatedly query the same DBC views for overlapping information.",
+        "Assess whether the agent combined related analyses into single queries where possible.",
+        "Confirm the agent used targeted WHERE clauses rather than scanning entire DBC views."
+      ]
+    }
+  }
+}

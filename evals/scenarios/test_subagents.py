@@ -300,116 +300,35 @@ class TestSubagentLLMJudge:
         SUBAGENT_SCENARIOS,
         ids=[s[0] for s in SUBAGENT_SCENARIOS],
     )
-    def test_role_adherence(
+    def test_all_judge_metrics(
         self, scenario_id, scenario, bedrock_client, tool_mocks, judge_model
     ):
-        """Agent stays in character as defined by the subagent role."""
+        """Score agent against all 7 metrics from judge.json."""
         if judge_model is None:
             pytest.skip("No AWS credentials for LLM judge")
 
-        from metrics.custom_metrics import role_adherence_metric
-
-        result, config = self._run_agent(scenario, bedrock_client, tool_mocks)
-        test_case = agent_result_to_test_case(result, scenario, config.name)
-
-        metric = role_adherence_metric(model=judge_model, threshold=0.7)
-        metric.measure(test_case)
-
-        assert metric.score >= metric.threshold, (
-            f"Role adherence score {metric.score:.2f} below threshold "
-            f"{metric.threshold} — reason: {metric.reason}"
-        )
-
-    @pytest.mark.eval
-    @pytest.mark.live
-    @pytest.mark.llm_judge
-    @pytest.mark.timeout(600)
-    @pytest.mark.parametrize(
-        "scenario_id,scenario",
-        SUBAGENT_SCENARIOS,
-        ids=[s[0] for s in SUBAGENT_SCENARIOS],
-    )
-    def test_task_completion(
-        self, scenario_id, scenario, bedrock_client, tool_mocks, judge_model
-    ):
-        """Agent achieves the stated goal from the scenario."""
-        if judge_model is None:
-            pytest.skip("No AWS credentials for LLM judge")
-
-        from metrics.custom_metrics import task_completion_metric
-
-        result, config = self._run_agent(scenario, bedrock_client, tool_mocks)
-        test_case = agent_result_to_test_case(result, scenario, config.name)
-
-        metric = task_completion_metric(
-            task=scenario.get("expected_outcome"),
-            model=judge_model,
-            threshold=0.7,
-        )
-        metric.measure(test_case)
-
-        assert metric.score >= metric.threshold, (
-            f"Task completion score {metric.score:.2f} below threshold "
-            f"{metric.threshold} — reason: {metric.reason}"
-        )
-
-    @pytest.mark.eval
-    @pytest.mark.live
-    @pytest.mark.llm_judge
-    @pytest.mark.timeout(600)
-    @pytest.mark.parametrize(
-        "scenario_id,scenario",
-        SUBAGENT_SCENARIOS,
-        ids=[s[0] for s in SUBAGENT_SCENARIOS],
-    )
-    def test_tool_use_accuracy(
-        self, scenario_id, scenario, bedrock_client, tool_mocks, judge_model
-    ):
-        """Agent uses the right tools with appropriate arguments."""
-        if judge_model is None:
-            pytest.skip("No AWS credentials for LLM judge")
-
-        from metrics.custom_metrics import tool_use_metric
+        from metrics.custom_metrics import build_metrics_from_judge_config
 
         result, config = self._run_agent(scenario, bedrock_client, tool_mocks)
         test_case = agent_result_to_test_case(result, scenario, config.name)
         tools = get_tool_definitions(config.tool_filter)
 
-        metric = tool_use_metric(
-            available_tools=tools, model=judge_model, threshold=0.7
-        )
-        metric.measure(test_case)
-
-        assert metric.score >= metric.threshold, (
-            f"Tool use score {metric.score:.2f} below threshold "
-            f"{metric.threshold} — reason: {metric.reason}"
+        metrics = build_metrics_from_judge_config(
+            agent_id=scenario["agent_id"],
+            available_tools=tools,
+            task_description=scenario.get("expected_outcome"),
+            model=judge_model,
         )
 
-    @pytest.mark.eval
-    @pytest.mark.live
-    @pytest.mark.llm_judge
-    @pytest.mark.timeout(600)
-    @pytest.mark.parametrize(
-        "scenario_id,scenario",
-        SUBAGENT_SCENARIOS,
-        ids=[s[0] for s in SUBAGENT_SCENARIOS],
-    )
-    def test_trajectory_efficiency(
-        self, scenario_id, scenario, bedrock_client, tool_mocks, judge_model
-    ):
-        """Agent completes the task efficiently without wasted steps."""
-        if judge_model is None:
-            pytest.skip("No AWS credentials for LLM judge")
+        failures = []
+        for name, metric in metrics.items():
+            metric.measure(test_case)
+            if metric.score < metric.threshold:
+                failures.append(
+                    f"{name}: {metric.score:.2f} < {metric.threshold} — {metric.reason}"
+                )
 
-        from metrics.custom_metrics import trajectory_efficiency_metric
-
-        result, config = self._run_agent(scenario, bedrock_client, tool_mocks)
-        test_case = agent_result_to_test_case(result, scenario, config.name)
-
-        metric = trajectory_efficiency_metric(model=judge_model, threshold=0.6)
-        metric.measure(test_case)
-
-        assert metric.score >= metric.threshold, (
-            f"Trajectory efficiency score {metric.score:.2f} below threshold "
-            f"{metric.threshold} — reason: {metric.reason}"
+        assert not failures, (
+            f"{len(failures)} metric(s) below threshold:\n" +
+            "\n".join(f"  - {f}" for f in failures)
         )

@@ -15,7 +15,6 @@ from pathlib import Path
 
 from prompts.loader import _parse_frontmatter, SUBAGENTS_DIR
 
-VERSIONS_DIR = SUBAGENTS_DIR / "versions"
 FREEFORM_VERSIONS_DIR = Path(__file__).resolve().parent / "output" / "freeform_versions"
 
 
@@ -116,7 +115,7 @@ def write_optimized_subagent(
     Raises:
         ValueError: If the optimized body is missing template variables.
     """
-    original_path = SUBAGENTS_DIR / f"{agent_id}.md"
+    original_path = SUBAGENTS_DIR / agent_id / "prompt.md"
     if not original_path.exists():
         raise FileNotFoundError(f"Subagent not found: {original_path}")
 
@@ -139,7 +138,7 @@ def write_optimized_subagent(
             f"{missing}. Optimization may have corrupted the prompt."
         )
 
-    version_dir = VERSIONS_DIR / agent_id
+    version_dir = SUBAGENTS_DIR / agent_id / "versions"
 
     # Archive current version first (before overwriting)
     # Check if v1 exists — if not, this is the first optimization run,

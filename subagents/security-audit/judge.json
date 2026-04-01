@@ -1,0 +1,51 @@
+{
+  "model": {
+    "provider": "bedrock",
+    "model_id": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "region": "us-west-2"
+  },
+  "metrics": {
+    "conversation_quality": {
+      "threshold": 0.7,
+      "criteria": "Evaluate the accuracy of security audit findings, including correct identification of privilege escalation risks, overly permissive grants, orphaned accounts, and compliance violations in the Teradata environment.",
+      "evaluation_steps": [
+        "Verify the agent correctly identifies security risks from DBC.AllRightsV, DBC.RoleMembersV, and access log views.",
+        "Check that risk severity classifications (critical, high, medium, low) are appropriate for each finding.",
+        "Assess whether the agent identifies both explicit and inherited privilege risks.",
+        "Confirm the agent references security best practices or compliance frameworks when relevant."
+      ]
+    },
+    "knowledge_retention": {
+      "threshold": 0.7
+    },
+    "completeness": {
+      "threshold": 0.7
+    },
+    "tool_use": {
+      "threshold": 0.7
+    },
+    "role_adherence": {
+      "threshold": 0.7
+    },
+    "task_completion": {
+      "threshold": 0.7,
+      "criteria": "Evaluate whether the agent produces a comprehensive security findings report with severity ratings and remediation SQL (REVOKE, GRANT, DROP USER) for each finding.",
+      "evaluation_steps": [
+        "Check that the agent audited user privileges, role memberships, and access logging configuration.",
+        "Verify the agent produced a prioritized findings list with severity ratings.",
+        "Confirm each finding includes specific remediation SQL (REVOKE, GRANT, DROP USER, MODIFY PROFILE).",
+        "Assess whether the agent identified systemic patterns (e.g., ALL privileges granted broadly) beyond individual issues."
+      ]
+    },
+    "trajectory_efficiency": {
+      "threshold": 0.6,
+      "criteria": "Evaluate whether the agent efficiently audits security posture by querying DBC rights and role views in a structured sequence without redundant privilege lookups.",
+      "evaluation_steps": [
+        "Check that the agent followed a logical audit sequence (users, then roles, then privileges, then access logs).",
+        "Verify the agent did not re-query DBC.AllRightsV or DBC.RoleMembersV for information already retrieved.",
+        "Assess whether the agent used targeted queries with appropriate WHERE clauses rather than full DBC scans.",
+        "Confirm the agent grouped related security checks into combined queries where possible."
+      ]
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "model": {
+    "provider": "bedrock",
+    "model_id": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "region": "us-west-2"
+  },
+  "metrics": {
+    "conversation_quality": {
+      "threshold": 0.7,
+      "criteria": "Evaluate the accuracy of lock contention analysis, including correct identification of blocking sessions, lock types, and appropriate resolution strategies for Teradata locking conflicts.",
+      "evaluation_steps": [
+        "Verify the agent correctly identifies blocking and waiting sessions from lock diagnostic views.",
+        "Check that lock types (read, write, exclusive, access) and lock levels (row, table, database) are accurately described.",
+        "Assess whether resolution strategies are appropriate for the specific lock conflict pattern.",
+        "Confirm the agent explains the root cause of contention rather than just the symptoms."
+      ]
+    },
+    "knowledge_retention": {
+      "threshold": 0.7
+    },
+    "completeness": {
+      "threshold": 0.7
+    },
+    "tool_use": {
+      "threshold": 0.7
+    },
+    "role_adherence": {
+      "threshold": 0.7
+    },
+    "task_completion": {
+      "threshold": 0.7,
+      "criteria": "Evaluate whether the agent identifies all active lock conflicts, traces the blocking chain, and provides actionable resolution steps including session abort commands or query restructuring advice.",
+      "evaluation_steps": [
+        "Check that the agent queried DBC.LockingLogV or equivalent lock diagnostic views.",
+        "Verify the agent identified the full blocking chain from root blocker to waiting sessions.",
+        "Confirm the agent provided specific resolution actions (ABORT SESSION, locking modifier suggestions, query rewrites).",
+        "Assess whether the agent recommended preventive measures to avoid future contention."
+      ]
+    },
+    "trajectory_efficiency": {
+      "threshold": 0.6,
+      "criteria": "Evaluate whether the agent efficiently diagnoses lock contention using targeted lock diagnostic queries without redundant session or log scans.",
+      "evaluation_steps": [
+        "Check that the agent queried lock-related views in a logical sequence (current locks, then blocking chains, then session details).",
+        "Verify the agent did not re-query the same lock or session information multiple times.",
+        "Assess whether the agent used appropriate filters (time range, database, user) to narrow lock diagnostics.",
+        "Confirm the agent reached a diagnosis in a minimal number of query round-trips."
+      ]
+    }
+  }
+}

@@ -11,10 +11,9 @@ from pathlib import Path
 
 import dspy
 
-from prompts.loader import load_subagent_config, list_subagent_ids
+from prompts.loader import load_subagent_config, list_subagent_ids, SUBAGENTS_DIR
 
 SCENARIOS_DIR = Path(__file__).resolve().parent.parent / "scenarios" / "data"
-SUBAGENT_SCENARIOS_DIR = SCENARIOS_DIR / "subagents"
 FREEFORM_SCENARIOS_DIR = SCENARIOS_DIR / "freeform_chat"
 
 
@@ -27,29 +26,27 @@ def load_subagent_examples(agent_id: str) -> list[dspy.Example]:
       - agent_id: subagent identifier
       - params: scenario params dict for template rendering
     """
-    # Scenario filenames use underscores, agent IDs use hyphens
-    filename = agent_id.replace("-", "_")
-    scenario_path = SUBAGENT_SCENARIOS_DIR / f"{filename}.json"
-    if not scenario_path.exists():
-        # Fall back to hyphenated name
-        scenario_path = SUBAGENT_SCENARIOS_DIR / f"{agent_id}.json"
-    if not scenario_path.exists():
+    evals_dir = SUBAGENTS_DIR / agent_id / "evals"
+    if not evals_dir.exists():
         return []
 
-    scenario = json.loads(scenario_path.read_text(encoding="utf-8"))
-    params = scenario.get("params", {})
+    examples = []
+    for scenario_path in sorted(evals_dir.glob("*.json")):
+        scenario = json.loads(scenario_path.read_text(encoding="utf-8"))
+        params = scenario.get("params", {})
 
-    # Load config to get the rendered initial message
-    config = load_subagent_config(agent_id, params)
+        config = load_subagent_config(agent_id, params)
 
-    return [
-        dspy.Example(
-            task=config.initial_message,
-            scenario_data=scenario,
-            agent_id=agent_id,
-            params=params,
-        ).with_inputs("task")
-    ]
+        examples.append(
+            dspy.Example(
+                task=config.initial_message,
+                scenario_data=scenario,
+                agent_id=agent_id,
+                params=params,
+            ).with_inputs("task")
+        )
+
+    return examples
 
 
 def load_freeform_examples() -> list[dspy.Example]:

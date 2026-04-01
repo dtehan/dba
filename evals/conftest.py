@@ -80,13 +80,15 @@ def load_scenario(path: str | Path) -> dict:
         return json.load(f)
 
 
+SUBAGENTS_ROOT = Path(__file__).resolve().parent.parent / "subagents"
+
+
 def collect_subagent_scenarios() -> list[tuple[str, dict]]:
     """Collect all subagent scenario JSON files for parametrization."""
-    subagent_dir = SCENARIOS_DIR / "subagents"
-    if not subagent_dir.exists():
-        return []
     scenarios = []
-    for f in sorted(subagent_dir.glob("*.json")):
+    for f in sorted(SUBAGENTS_ROOT.glob("*/evals/*.json")):
+        if f.parent.parent.name.startswith("_"):
+            continue
         data = load_scenario(f)
         scenarios.append((data["id"], data))
     return scenarios

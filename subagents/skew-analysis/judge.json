@@ -1,0 +1,51 @@
+{
+  "model": {
+    "provider": "bedrock",
+    "model_id": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "region": "us-west-2"
+  },
+  "metrics": {
+    "conversation_quality": {
+      "threshold": 0.7,
+      "criteria": "Evaluate the accuracy of data skew analysis, including correct measurement of AMP-level data distribution, identification of skew causes (PI choice, NUPI hash collisions), and appropriate redistribution recommendations.",
+      "evaluation_steps": [
+        "Verify the agent correctly calculates skew factor and identifies hot AMPs from DBC.TableSizeV.",
+        "Check that the agent correctly attributes skew to its root cause (poor PI selection, demographic skew, NUPI collisions).",
+        "Assess whether redistribution recommendations (PI changes, hash index) are appropriate for the skew pattern.",
+        "Confirm the agent quantifies the performance impact of observed skew on query execution."
+      ]
+    },
+    "knowledge_retention": {
+      "threshold": 0.7
+    },
+    "completeness": {
+      "threshold": 0.7
+    },
+    "tool_use": {
+      "threshold": 0.7
+    },
+    "role_adherence": {
+      "threshold": 0.7
+    },
+    "task_completion": {
+      "threshold": 0.7,
+      "criteria": "Evaluate whether the agent identifies skewed tables, quantifies the skew factor, recommends new primary index candidates, and produces ALTER TABLE DDL for redistribution.",
+      "evaluation_steps": [
+        "Check that the agent queried DBC.TableSizeV at the AMP level to measure data distribution.",
+        "Verify the agent calculated skew factor (max AMP rows / avg AMP rows) for target tables.",
+        "Confirm the agent recommended specific PI alternatives with estimated skew improvement.",
+        "Assess whether the agent produced ALTER TABLE statements or a migration plan for redistribution."
+      ]
+    },
+    "trajectory_efficiency": {
+      "threshold": 0.6,
+      "criteria": "Evaluate whether the agent efficiently identifies skewed tables and diagnoses root causes without redundant AMP-level queries or unnecessary table scans.",
+      "evaluation_steps": [
+        "Check that the agent started with a system-wide skew summary before drilling into individual tables.",
+        "Verify the agent did not re-query DBC.TableSizeV for the same table at the same granularity.",
+        "Assess whether the agent used HASHAMP/HASHBUCKET analysis only when needed to evaluate PI alternatives.",
+        "Confirm the agent focused on tables with meaningful skew rather than analyzing all tables equally."
+      ]
+    }
+  }
+}

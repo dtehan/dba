@@ -114,24 +114,26 @@ function parseValue(v: string): unknown {
   return v;
 }
 
-/** Scan the subagents directory and parse all .md files */
+/** Scan the subagents directory and parse all prompt.md files */
 function loadAgents(): ParsedAgent[] {
   const dir = getSubagentsDir();
-  let files: string[];
+  let entries: string[];
   try {
-    files = readdirSync(dir).filter((f) => f.endsWith('.md')).sort();
+    entries = readdirSync(dir, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && !d.name.startsWith('_') && !d.name.startsWith('.'))
+      .map((d) => d.name)
+      .sort();
   } catch {
     return [];
   }
 
   const agents: ParsedAgent[] = [];
 
-  for (const file of files) {
+  for (const id of entries) {
     try {
-      const content = readFileSync(join(dir, file), 'utf-8');
+      const content = readFileSync(join(dir, id, 'prompt.md'), 'utf-8');
       const { frontmatter: fm, body } = parseFrontmatter(content);
 
-      const id = file.replace(/\.md$/, '');
       const name = (fm.name as string) || id;
       const description = (fm.description as string) || '';
       const icon = (fm.icon as string) || 'Terminal';
@@ -165,7 +167,7 @@ function loadAgents(): ParsedAgent[] {
         maxTokens,
       });
     } catch (err) {
-      console.warn(`[subagent-registry] Failed to parse ${file}:`, err);
+      console.warn(`[subagent-registry] Failed to parse ${id}:`, err);
     }
   }
 

@@ -1,0 +1,51 @@
+{
+  "model": {
+    "provider": "bedrock",
+    "model_id": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "region": "us-west-2"
+  },
+  "metrics": {
+    "conversation_quality": {
+      "threshold": 0.7,
+      "criteria": "Evaluate the accuracy and relevance of duplicate detection analysis, including correct identification of duplicate and near-duplicate records, appropriate use of similarity thresholds, and clear explanation of deduplication strategies.",
+      "evaluation_steps": [
+        "Verify the agent correctly identifies duplicate and near-duplicate rows using appropriate matching logic.",
+        "Check that similarity thresholds and matching criteria are clearly explained and justified.",
+        "Assess whether deduplication recommendations are actionable and include impact estimates.",
+        "Confirm the agent explains trade-offs between exact and fuzzy matching approaches."
+      ]
+    },
+    "knowledge_retention": {
+      "threshold": 0.7
+    },
+    "completeness": {
+      "threshold": 0.7
+    },
+    "tool_use": {
+      "threshold": 0.7
+    },
+    "role_adherence": {
+      "threshold": 0.7
+    },
+    "task_completion": {
+      "threshold": 0.7,
+      "criteria": "Evaluate whether the agent successfully identifies duplicates, quantifies their impact on storage and performance, and produces actionable DELETE or MERGE SQL to remediate duplicates.",
+      "evaluation_steps": [
+        "Check that duplicate detection queries were executed against the target tables.",
+        "Verify the agent produced a summary of duplicate counts, affected rows, and storage impact.",
+        "Confirm actionable SQL (DELETE, MERGE, or dedup INSERT/SELECT) was generated for remediation.",
+        "Assess whether the agent validated results by comparing before and after row counts."
+      ]
+    },
+    "trajectory_efficiency": {
+      "threshold": 0.6,
+      "criteria": "Evaluate whether the agent efficiently identifies duplicates without redundant table scans or unnecessary queries against DBC views.",
+      "evaluation_steps": [
+        "Check that the agent sampled data before running full-table duplicate scans.",
+        "Verify the agent did not run redundant or overlapping queries for the same duplicate check.",
+        "Assess whether the agent used appropriate GROUP BY and HAVING clauses rather than self-joins where possible.",
+        "Confirm the agent minimized the number of queries needed to reach a conclusion."
+      ]
+    }
+  }
+}

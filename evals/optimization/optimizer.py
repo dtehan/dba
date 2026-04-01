@@ -140,7 +140,7 @@ def optimize_subagent(
         return None
 
     # Load the raw template (before rendering)
-    md_path = SUBAGENTS_DIR / f"{agent_id}.md"
+    md_path = SUBAGENTS_DIR / agent_id / "prompt.md"
     content = md_path.read_text(encoding="utf-8")
     _, original_template = _parse_frontmatter(content)
 

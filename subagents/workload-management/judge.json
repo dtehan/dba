@@ -1,0 +1,51 @@
+{
+  "model": {
+    "provider": "bedrock",
+    "model_id": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "region": "us-west-2"
+  },
+  "metrics": {
+    "conversation_quality": {
+      "threshold": 0.7,
+      "criteria": "Evaluate the accuracy of workload management analysis, including correct assessment of TDWM rule effectiveness, workload distribution across priority tiers, and appropriate throttle and classification recommendations.",
+      "evaluation_steps": [
+        "Verify the agent correctly analyzes workload distribution across TDWM priority tiers and resource partitions.",
+        "Check that the agent identifies ineffective or misconfigured TDWM rules based on actual workload patterns.",
+        "Assess whether throttle and classification recommendations align with observed query mix and SLA requirements.",
+        "Confirm the agent explains the impact of proposed TDWM changes on different user groups and workload types."
+      ]
+    },
+    "knowledge_retention": {
+      "threshold": 0.7
+    },
+    "completeness": {
+      "threshold": 0.7
+    },
+    "tool_use": {
+      "threshold": 0.7
+    },
+    "role_adherence": {
+      "threshold": 0.7
+    },
+    "task_completion": {
+      "threshold": 0.7,
+      "criteria": "Evaluate whether the agent produces a workload distribution report, identifies TDWM rule gaps or misconfigurations, and recommends specific rule changes with expected impact on resource allocation.",
+      "evaluation_steps": [
+        "Check that the agent queried DBQL and TDWM configuration views to assess current workload distribution.",
+        "Verify the agent identified queries escaping classification or landing in incorrect priority tiers.",
+        "Confirm the agent recommended specific TDWM rule changes (new rules, threshold adjustments, classification criteria).",
+        "Assess whether the agent estimated the impact of proposed changes on system throughput and SLA compliance."
+      ]
+    },
+    "trajectory_efficiency": {
+      "threshold": 0.6,
+      "criteria": "Evaluate whether the agent efficiently analyzes workload patterns and TDWM configuration without redundant DBQL scans or unnecessary rule-by-rule analysis.",
+      "evaluation_steps": [
+        "Check that the agent queried aggregate workload metrics before drilling into individual TDWM rules.",
+        "Verify the agent did not re-scan DBQL for the same time period at different granularities unnecessarily.",
+        "Assess whether the agent combined workload classification and resource usage analysis into efficient queries.",
+        "Confirm the agent focused on problematic workload tiers rather than analyzing all tiers with equal depth."
+      ]
+    }
+  }
+}

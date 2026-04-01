@@ -1,0 +1,51 @@
+{
+  "model": {
+    "provider": "bedrock",
+    "model_id": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "region": "us-west-2"
+  },
+  "metrics": {
+    "conversation_quality": {
+      "threshold": 0.7,
+      "criteria": "Evaluate the accuracy of system health assessment, including correct interpretation of node status, AMP/PE utilization, vproc health, and appropriate traffic-light severity ratings for each health dimension.",
+      "evaluation_steps": [
+        "Verify the agent correctly assesses node status, AMP utilization, and PE utilization from system views.",
+        "Check that traffic-light ratings (green/yellow/red) use appropriate thresholds for each health dimension.",
+        "Assess whether the agent identifies correlated health issues (e.g., high CPU causing spool exhaustion).",
+        "Confirm the agent provides a clear executive summary alongside detailed health metrics."
+      ]
+    },
+    "knowledge_retention": {
+      "threshold": 0.7
+    },
+    "completeness": {
+      "threshold": 0.7
+    },
+    "tool_use": {
+      "threshold": 0.7
+    },
+    "role_adherence": {
+      "threshold": 0.7
+    },
+    "task_completion": {
+      "threshold": 0.7,
+      "criteria": "Evaluate whether the agent produces a comprehensive health dashboard covering all system dimensions (nodes, AMPs, space, sessions, query throughput) with traffic-light ratings and actionable remediation for yellow/red items.",
+      "evaluation_steps": [
+        "Check that the agent assessed all major health dimensions: node status, AMP health, space utilization, active sessions, and query throughput.",
+        "Verify the agent produced a traffic-light dashboard with green/yellow/red ratings per dimension.",
+        "Confirm each yellow or red item includes specific remediation steps or investigation guidance.",
+        "Assess whether the agent identified any urgent issues requiring immediate DBA action."
+      ]
+    },
+    "trajectory_efficiency": {
+      "threshold": 0.6,
+      "criteria": "Evaluate whether the agent efficiently performs a comprehensive health check by batching system view queries and avoiding redundant checks across health dimensions.",
+      "evaluation_steps": [
+        "Check that the agent queried multiple health dimensions in parallel or batched queries where possible.",
+        "Verify the agent did not re-query system views already covered by earlier health checks.",
+        "Assess whether the agent used summary views before drilling into detailed diagnostics for flagged areas.",
+        "Confirm the agent completed the full health assessment in a reasonable number of query round-trips."
+      ]
+    }
+  }
+}

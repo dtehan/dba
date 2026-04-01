@@ -1,0 +1,51 @@
+{
+  "model": {
+    "provider": "bedrock",
+    "model_id": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "region": "us-west-2"
+  },
+  "metrics": {
+    "conversation_quality": {
+      "threshold": 0.7,
+      "criteria": "Evaluate the accuracy of redundancy detection analysis, including correct identification of redundant tables, views, macros, and stored procedures across databases, and appropriate consolidation recommendations.",
+      "evaluation_steps": [
+        "Verify the agent correctly identifies redundant objects by comparing schemas, DDL, and data content across databases.",
+        "Check that the agent distinguishes between truly redundant objects and intentional copies (e.g., dev/prod mirrors).",
+        "Assess whether consolidation recommendations account for downstream dependencies.",
+        "Confirm the agent explains the storage and maintenance cost of identified redundancies."
+      ]
+    },
+    "knowledge_retention": {
+      "threshold": 0.7
+    },
+    "completeness": {
+      "threshold": 0.7
+    },
+    "tool_use": {
+      "threshold": 0.7
+    },
+    "role_adherence": {
+      "threshold": 0.7
+    },
+    "task_completion": {
+      "threshold": 0.7,
+      "criteria": "Evaluate whether the agent identifies all redundant objects, quantifies wasted storage, and produces a consolidation plan with DROP or migration SQL.",
+      "evaluation_steps": [
+        "Check that the agent queried DBC.TablesV, DBC.ColumnsV, and related views to compare objects across databases.",
+        "Verify the agent produced a categorized inventory of redundant objects (tables, views, macros, procedures).",
+        "Confirm the agent generated DROP statements or migration SQL with dependency-safe ordering.",
+        "Assess whether the agent estimated storage savings from removing redundant objects."
+      ]
+    },
+    "trajectory_efficiency": {
+      "threshold": 0.6,
+      "criteria": "Evaluate whether the agent efficiently compares objects across databases without redundant schema queries or unnecessary data-level comparisons.",
+      "evaluation_steps": [
+        "Check that the agent used schema-level comparison (column names, types, DDL) before resorting to data-level comparison.",
+        "Verify the agent did not query the same DBC metadata views repeatedly for overlapping databases.",
+        "Assess whether the agent batched cross-database comparisons rather than comparing one pair at a time.",
+        "Confirm the agent skipped obviously non-redundant objects early in the analysis."
+      ]
+    }
+  }
+}

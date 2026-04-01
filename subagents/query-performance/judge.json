@@ -1,0 +1,51 @@
+{
+  "model": {
+    "provider": "bedrock",
+    "model_id": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "region": "us-west-2"
+  },
+  "metrics": {
+    "conversation_quality": {
+      "threshold": 0.7,
+      "criteria": "Evaluate the accuracy of query performance diagnosis, including correct interpretation of EXPLAIN plans, identification of performance bottlenecks (product joins, full-table scans, spool issues), and appropriate SQL optimization recommendations.",
+      "evaluation_steps": [
+        "Verify the agent correctly interprets EXPLAIN plan steps including join strategies, spool usage, and AMP distribution.",
+        "Check that identified bottlenecks (product joins, full-table scans, redistribution) are accurate based on the evidence.",
+        "Assess whether SQL rewrite suggestions address the root cause of the performance problem.",
+        "Confirm the agent explains the expected performance improvement for each recommendation."
+      ]
+    },
+    "knowledge_retention": {
+      "threshold": 0.7
+    },
+    "completeness": {
+      "threshold": 0.7
+    },
+    "tool_use": {
+      "threshold": 0.7
+    },
+    "role_adherence": {
+      "threshold": 0.7
+    },
+    "task_completion": {
+      "threshold": 0.7,
+      "criteria": "Evaluate whether the agent diagnoses the query performance issue, identifies the root cause from EXPLAIN output and DBQL logs, and produces optimized SQL rewrites or configuration changes.",
+      "evaluation_steps": [
+        "Check that the agent retrieved and analyzed EXPLAIN plan output for the problematic query.",
+        "Verify the agent queried DBQL (DBC.QryLogV, DBC.QryLogStepsV) for execution metrics.",
+        "Confirm the agent produced rewritten SQL or recommended index/stats changes to improve performance.",
+        "Assess whether the agent estimated the performance improvement of proposed changes."
+      ]
+    },
+    "trajectory_efficiency": {
+      "threshold": 0.6,
+      "criteria": "Evaluate whether the agent efficiently diagnoses query issues using EXPLAIN and DBQL without redundant query executions or unnecessary diagnostic steps.",
+      "evaluation_steps": [
+        "Check that the agent ran EXPLAIN before querying DBQL logs to establish a diagnostic baseline.",
+        "Verify the agent did not execute the slow query itself when DBQL history was available.",
+        "Assess whether the agent targeted specific DBQL columns and time ranges rather than broad scans.",
+        "Confirm the agent did not repeat diagnostic queries already answered by earlier results."
+      ]
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "model": {
+    "provider": "bedrock",
+    "model_id": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "region": "us-west-2"
+  },
+  "metrics": {
+    "conversation_quality": {
+      "threshold": 0.7,
+      "criteria": "Evaluate the accuracy of statistics analysis, including correct identification of stale, missing, or suboptimal statistics, and appropriate COLLECT STATISTICS recommendations aligned with query workload patterns.",
+      "evaluation_steps": [
+        "Verify the agent correctly identifies stale statistics by comparing collection dates to data modification activity.",
+        "Check that missing statistics recommendations are driven by actual query patterns from DBQL.",
+        "Assess whether the agent recommends appropriate stat types (single-column, multi-column, sampled, full).",
+        "Confirm the agent explains how stale or missing statistics impact optimizer plan choices."
+      ]
+    },
+    "knowledge_retention": {
+      "threshold": 0.7
+    },
+    "completeness": {
+      "threshold": 0.7
+    },
+    "tool_use": {
+      "threshold": 0.7
+    },
+    "role_adherence": {
+      "threshold": 0.7
+    },
+    "task_completion": {
+      "threshold": 0.7,
+      "criteria": "Evaluate whether the agent produces a statistics health report with coverage gaps and generates prioritized COLLECT STATISTICS statements for remediation.",
+      "evaluation_steps": [
+        "Check that the agent queried DBC.StatsV and DBC.ColumnStatsV to assess current statistics coverage.",
+        "Verify the agent cross-referenced statistics with DBQL query patterns to identify coverage gaps.",
+        "Confirm the agent produced syntactically correct COLLECT STATISTICS statements with appropriate sampling clauses.",
+        "Assess whether recommendations are prioritized by query frequency and performance impact."
+      ]
+    },
+    "trajectory_efficiency": {
+      "threshold": 0.6,
+      "criteria": "Evaluate whether the agent efficiently assesses statistics health by querying DBC stats views and DBQL in a minimal number of targeted queries.",
+      "evaluation_steps": [
+        "Check that the agent queried DBC.StatsV for current statistics before checking DBQL for usage patterns.",
+        "Verify the agent did not re-query the same statistics metadata for tables already analyzed.",
+        "Assess whether the agent used targeted database/table filters rather than system-wide statistics scans.",
+        "Confirm the agent combined column-level and index-level statistics checks into efficient queries."
+      ]
+    }
+  }
+}

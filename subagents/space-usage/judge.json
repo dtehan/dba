@@ -1,0 +1,51 @@
+{
+  "model": {
+    "provider": "bedrock",
+    "model_id": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "region": "us-west-2"
+  },
+  "metrics": {
+    "conversation_quality": {
+      "threshold": 0.7,
+      "criteria": "Evaluate the accuracy of space usage analysis, including correct measurement of current/peak storage utilization, identification of capacity risks, and appropriate recommendations for space reclamation or capacity planning.",
+      "evaluation_steps": [
+        "Verify the agent correctly reports current and peak perm space, spool space, and temp space usage.",
+        "Check that capacity risk thresholds are appropriate and clearly communicated.",
+        "Assess whether space reclamation recommendations (DROP, archive, compression) are practical and prioritized.",
+        "Confirm the agent identifies growth trends and provides capacity planning guidance."
+      ]
+    },
+    "knowledge_retention": {
+      "threshold": 0.7
+    },
+    "completeness": {
+      "threshold": 0.7
+    },
+    "tool_use": {
+      "threshold": 0.7
+    },
+    "role_adherence": {
+      "threshold": 0.7
+    },
+    "task_completion": {
+      "threshold": 0.7,
+      "criteria": "Evaluate whether the agent produces a storage utilization report by database with capacity risk ratings, identifies top space consumers, and provides actionable reclamation SQL or capacity recommendations.",
+      "evaluation_steps": [
+        "Check that the agent queried DBC.DiskSpaceV or DBC.AllSpaceV for current utilization by database.",
+        "Verify the agent identified top space-consuming tables and databases with percentage utilization.",
+        "Confirm the agent produced space reclamation recommendations with estimated savings (DROP unused, compress, archive).",
+        "Assess whether the agent flagged databases approaching their perm space limits."
+      ]
+    },
+    "trajectory_efficiency": {
+      "threshold": 0.6,
+      "criteria": "Evaluate whether the agent efficiently assesses space usage by querying aggregate DBC space views before drilling into table-level detail.",
+      "evaluation_steps": [
+        "Check that the agent started with database-level aggregates before querying table-level space details.",
+        "Verify the agent did not query DBC.DiskSpaceV and DBC.AllSpaceV redundantly for the same information.",
+        "Assess whether the agent focused drill-down analysis on high-utilization databases rather than all databases.",
+        "Confirm the agent combined perm, spool, and temp space checks into minimal query round-trips."
+      ]
+    }
+  }
+}
