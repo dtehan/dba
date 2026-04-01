@@ -84,6 +84,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke(IpcChannels.OVERVIEW_FETCH),
   fetchQueryActivityMetrics: () =>
     ipcRenderer.invoke(IpcChannels.QUERY_ACTIVITY_FETCH),
+  fetchFullSql: (queryId: string, procId: string) =>
+    ipcRenderer.invoke(IpcChannels.QUERY_FULL_SQL, queryId, procId),
   recheckConnections: () =>
     ipcRenderer.invoke(IpcChannels.CONNECTION_RECHECK),
   getSyntaxContext: () =>

@@ -78,6 +78,7 @@ export const IpcChannels = {
   GEMINI_SAVE_GCLOUD_CONFIG: 'gemini:save-gcloud-config',
   GEMINI_LOAD_GCLOUD_CONFIG: 'gemini:load-gcloud-config',
   GEMINI_TEST_GCLOUD: 'gemini:test-gcloud',
+  QUERY_FULL_SQL: 'query-activity:full-sql',
 } as const;
 
 // Chat session for persistence
@@ -102,7 +103,7 @@ export interface OverviewMetrics {
 
 // Query Activity dashboard metrics
 export interface QueryActivityMetrics {
-  topQueries: Array<{ queryText: string; userName: string; cpuTime: number; ioCount: number }>;
+  topQueries: Array<{ queryText: string; userName: string; cpuTime: number; ioCount: number; queryId?: string; procId?: string }>;
   fetchedAt: number;
 }
 
@@ -154,6 +155,7 @@ export interface ElectronAPI {
   clearSubagentHistory: () => Promise<void>;
   fetchOverviewMetrics: () => Promise<{ success: boolean; metrics?: OverviewMetrics; error?: string }>;
   fetchQueryActivityMetrics: () => Promise<{ success: boolean; metrics?: QueryActivityMetrics; error?: string }>;
+  fetchFullSql: (queryId: string, procId: string) => Promise<{ success: boolean; sql?: string; error?: string }>;
   recheckConnections: () => Promise<void>;
   getSyntaxContext: () => Promise<{ guidelines: string; index: string }>;
 }

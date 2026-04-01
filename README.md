@@ -60,6 +60,24 @@ All credentials are encrypted via your OS keychain (macOS Keychain, Windows DPAP
 
 See the [Gemini API docs](https://ai.google.dev/gemini-api/docs) for more information.
 
+## Features
+
+### System Overview
+
+Dashboard showing storage by database, largest tables, and top users by CPU. Each section includes:
+
+- **Filter** — type to narrow results by name (case-insensitive substring match)
+- **Load More** — initially shows 10 items; click to load 20 more at a time (up to 200 fetched from Teradata)
+- **Context menu** — click any database, table, or user to launch a relevant subagent
+
+### Query Activity
+
+Table of top queries by CPU consumption. Includes:
+
+- **Filter** — search across SQL text and username (substring match, so searching `demo_user` finds queries containing that string)
+- **Load More** — initially shows 10 queries; click to load 20 more at a time (up to 200 fetched)
+- **Context menu** — click any row to launch query analysis, or click a username for user-level actions
+
 ## Architecture
 
 ```

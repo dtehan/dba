@@ -18,17 +18,17 @@ const QUERIES: QuerySpec[] = [
   {
     name: 'storage',
     query:
-      'SELECT DatabaseName, CurrentPerm, MaxPerm FROM (SELECT DatabaseName, SUM(CurrentPerm) AS CurrentPerm, SUM(MaxPerm) AS MaxPerm FROM DBC.DiskSpaceV GROUP BY DatabaseName) t QUALIFY ROW_NUMBER() OVER (ORDER BY CurrentPerm DESC) <= 20',
+      'SELECT DatabaseName, CurrentPerm, MaxPerm FROM (SELECT DatabaseName, SUM(CurrentPerm) AS CurrentPerm, SUM(MaxPerm) AS MaxPerm FROM DBC.DiskSpaceV GROUP BY DatabaseName) t QUALIFY ROW_NUMBER() OVER (ORDER BY CurrentPerm DESC) <= 200',
   },
   {
     name: 'tables',
     query:
-      'SELECT DataBaseName, TableName, CurrentPerm FROM (SELECT DataBaseName, TableName, SUM(CurrentPerm) AS CurrentPerm FROM DBC.TableSizeV GROUP BY DataBaseName, TableName) t QUALIFY ROW_NUMBER() OVER (ORDER BY CurrentPerm DESC) <= 20',
+      'SELECT DataBaseName, TableName, CurrentPerm FROM (SELECT DataBaseName, TableName, SUM(CurrentPerm) AS CurrentPerm FROM DBC.TableSizeV GROUP BY DataBaseName, TableName) t QUALIFY ROW_NUMBER() OVER (ORDER BY CurrentPerm DESC) <= 200',
   },
   {
     name: 'users',
     query:
-      'SELECT TOP 15 UserName, SUM(AmpCPUTime) AS TotalCPU FROM DBC.QryLogV GROUP BY UserName ORDER BY TotalCPU DESC',
+      'SELECT TOP 200 UserName, SUM(AmpCPUTime) AS TotalCPU FROM DBC.QryLogV GROUP BY UserName ORDER BY TotalCPU DESC',
   },
 ];
 

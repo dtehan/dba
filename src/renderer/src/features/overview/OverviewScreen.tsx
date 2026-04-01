@@ -1,9 +1,12 @@
-import { useEffect, useRef } from 'react';
-import { RefreshCw, AlertTriangle, User } from 'lucide-react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { RefreshCw, AlertTriangle, User, Search } from 'lucide-react';
 import { useOverviewStore } from '@/store/overview-store';
 import { useAppStore } from '@/store/app-store';
 import { MetricCard } from './MetricCard';
 import { formatBytes } from './formatBytes';
+import { SubagentContextMenu } from '@/components/SubagentContextMenu';
+import { getSubagentsForObject } from '@/lib/subagent-mapping';
+import type { SubagentOption, ObjectContext } from '@/lib/subagent-mapping';
 
 function timeAgo(ts: number): string {
   const diff = Date.now() - ts;
@@ -21,10 +24,29 @@ function formatCpu(seconds: number): string {
   return `${(seconds / 3600).toFixed(1)}h`;
 }
 
+interface MenuState {
+  options: SubagentOption[];
+  context: ObjectContext;
+  anchorRect: DOMRect;
+}
+
 export function OverviewScreen(): JSX.Element {
   const { metrics, loading, error, fetch } = useOverviewStore();
   const teradataStatus = useAppStore((s) => s.connectionStatus.teradata);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [menuState, setMenuState] = useState<MenuState | null>(null);
+  const [storageVisible, setStorageVisible] = useState(10);
+  const [tablesVisible, setTablesVisible] = useState(10);
+  const [usersVisible, setUsersVisible] = useState(10);
+  const [storageFilter, setStorageFilter] = useState('');
+  const [tablesFilter, setTablesFilter] = useState('');
+  const [usersFilter, setUsersFilter] = useState('');
+
+  const openMenu = (e: React.MouseEvent, type: 'database' | 'table' | 'user', context: ObjectContext): void => {
+    e.stopPropagation();
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setMenuState({ options: getSubagentsForObject(type), context, anchorRect: rect });
+  };
 
   const isConnected = teradataStatus === 'connected';
 
@@ -59,6 +81,27 @@ export function OverviewScreen(): JSX.Element {
   const avgCpu = cpuValues.length > 0 ? cpuValues.reduce((a, b) => a + b, 0) / cpuValues.length : 0;
   const cpuSkewRatio = avgCpu > 0 ? maxCpu / avgCpu : 0;
   const cpuSkewColor = cpuSkewRatio > 5 ? '#EF4444' : cpuSkewRatio > 3 ? '#F59E0B' : '#22C55E';
+
+  const filteredStorage = useMemo(() => {
+    if (!metrics) return [];
+    if (!storageFilter) return metrics.storageUsage;
+    const lower = storageFilter.toLowerCase();
+    return metrics.storageUsage.filter((s) => s.databaseName.toLowerCase().includes(lower));
+  }, [metrics, storageFilter]);
+
+  const filteredTables = useMemo(() => {
+    if (!metrics) return [];
+    if (!tablesFilter) return metrics.largestTables;
+    const lower = tablesFilter.toLowerCase();
+    return metrics.largestTables.filter((t) => t.databaseName.toLowerCase().includes(lower) || t.tableName.toLowerCase().includes(lower));
+  }, [metrics, tablesFilter]);
+
+  const filteredUsers = useMemo(() => {
+    if (!metrics) return [];
+    if (!usersFilter) return metrics.topUsersByCpu;
+    const lower = usersFilter.toLowerCase();
+    return metrics.topUsersByCpu.filter((u) => u.userName.toLowerCase().includes(lower));
+  }, [metrics, usersFilter]);
 
   // Max bar width reference for charts
   const maxStoragePerm = metrics?.storageUsage[0]?.currentPerm ?? 1;
@@ -164,12 +207,23 @@ export function OverviewScreen(): JSX.Element {
         {/* Storage Usage */}
         <MetricCard title="Storage by Database" loading={loading && !metrics}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {metrics?.storageUsage.slice(0, 10).map((s) => {
+            <FilterInput value={storageFilter} onChange={(v) => { setStorageFilter(v); setStorageVisible(10); }} placeholder="Filter databases..." />
+            {filteredStorage.slice(0, storageVisible).map((s) => {
               const pct = s.maxPerm > 0 ? (s.currentPerm / s.maxPerm) * 100 : 0;
               return (
                 <div key={s.databaseName}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '3px' }}>
-                    <span style={{ color: '#D4D4D4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60%' }}>{s.databaseName}</span>
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => openMenu(e, 'database', { databaseName: s.databaseName })}
+                      onKeyDown={(e) => { if (e.key === 'Enter') openMenu(e as unknown as React.MouseEvent, 'database', { databaseName: s.databaseName }); }}
+                      style={{ color: '#D4D4D4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60%', cursor: 'pointer', borderRadius: '3px', padding: '0 2px', margin: '0 -2px', transition: 'color 0.15s' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.color = '#F37440'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.color = '#D4D4D4'; }}
+                    >
+                      {s.databaseName}
+                    </span>
                     <span style={{ color: '#737373' }}>{formatBytes(s.currentPerm)} ({pct.toFixed(0)}%)</span>
                   </div>
                   <div style={{ height: '6px', backgroundColor: '#1A1A1A', borderRadius: '3px', overflow: 'hidden' }}>
@@ -178,8 +232,13 @@ export function OverviewScreen(): JSX.Element {
                 </div>
               );
             })}
-            {(!metrics || metrics.storageUsage.length === 0) && (
-              <p style={{ fontSize: '12px', color: '#525252', margin: 0 }}>No storage data</p>
+            {(!metrics || filteredStorage.length === 0) && (
+              <p style={{ fontSize: '12px', color: '#525252', margin: 0 }}>{storageFilter ? 'No matches' : 'No storage data'}</p>
+            )}
+            {filteredStorage.length > storageVisible && (
+              <button type="button" onClick={() => setStorageVisible((v) => v + 20)} style={loadMoreStyle}>
+                Load More ({filteredStorage.length - storageVisible} remaining)
+              </button>
             )}
           </div>
         </MetricCard>
@@ -187,10 +246,19 @@ export function OverviewScreen(): JSX.Element {
         {/* Largest Tables */}
         <MetricCard title="Largest Tables" loading={loading && !metrics}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {metrics?.largestTables.slice(0, 10).map((t, i) => (
+            <FilterInput value={tablesFilter} onChange={(v) => { setTablesFilter(v); setTablesVisible(10); }} placeholder="Filter tables..." />
+            {filteredTables.slice(0, tablesVisible).map((t, i) => (
               <div key={`${t.databaseName}.${t.tableName}.${i}`}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '3px' }}>
-                  <span style={{ color: '#D4D4D4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '65%' }}>
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => openMenu(e, 'table', { databaseName: t.databaseName, tableName: t.tableName })}
+                    onKeyDown={(e) => { if (e.key === 'Enter') openMenu(e as unknown as React.MouseEvent, 'table', { databaseName: t.databaseName, tableName: t.tableName }); }}
+                    style={{ color: '#D4D4D4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '65%', cursor: 'pointer', borderRadius: '3px', padding: '0 2px', margin: '0 -2px', transition: 'color 0.15s' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = '#F37440'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = '#D4D4D4'; }}
+                  >
                     {t.databaseName}.{t.tableName}
                   </span>
                   <span style={{ color: '#737373' }}>{formatBytes(t.currentPerm)}</span>
@@ -200,8 +268,13 @@ export function OverviewScreen(): JSX.Element {
                 </div>
               </div>
             ))}
-            {(!metrics || metrics.largestTables.length === 0) && (
-              <p style={{ fontSize: '12px', color: '#525252', margin: 0 }}>No table data</p>
+            {(!metrics || filteredTables.length === 0) && (
+              <p style={{ fontSize: '12px', color: '#525252', margin: 0 }}>{tablesFilter ? 'No matches' : 'No table data'}</p>
+            )}
+            {filteredTables.length > tablesVisible && (
+              <button type="button" onClick={() => setTablesVisible((v) => v + 20)} style={loadMoreStyle}>
+                Load More ({filteredTables.length - tablesVisible} remaining)
+              </button>
             )}
           </div>
         </MetricCard>
@@ -209,10 +282,21 @@ export function OverviewScreen(): JSX.Element {
         {/* Top Users by CPU */}
         <MetricCard title="Top Users by CPU" loading={loading && !metrics}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {metrics?.topUsersByCpu.map((u) => (
+            <FilterInput value={usersFilter} onChange={(v) => { setUsersFilter(v); setUsersVisible(10); }} placeholder="Filter users..." />
+            {filteredUsers.slice(0, usersVisible).map((u) => (
               <div key={u.userName}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '3px' }}>
-                  <span style={{ color: '#D4D4D4' }}>{u.userName}</span>
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => openMenu(e, 'user', { userName: u.userName })}
+                    onKeyDown={(e) => { if (e.key === 'Enter') openMenu(e as unknown as React.MouseEvent, 'user', { userName: u.userName }); }}
+                    style={{ color: '#D4D4D4', cursor: 'pointer', borderRadius: '3px', padding: '0 2px', margin: '0 -2px', transition: 'color 0.15s' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = '#F37440'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = '#D4D4D4'; }}
+                  >
+                    {u.userName}
+                  </span>
                   <span style={{ color: '#737373' }}>{formatCpu(u.totalCpu)}</span>
                 </div>
                 <div style={{ height: '6px', backgroundColor: '#1A1A1A', borderRadius: '3px', overflow: 'hidden' }}>
@@ -220,12 +304,64 @@ export function OverviewScreen(): JSX.Element {
                 </div>
               </div>
             ))}
-            {(!metrics || metrics.topUsersByCpu.length === 0) && (
-              <p style={{ fontSize: '12px', color: '#525252', margin: 0 }}>No query log data</p>
+            {(!metrics || filteredUsers.length === 0) && (
+              <p style={{ fontSize: '12px', color: '#525252', margin: 0 }}>{usersFilter ? 'No matches' : 'No query log data'}</p>
+            )}
+            {filteredUsers.length > usersVisible && (
+              <button type="button" onClick={() => setUsersVisible((v) => v + 20)} style={loadMoreStyle}>
+                Load More ({filteredUsers.length - usersVisible} remaining)
+              </button>
             )}
           </div>
         </MetricCard>
       </div>
+
+      {menuState && (
+        <SubagentContextMenu
+          options={menuState.options}
+          context={menuState.context}
+          anchorRect={menuState.anchorRect}
+          onClose={() => setMenuState(null)}
+        />
+      )}
     </div>
   );
 }
+
+function FilterInput({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }): JSX.Element {
+  return (
+    <div style={{ position: 'relative', marginBottom: '4px' }}>
+      <Search size={12} style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: '#525252', pointerEvents: 'none' }} />
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        style={{
+          width: '100%',
+          padding: '6px 8px 6px 26px',
+          fontSize: '11px',
+          backgroundColor: '#1A1A1A',
+          border: '1px solid #333',
+          borderRadius: '4px',
+          color: '#D4D4D4',
+          outline: 'none',
+          boxSizing: 'border-box',
+        }}
+      />
+    </div>
+  );
+}
+
+const loadMoreStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '8px',
+  marginTop: '4px',
+  border: '1px solid #333',
+  borderRadius: '6px',
+  backgroundColor: 'transparent',
+  color: '#A3A3A3',
+  fontSize: '12px',
+  cursor: 'pointer',
+  transition: 'background-color 0.15s, color 0.15s',
+};
