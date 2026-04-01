@@ -1,7 +1,8 @@
 import { ipcMain, safeStorage } from 'electron';
 import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import AnthropicBedrock from '@anthropic-ai/bedrock-sdk';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
+import { OAuth2Client } from 'google-auth-library';
 import store from '../store';
 import { IpcChannels } from '@shared/types';
 import { forcePoll } from '../services/health-poller';
@@ -199,10 +200,8 @@ export function registerClaudeHandlers(): void {
       const apiKey = safeStorage.decryptString(Buffer.from(encrypted, 'base64'));
       const modelId = (store as any).get('llm.geminiModel') || DEFAULT_GEMINI_MODEL;
 
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: modelId });
-
-      await model.generateContent('ping');
+      const ai = new GoogleGenAI({ apiKey });
+      await ai.models.generateContent({ model: modelId, contents: 'ping' });
       return { success: true };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
@@ -248,19 +247,17 @@ export function registerClaudeHandlers(): void {
         return { success: false, error: 'Google Cloud project ID is required' };
       }
 
-      // Test with a real Vertex AI call using the pasted token
-      const { VertexAI } = await import('@google-cloud/vertexai');
-      const vertexAI = new VertexAI({
+      const oauth2Client = new OAuth2Client();
+      oauth2Client.setCredentials({ access_token: token });
+
+      const ai = new GoogleGenAI({
+        vertexai: true,
         project,
         location,
-        googleAuth: {
-          getAccessToken: async () => ({ token }),
-          getRequestHeaders: async () => ({ Authorization: `Bearer ${token}` }),
-        } as any,
+        googleAuthOptions: { authClient: oauth2Client },
       });
 
-      const model = vertexAI.getGenerativeModel({ model: modelId });
-      await model.generateContent('ping');
+      await ai.models.generateContent({ model: modelId, contents: 'ping' });
       return { success: true };
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

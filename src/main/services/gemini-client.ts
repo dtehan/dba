@@ -1,5 +1,5 @@
-import { GoogleGenerativeAI, type GenerativeModel, type Content, type Part, type FunctionDeclaration, type Tool as GeminiTool, SchemaType } from '@google/generative-ai';
-import { VertexAI } from '@google-cloud/vertexai';
+import { GoogleGenAI, type Content, type Part, type Tool, type FunctionDeclaration } from '@google/genai';
+import { OAuth2Client } from 'google-auth-library';
 import { safeStorage } from 'electron';
 import store from '../store';
 import type { GeminiAuthMethod } from '../store';
@@ -8,7 +8,7 @@ import { callMcpTool, discoverMcpTools } from './mcp-schema';
 const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
 
 /** Cached MCP tools in Gemini function declaration format */
-let cachedGeminiTools: GeminiTool[] | null = null;
+let cachedGeminiTools: Tool[] | null = null;
 
 // ---------------------------------------------------------------------------
 // Auth helpers
@@ -35,21 +35,20 @@ export function getDecryptedGcloudToken(): string {
 // Client factory
 // ---------------------------------------------------------------------------
 
-export function getGeminiModel(): { model: GenerativeModel; modelId: string } {
+export function getGeminiClient(): { ai: GoogleGenAI; modelId: string } {
   const authMethod = getAuthMethod();
   const modelId: string = (store as any).get('llm.geminiModel') || DEFAULT_GEMINI_MODEL;
 
   if (authMethod === 'gcloud') {
-    return getGeminiModelViaVertexAI(modelId);
+    return getGeminiClientViaVertexAI(modelId);
   }
 
   const apiKey = getDecryptedGeminiApiKey();
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: modelId });
-  return { model, modelId };
+  const ai = new GoogleGenAI({ apiKey });
+  return { ai, modelId };
 }
 
-function getGeminiModelViaVertexAI(modelId: string): { model: GenerativeModel; modelId: string } {
+function getGeminiClientViaVertexAI(modelId: string): { ai: GoogleGenAI; modelId: string } {
   const project: string = (store as any).get('llm.geminiProject') || '';
   const location: string = (store as any).get('llm.geminiLocation') || 'us-central1';
 
@@ -58,19 +57,17 @@ function getGeminiModelViaVertexAI(modelId: string): { model: GenerativeModel; m
   }
 
   const token = getDecryptedGcloudToken();
+  const oauth2Client = new OAuth2Client();
+  oauth2Client.setCredentials({ access_token: token });
 
-  const vertexAI = new VertexAI({
+  const ai = new GoogleGenAI({
+    vertexai: true,
     project,
     location,
-    googleAuth: {
-      getAccessToken: async () => ({ token }),
-      getRequestHeaders: async () => ({ Authorization: `Bearer ${token}` }),
-    } as any,
+    googleAuthOptions: { authClient: oauth2Client },
   });
 
-  // VertexAI's getGenerativeModel returns a compatible GenerativeModel
-  const model = vertexAI.getGenerativeModel({ model: modelId }) as unknown as GenerativeModel;
-  return { model, modelId };
+  return { ai, modelId };
 }
 
 // ---------------------------------------------------------------------------
@@ -80,84 +77,16 @@ function getGeminiModelViaVertexAI(modelId: string): { model: GenerativeModel; m
 /** Convert Anthropic-style tool definitions to Gemini function declarations */
 export function convertToolsToGemini(
   tools: Array<{ name: string; description: string; input_schema: Record<string, unknown> }>
-): GeminiTool[] {
+): Tool[] {
   if (tools.length === 0) return [];
 
   const functionDeclarations: FunctionDeclaration[] = tools.map((tool) => ({
     name: tool.name,
     description: tool.description,
-    parameters: convertSchemaToGemini(tool.input_schema),
+    parametersJsonSchema: tool.input_schema,
   }));
 
   return [{ functionDeclarations }];
-}
-
-/** Convert JSON Schema to Gemini-compatible schema format */
-function convertSchemaToGemini(schema: Record<string, unknown>): any {
-  if (!schema || typeof schema !== 'object') {
-    return { type: SchemaType.OBJECT, properties: {} };
-  }
-
-  const result: any = {};
-
-  if (schema.type === 'object') {
-    result.type = SchemaType.OBJECT;
-    if (schema.properties) {
-      result.properties = {};
-      for (const [key, value] of Object.entries(schema.properties as Record<string, any>)) {
-        result.properties[key] = convertPropertyToGemini(value);
-      }
-    }
-    if (schema.required) {
-      result.required = schema.required;
-    }
-  } else {
-    result.type = SchemaType.OBJECT;
-    result.properties = {};
-  }
-
-  return result;
-}
-
-function convertPropertyToGemini(prop: any): any {
-  if (!prop) return { type: SchemaType.STRING };
-
-  const result: any = {};
-
-  switch (prop.type) {
-    case 'string':
-      result.type = SchemaType.STRING;
-      break;
-    case 'number':
-    case 'integer':
-      result.type = SchemaType.NUMBER;
-      break;
-    case 'boolean':
-      result.type = SchemaType.BOOLEAN;
-      break;
-    case 'array':
-      result.type = SchemaType.ARRAY;
-      if (prop.items) {
-        result.items = convertPropertyToGemini(prop.items);
-      }
-      break;
-    case 'object':
-      result.type = SchemaType.OBJECT;
-      if (prop.properties) {
-        result.properties = {};
-        for (const [key, value] of Object.entries(prop.properties as Record<string, any>)) {
-          result.properties[key] = convertPropertyToGemini(value);
-        }
-      }
-      break;
-    default:
-      result.type = SchemaType.STRING;
-  }
-
-  if (prop.description) result.description = prop.description;
-  if (prop.enum) result.enum = prop.enum;
-
-  return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -210,7 +139,7 @@ export function convertMessagesToGemini(
 // ---------------------------------------------------------------------------
 
 /** Fetch MCP tools in Gemini format. Caches after first call. */
-export async function getMcpToolsForGemini(): Promise<GeminiTool[]> {
+export async function getMcpToolsForGemini(): Promise<Tool[]> {
   if (cachedGeminiTools) return cachedGeminiTools;
 
   try {

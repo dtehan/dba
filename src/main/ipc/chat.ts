@@ -1,13 +1,13 @@
 import { ipcMain, BrowserWindow } from 'electron';
 import { getBedrockClient, getMcpToolsForClaude, executeTool, clearToolsCache } from '../services/bedrock-client';
-import { getGeminiModel, executeToolGemini, convertToolsToGemini, clearGeminiToolsCache } from '../services/gemini-client';
+import { getGeminiClient, executeToolGemini, convertToolsToGemini, clearGeminiToolsCache } from '../services/gemini-client';
 import { getSubagentConfig } from '../subagents/registry';
 import { IpcChannels } from '@shared/types';
 import { addRunEntry } from './subagent-history';
 import { getSyntaxToolDefinition, executeSyntaxTool } from '../services/syntax-tool';
 import { getSyntaxGuidelines, getSyntaxIndex } from '../services/syntax-loader';
 import store, { type LlmProvider } from '../store';
-import type { Content, Part } from '@google/generative-ai';
+import type { Content, Part } from '@google/genai';
 
 const MAX_TOOL_ROUNDS = 10;
 
@@ -213,24 +213,12 @@ async function runGeminiAgentLoop(params: GeminiAgentLoopParams): Promise<AgentL
     onToken,
   } = params;
 
-  const { model } = getGeminiModel();
+  const { ai, modelId } = getGeminiClient();
 
   const geminiTools = convertToolsToGemini(tools);
-  const contents = convertMessagesToGeminiContents(initialMessages);
+  const conversationContents = convertMessagesToGeminiContents(initialMessages);
   let accumulatedText = '';
   let lastStopReason = 'end_turn';
-
-  // Build the chat with system instruction and tools
-  const chat = model.startChat({
-    history: contents.slice(0, -1),
-    systemInstruction: { role: 'user', parts: [{ text: systemPrompt }] },
-    ...(geminiTools.length > 0 ? { tools: geminiTools } : {}),
-    generationConfig: { maxOutputTokens: maxTokens },
-  });
-
-  // Get the last message to send
-  const lastContent = contents[contents.length - 1];
-  let currentParts = lastContent?.parts || [{ text: '' }];
 
   let round = 0;
   while (round < maxToolRounds) {
@@ -238,12 +226,22 @@ async function runGeminiAgentLoop(params: GeminiAgentLoopParams): Promise<AgentL
     round++;
 
     try {
-      const result = await chat.sendMessageStream(currentParts);
+      const streamResponse = await ai.models.generateContentStream({
+        model: modelId,
+        contents: conversationContents,
+        config: {
+          systemInstruction: systemPrompt,
+          ...(geminiTools.length > 0 ? { tools: geminiTools } : {}),
+          maxOutputTokens: maxTokens,
+          abortSignal: controller.signal,
+        },
+      });
 
       let hasToolCalls = false;
       const functionCalls: Array<{ name: string; args: Record<string, unknown> }> = [];
+      const assistantParts: Part[] = [];
 
-      for await (const chunk of result.stream) {
+      for await (const chunk of streamResponse) {
         if (controller.signal.aborted) break;
 
         for (const candidate of chunk.candidates || []) {
@@ -251,13 +249,15 @@ async function runGeminiAgentLoop(params: GeminiAgentLoopParams): Promise<AgentL
             if (part.text) {
               accumulatedText += part.text;
               onToken(part.text);
+              assistantParts.push({ text: part.text });
             }
             if (part.functionCall) {
               hasToolCalls = true;
               functionCalls.push({
-                name: part.functionCall.name,
+                name: part.functionCall.name!,
                 args: (part.functionCall.args || {}) as Record<string, unknown>,
               });
+              assistantParts.push({ functionCall: part.functionCall });
             }
           }
 
@@ -270,6 +270,9 @@ async function runGeminiAgentLoop(params: GeminiAgentLoopParams): Promise<AgentL
       if (!hasToolCalls || functionCalls.length === 0) {
         return { success: true, finalText: accumulatedText, stopReason: lastStopReason };
       }
+
+      // Add assistant message with function calls to conversation history
+      conversationContents.push({ role: 'model', parts: assistantParts });
 
       // Execute tool calls and send results back
       const functionResponseParts: Part[] = [];
@@ -293,7 +296,9 @@ async function runGeminiAgentLoop(params: GeminiAgentLoopParams): Promise<AgentL
       }
 
       if (controller.signal.aborted) break;
-      currentParts = functionResponseParts;
+
+      // Add tool results to conversation history
+      conversationContents.push({ role: 'user', parts: functionResponseParts });
       lastStopReason = 'tool_use';
       continue;
     } catch (err: any) {
