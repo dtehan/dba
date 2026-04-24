@@ -14,5 +14,13 @@
     "trials": 5,
     "source": "dspy-miprov2",
     "file": "v2.md"
+  },
+  {
+    "version": 3,
+    "timestamp": "2026-04-24T00:00:00.000000+00:00",
+    "score": null,
+    "trials": 0,
+    "source": "manual-integration",
+    "file": "v3.md"
   }
 ]
