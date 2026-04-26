@@ -4,6 +4,7 @@ import { useQueryActivityStore } from '@/store/query-activity-store';
 import { useAppStore } from '@/store/app-store';
 import { format, isValid } from 'date-fns';
 import type { SortColumn, TimeRange } from '@shared/types';
+import { SqlDetailPanel } from './SqlDetailPanel';
 
 function timeAgo(ts: number): string {
   const diff = Date.now() - ts;
@@ -237,10 +238,20 @@ export function QueryActivityScreen(): JSX.Element {
                       {formatStartTime(q.startTime)}
                     </td>
                     <td
-                      style={{ ...tdStyle }}
+                      style={{ ...tdStyle, cursor: 'pointer' }}
                       onClick={() => setSelectedQuery(q)}
                     >
-                      <code style={{ fontSize: '11px', color: '#D4D4D4', fontFamily: 'monospace', whiteSpace: 'pre-wrap', wordBreak: 'break-all', lineHeight: '1.4', display: 'block' }}>
+                      <code style={{
+                        fontSize: '11px',
+                        color: isSelected ? '#F37440' : '#D4D4D4',
+                        fontFamily: 'monospace',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: 'block',
+                        maxWidth: '100%',
+                        lineHeight: '1.4',
+                      }}>
                         {q.queryText}
                       </code>
                     </td>
@@ -251,7 +262,10 @@ export function QueryActivityScreen(): JSX.Element {
           </table>
         </div>
       </div>
-      {/* Panel slot — Plan 03 will add SqlDetailPanel here */}
+      <SqlDetailPanel
+        query={selectedQuery}
+        onClose={() => setSelectedQuery(null)}
+      />
     </div>
   );
 }
