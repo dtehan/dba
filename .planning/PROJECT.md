@@ -25,6 +25,7 @@ DBAs can run expert-level analysis on their Teradata environment through natural
 - ✓ Space Usage subagent — perm space utilization and capacity alerts — v1.0
 - ✓ Redundancy Detection subagent — cross-database schema fingerprinting and data sampling to find redundant tables — post-v1.0
 - ✓ Duplicate Detection subagent — exact row, business key, and fuzzy near-duplicate detection within a database — post-v1.0
+- ✓ Query Activity Dashboard redesign — dense data table with server-side sort, time range filtering, SQL detail panel with EXPLAIN and Analyze — Phase 05
 
 ### Active
 
@@ -93,4 +94,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-27 after v1.0 milestone*
+*Last updated: 2026-04-26 after Phase 05 (Query Activity Dashboard Redesign)*
