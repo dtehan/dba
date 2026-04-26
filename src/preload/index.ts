@@ -82,10 +82,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke(IpcChannels.SUBAGENT_HISTORY_CLEAR),
   fetchOverviewMetrics: () =>
     ipcRenderer.invoke(IpcChannels.OVERVIEW_FETCH),
-  fetchQueryActivityMetrics: () =>
-    ipcRenderer.invoke(IpcChannels.QUERY_ACTIVITY_FETCH),
+  fetchQueryActivityMetrics: (sortCol: string, sortDir: string, timeRange: string) =>
+    ipcRenderer.invoke(IpcChannels.QUERY_ACTIVITY_FETCH, sortCol, sortDir, timeRange),
   fetchFullSql: (queryId: string, procId: string) =>
     ipcRenderer.invoke(IpcChannels.QUERY_FULL_SQL, queryId, procId),
+  explainQuery: (sql: string) =>
+    ipcRenderer.invoke(IpcChannels.QUERY_EXPLAIN, sql),
   recheckConnections: () =>
     ipcRenderer.invoke(IpcChannels.CONNECTION_RECHECK),
   getSyntaxContext: () =>

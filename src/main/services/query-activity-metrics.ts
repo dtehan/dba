@@ -1,5 +1,5 @@
 import { callMcpTool } from './mcp-schema';
-import type { QueryActivityMetrics } from '../../shared/types';
+import type { QueryActivityMetrics, SortColumn, SortDir, TimeRange } from '../../shared/types';
 
 /** Case-insensitive field lookup */
 function field(row: Record<string, unknown>, ...names: string[]): unknown {
@@ -15,15 +15,47 @@ function field(row: Record<string, unknown>, ...names: string[]): unknown {
   return undefined;
 }
 
-export async function fetchQueryActivityMetrics(): Promise<QueryActivityMetrics> {
+function buildTimeWhereClause(range: TimeRange): string {
+  switch (range) {
+    case '1h':
+      return "WHERE StartTime >= (CURRENT_TIMESTAMP - INTERVAL '1' HOUR)";
+    case '4h':
+      return "WHERE StartTime >= (CURRENT_TIMESTAMP - INTERVAL '4' HOUR)";
+    case 'today':
+      return 'WHERE StartTime >= CAST(CURRENT_DATE AS TIMESTAMP)';
+    case 'yesterday':
+      return 'WHERE StartTime >= CAST(CURRENT_DATE - 1 AS TIMESTAMP) AND StartTime < CAST(CURRENT_DATE AS TIMESTAMP)';
+    case '7d':
+      return 'WHERE StartTime >= CAST(CURRENT_DATE - 7 AS TIMESTAMP)';
+  }
+}
+
+export async function fetchQueryActivityMetrics(
+  sortCol: SortColumn = 'AmpCPUTime',
+  sortDir: SortDir = 'DESC',
+  timeRange: TimeRange = 'today',
+): Promise<QueryActivityMetrics> {
   const metrics: QueryActivityMetrics = {
     topQueries: [],
     fetchedAt: Date.now(),
   };
 
+  const whereClause = buildTimeWhereClause(timeRange);
+
   try {
     const raw = await callMcpTool('base_readQuery', {
-      sql: 'SELECT TOP 200 SUBSTR(QueryText, 1, 300) AS QueryText, UserName, AmpCPUTime, TotalIOCount, CAST(QueryID AS VARCHAR(30)) AS QueryID, CAST(ProcID AS VARCHAR(30)) AS ProcID FROM DBC.QryLogV ORDER BY AmpCPUTime DESC',
+      sql: `SELECT TOP 200
+  SUBSTR(QueryText, 1, 100) AS QueryText,
+  UserName,
+  AmpCPUTime,
+  TotalIOCount,
+  COALESCE(CAST(TotalFirstRespTime AS DECIMAL(18,4)), 0) AS ElapsedTime,
+  COALESCE(CAST(StartTime AS VARCHAR(30)), '') AS StartTime,
+  CAST(QueryID AS VARCHAR(30)) AS QueryID,
+  CAST(ProcID AS VARCHAR(30)) AS ProcID
+FROM DBC.QryLogV
+${whereClause}
+ORDER BY ${sortCol} ${sortDir}`,
     });
 
     const parsed = JSON.parse(raw);
@@ -35,6 +67,8 @@ export async function fetchQueryActivityMetrics(): Promise<QueryActivityMetrics>
           userName: String(field(r, 'UserName') ?? ''),
           cpuTime: Number(field(r, 'AmpCPUTime') ?? 0),
           ioCount: Number(field(r, 'TotalIOCount') ?? 0),
+          elapsedTime: Number(field(r, 'ElapsedTime') ?? 0),
+          startTime: String(field(r, 'StartTime') ?? ''),
           queryId: String(field(r, 'QueryID') ?? ''),
           procId: String(field(r, 'ProcID') ?? ''),
         }))

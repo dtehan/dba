@@ -79,6 +79,7 @@ export const IpcChannels = {
   GEMINI_LOAD_GCLOUD_CONFIG: 'gemini:load-gcloud-config',
   GEMINI_TEST_GCLOUD: 'gemini:test-gcloud',
   QUERY_FULL_SQL: 'query-activity:full-sql',
+  QUERY_EXPLAIN: 'query-activity:explain',
 } as const;
 
 // Chat session for persistence
@@ -101,9 +102,23 @@ export interface OverviewMetrics {
   fetchedAt: number;
 }
 
+// Query Activity sort/filter types
+export type SortColumn = 'AmpCPUTime' | 'TotalIOCount';
+export type SortDir = 'ASC' | 'DESC';
+export type TimeRange = '1h' | '4h' | 'today' | 'yesterday' | '7d';
+
 // Query Activity dashboard metrics
 export interface QueryActivityMetrics {
-  topQueries: Array<{ queryText: string; userName: string; cpuTime: number; ioCount: number; queryId?: string; procId?: string }>;
+  topQueries: Array<{
+    queryText: string;
+    userName: string;
+    cpuTime: number;
+    ioCount: number;
+    elapsedTime: number;
+    startTime: string;
+    queryId?: string;
+    procId?: string;
+  }>;
   fetchedAt: number;
 }
 
@@ -154,8 +169,9 @@ export interface ElectronAPI {
   addSubagentHistory: (entry: import('./subagent-types').SubagentRunHistoryEntry) => Promise<void>;
   clearSubagentHistory: () => Promise<void>;
   fetchOverviewMetrics: () => Promise<{ success: boolean; metrics?: OverviewMetrics; error?: string }>;
-  fetchQueryActivityMetrics: () => Promise<{ success: boolean; metrics?: QueryActivityMetrics; error?: string }>;
+  fetchQueryActivityMetrics: (sortCol: string, sortDir: string, timeRange: string) => Promise<{ success: boolean; metrics?: QueryActivityMetrics; error?: string }>;
   fetchFullSql: (queryId: string, procId: string) => Promise<{ success: boolean; sql?: string; error?: string }>;
+  explainQuery: (sql: string) => Promise<{ success: boolean; explain?: string; error?: string }>;
   recheckConnections: () => Promise<void>;
   getSyntaxContext: () => Promise<{ guidelines: string; index: string }>;
 }
