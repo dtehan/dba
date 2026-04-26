@@ -22,11 +22,11 @@
 **Goal**: DBAs can efficiently investigate query performance by sorting, filtering by time range, and drilling into individual queries with full SQL, EXPLAIN plans, and one-click subagent optimization — all from a dense, scannable data table
 **Depends on**: Phase 4
 **Requirements**: QADH-01, QADH-02, QADH-03, QADH-04, QADH-05, QADH-06, QADH-07, QADH-08, QADH-09
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans executed
 Plans:
 - [x] 05-01-PLAN.md — Backend pipeline: extend types, parameterize SQL with sort/time range, add EXPLAIN IPC, update store
 - [x] 05-02-PLAN.md — Screen rewrite: dense data table with sortable columns, time range presets, text filter
-- [ ] 05-03-PLAN.md — SQL detail panel: slide-out with syntax highlighting, EXPLAIN execution, Analyze subagent launch
+- [x] 05-03-PLAN.md — SQL detail panel: slide-out with syntax highlighting, EXPLAIN execution, Analyze subagent launch
 **Success Criteria** (what must be TRUE):
   1. Query Activity shows a data table with columns: Username, CPU Time, I/O Count, Elapsed Time, Start Time, SQL Text (~100 chars truncated)
   2. Clicking CPU or I/O column headers re-fetches top 200 from Teradata with the corresponding ORDER BY — server-side sort, not client-side
@@ -45,4 +45,4 @@ Plans:
 | 2. Chat | v1.0 | 5/5 | Complete | 2026-03-26 |
 | 3. Core Subagents | v1.0 | 5/5 | Complete | 2026-03-26 |
 | 4. Analysis Expansion | v1.0 | 2/2 | Complete | 2026-03-26 |
-| 5. Query Activity Redesign | v1.1 | 2/3 | In Progress|  |
+| 5. Query Activity Redesign | v1.1 | 3/3 | Complete (pending human-verify) | 2026-04-26 |
