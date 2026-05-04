@@ -52,22 +52,37 @@ function StatusIndicator({ label, state }: StatusIndicatorProps): JSX.Element {
   );
 }
 
+function labelForProvider(p: string): string {
+  if (p === 'gemini') return 'Gemini API:';
+  if (p === 'azure') return 'Azure OpenAI:';
+  return 'Claude API:';
+}
+
 export function StatusBar(): JSX.Element {
   const connectionStatus = useAppStore((s) => s.connectionStatus);
   const [providerLabel, setProviderLabel] = useState('Claude API:');
 
   useEffect(() => {
     const api = (window as any).electronAPI;
-    api?.loadLlmProvider?.().then((p: string) => {
-      setProviderLabel(p === 'gemini' ? 'Gemini API:' : 'Claude API:');
-    }).catch(() => {});
+    const refresh = (): void => {
+      api?.loadLlmProvider?.().then((p: string) => {
+        setProviderLabel(labelForProvider(p));
+      }).catch(() => {});
+    };
+    refresh();
+    const handler = (e: Event): void => {
+      const detail = (e as CustomEvent<string>).detail;
+      if (typeof detail === 'string') setProviderLabel(labelForProvider(detail));
+      else refresh();
+    };
+    window.addEventListener('llm-provider-changed', handler);
+    return () => window.removeEventListener('llm-provider-changed', handler);
   }, []);
 
-  // Re-check provider when connection status changes (triggers after provider switch)
   useEffect(() => {
     const api = (window as any).electronAPI;
     api?.loadLlmProvider?.().then((p: string) => {
-      setProviderLabel(p === 'gemini' ? 'Gemini API:' : 'Claude API:');
+      setProviderLabel(labelForProvider(p));
     }).catch(() => {});
   }, [connectionStatus.claude]);
 

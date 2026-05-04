@@ -12,6 +12,7 @@ export function LlmProviderSelector({ value, onChange }: Props): JSX.Element {
     onChange(provider);
     const api = (window as any).electronAPI;
     await api?.saveLlmProvider?.(provider);
+    window.dispatchEvent(new CustomEvent('llm-provider-changed', { detail: provider }));
     await api?.recheckConnections?.();
   };
 
