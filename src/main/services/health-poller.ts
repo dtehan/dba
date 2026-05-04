@@ -49,6 +49,14 @@ async function checkLlmStatus(): Promise<ConnectionState> {
     return hasKey ? 'connected' : 'not-configured';
   }
 
+  if (provider === 'azure') {
+    const encrypted = (store as any).get('llm.azureEncryptedApiKey');
+    const endpoint = (store as any).get('llm.azureEndpoint');
+    const deployment = (store as any).get('llm.azureDeployment');
+    const hasKey = typeof encrypted === 'string' && encrypted.length > 0;
+    return (hasKey && endpoint && deployment) ? 'connected' : 'not-configured';
+  }
+
   // Bedrock (default)
   const encryptedApiKey = (store as any).get('claude.encryptedApiKey');
   const hasKey = typeof encryptedApiKey === 'string' && encryptedApiKey.length > 0;

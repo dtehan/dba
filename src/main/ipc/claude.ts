@@ -3,6 +3,7 @@ import { STSClient, AssumeRoleCommand } from '@aws-sdk/client-sts';
 import AnthropicBedrock from '@anthropic-ai/bedrock-sdk';
 import { GoogleGenAI } from '@google/genai';
 import { OAuth2Client } from 'google-auth-library';
+import { AzureOpenAI } from 'openai';
 import store from '../store';
 import { IpcChannels } from '@shared/types';
 import { forcePoll } from '../services/health-poller';
@@ -10,6 +11,9 @@ import { getDecryptedGcloudToken } from '../services/gemini-client';
 
 const DEFAULT_MODEL = 'us.anthropic.claude-sonnet-4-20250514-v1:0';
 const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
+const DEFAULT_AZURE_ENDPOINT = 'https://danie-m3uu72y9-francecentral.openai.azure.com/';
+const DEFAULT_AZURE_API_VERSION = '2024-12-01-preview';
+const DEFAULT_AZURE_DEPLOYMENT = 'gpt-5.4';
 
 export function registerClaudeHandlers(): void {
   // -------------------------------------------------------------------------
@@ -17,7 +21,7 @@ export function registerClaudeHandlers(): void {
   // -------------------------------------------------------------------------
 
   ipcMain.handle(IpcChannels.LLM_SAVE_PROVIDER, async (_event, provider: unknown) => {
-    if (provider !== 'bedrock' && provider !== 'gemini') throw new Error('Invalid provider');
+    if (provider !== 'bedrock' && provider !== 'gemini' && provider !== 'azure') throw new Error('Invalid provider');
     (store as any).set('llm.provider', provider);
     forcePoll();
   });
@@ -289,6 +293,87 @@ export function registerClaudeHandlers(): void {
       return decrypted.slice(0, 6) + '••••' + decrypted.slice(-4);
     } catch {
       return null;
+    }
+  });
+
+  // -------------------------------------------------------------------------
+  // Azure OpenAI credentials + config
+  // -------------------------------------------------------------------------
+
+  ipcMain.handle(IpcChannels.SAVE_AZURE_KEY, async (_event, key: unknown) => {
+    if (typeof key !== 'string' || !key) throw new Error('Invalid Azure OpenAI API key');
+    const encrypted = safeStorage.encryptString(key).toString('base64');
+    (store as any).set('llm.azureEncryptedApiKey', encrypted);
+    forcePoll();
+  });
+
+  ipcMain.handle(IpcChannels.HAS_AZURE_KEY, async () => {
+    const encrypted = (store as any).get('llm.azureEncryptedApiKey');
+    return typeof encrypted === 'string' && encrypted.length > 0;
+  });
+
+  ipcMain.handle(IpcChannels.LOAD_AZURE_KEY_HINT, async () => {
+    try {
+      const encrypted = (store as any).get('llm.azureEncryptedApiKey');
+      if (!encrypted) return null;
+      const decrypted = safeStorage.decryptString(Buffer.from(encrypted, 'base64'));
+      if (decrypted.length <= 8) return '••••••••';
+      return decrypted.slice(0, 6) + '••••' + decrypted.slice(-4);
+    } catch {
+      return null;
+    }
+  });
+
+  ipcMain.handle(IpcChannels.AZURE_SAVE_CONFIG, async (_event, config: unknown) => {
+    const cfg = config as { endpoint?: string; apiVersion?: string; deployment?: string };
+    (store as any).set('llm.azureEndpoint', cfg?.endpoint && cfg.endpoint.length > 0 ? cfg.endpoint : DEFAULT_AZURE_ENDPOINT);
+    (store as any).set('llm.azureApiVersion', cfg?.apiVersion && cfg.apiVersion.length > 0 ? cfg.apiVersion : DEFAULT_AZURE_API_VERSION);
+    (store as any).set('llm.azureDeployment', cfg?.deployment && cfg.deployment.length > 0 ? cfg.deployment : DEFAULT_AZURE_DEPLOYMENT);
+  });
+
+  ipcMain.handle(IpcChannels.AZURE_LOAD_CONFIG, async () => {
+    return {
+      endpoint: (store as any).get('llm.azureEndpoint') || DEFAULT_AZURE_ENDPOINT,
+      apiVersion: (store as any).get('llm.azureApiVersion') || DEFAULT_AZURE_API_VERSION,
+      deployment: (store as any).get('llm.azureDeployment') || DEFAULT_AZURE_DEPLOYMENT,
+    };
+  });
+
+  ipcMain.handle(IpcChannels.TEST_AZURE_CONNECTION, async () => {
+    try {
+      const encrypted = (store as any).get('llm.azureEncryptedApiKey');
+      if (!encrypted) return { success: false, error: 'Azure OpenAI API key not configured' };
+      const apiKey = safeStorage.decryptString(Buffer.from(encrypted, 'base64'));
+      const endpoint: string = (store as any).get('llm.azureEndpoint') || DEFAULT_AZURE_ENDPOINT;
+      const apiVersion: string = (store as any).get('llm.azureApiVersion') || DEFAULT_AZURE_API_VERSION;
+      const deployment: string = (store as any).get('llm.azureDeployment') || DEFAULT_AZURE_DEPLOYMENT;
+
+      const client = new AzureOpenAI({ apiKey, endpoint, apiVersion, deployment });
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15_000);
+
+      try {
+        await client.chat.completions.create(
+          {
+            model: deployment,
+            max_tokens: 1,
+            messages: [{ role: 'user', content: 'ping' }],
+          },
+          { signal: controller.signal }
+        );
+        clearTimeout(timeoutId);
+        return { success: true };
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (err instanceof Error && err.name === 'AbortError') {
+          return { success: false, error: 'Connection timed out after 15 seconds' };
+        }
+        throw err;
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return { success: false, error: message };
     }
   });
 }

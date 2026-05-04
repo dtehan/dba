@@ -1,5 +1,5 @@
 // LLM provider types
-export type LlmProvider = 'bedrock' | 'gemini';
+export type LlmProvider = 'bedrock' | 'gemini' | 'azure';
 
 // Connection status for each service
 export type ConnectionState = 'connected' | 'disconnected' | 'checking' | 'not-configured';
@@ -80,6 +80,13 @@ export const IpcChannels = {
   GEMINI_TEST_GCLOUD: 'gemini:test-gcloud',
   QUERY_FULL_SQL: 'query-activity:full-sql',
   QUERY_EXPLAIN: 'query-activity:explain',
+  // Azure OpenAI
+  SAVE_AZURE_KEY: 'credentials:save-azure-key',
+  HAS_AZURE_KEY: 'credentials:has-azure-key',
+  LOAD_AZURE_KEY_HINT: 'credentials:load-azure-key-hint',
+  TEST_AZURE_CONNECTION: 'azure:test-connection',
+  AZURE_SAVE_CONFIG: 'azure:save-config',
+  AZURE_LOAD_CONFIG: 'azure:load-config',
 } as const;
 
 // Chat session for persistence
@@ -151,6 +158,13 @@ export interface ElectronAPI {
   saveGeminiGcloudConfig: (config: { project: string; location: string }) => Promise<void>;
   loadGeminiGcloudConfig: () => Promise<{ project: string; location: string }>;
   testGeminiGcloud: () => Promise<{ success: boolean; error?: string }>;
+  // Azure OpenAI
+  saveAzureApiKey: (key: string) => Promise<void>;
+  hasAzureKey: () => Promise<boolean>;
+  loadAzureKeyHint: () => Promise<string | null>;
+  testAzureConnection: () => Promise<{ success: boolean; error?: string }>;
+  saveAzureConfig: (config: { endpoint: string; apiVersion: string; deployment: string }) => Promise<void>;
+  loadAzureConfig: () => Promise<{ endpoint: string; apiVersion: string; deployment: string }>;
   sendChat: (messages: Array<{ role: MessageRole; content: string }>, systemPrompt: string) => Promise<{ success: boolean; error?: string }>;
   abortChat: () => Promise<void>;
   onChatToken: (callback: (delta: string) => void) => void;

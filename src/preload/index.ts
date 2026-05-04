@@ -36,6 +36,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveGeminiGcloudToken: (token: string) => ipcRenderer.invoke('gemini:save-gcloud-token', token),
   hasGeminiGcloudToken: () => ipcRenderer.invoke('gemini:has-gcloud-token'),
   loadGeminiGcloudTokenHint: () => ipcRenderer.invoke('gemini:load-gcloud-token-hint'),
+  // Azure OpenAI
+  saveAzureApiKey: (key: string) => ipcRenderer.invoke(IpcChannels.SAVE_AZURE_KEY, key),
+  hasAzureKey: () => ipcRenderer.invoke(IpcChannels.HAS_AZURE_KEY),
+  loadAzureKeyHint: () => ipcRenderer.invoke(IpcChannels.LOAD_AZURE_KEY_HINT),
+  testAzureConnection: () => ipcRenderer.invoke(IpcChannels.TEST_AZURE_CONNECTION),
+  saveAzureConfig: (config: { endpoint: string; apiVersion: string; deployment: string }) =>
+    ipcRenderer.invoke(IpcChannels.AZURE_SAVE_CONFIG, config),
+  loadAzureConfig: () => ipcRenderer.invoke(IpcChannels.AZURE_LOAD_CONFIG),
   onConnectionStatus: (callback: (status: ConnectionStatus) => void) => {
     ipcRenderer.on(IpcChannels.CONNECTION_STATUS_UPDATE, (_event, status) => callback(status));
   },
