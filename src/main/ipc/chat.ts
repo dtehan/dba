@@ -357,7 +357,7 @@ async function runAzureAgentLoop(params: AzureAgentLoopParams): Promise<AgentLoo
     const requestParams: Record<string, unknown> = {
       model: deployment, // Azure routes by deployment, but the SDK still requires this field
       stream: true,
-      max_tokens: maxTokens,
+      max_completion_tokens: maxTokens,
       messages: conversationMessages,
     };
     if (openaiTools.length > 0) {

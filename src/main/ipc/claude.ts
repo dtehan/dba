@@ -357,7 +357,7 @@ export function registerClaudeHandlers(): void {
         await client.chat.completions.create(
           {
             model: deployment,
-            max_tokens: 1,
+            max_completion_tokens: 16,
             messages: [{ role: 'user', content: 'ping' }],
           },
           { signal: controller.signal }
