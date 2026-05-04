@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-type Provider = 'bedrock' | 'gemini';
+type Provider = 'bedrock' | 'gemini' | 'azure';
 
 interface Props {
   value: Provider;
@@ -37,6 +37,10 @@ export function LlmProviderSelector({ value, onChange }: Props): JSX.Element {
         <button type="button" onClick={() => handleChange('gemini')} style={optionStyle(value === 'gemini')}>
           <div style={{ fontSize: '14px', fontWeight: 600, color: '#F5F5F5', marginBottom: '4px' }}>Google Gemini</div>
           <div style={{ fontSize: '12px', color: '#A3A3A3' }}>Google Gemini via Google AI API</div>
+        </button>
+        <button type="button" onClick={() => handleChange('azure')} style={optionStyle(value === 'azure')}>
+          <div style={{ fontSize: '14px', fontWeight: 600, color: '#F5F5F5', marginBottom: '4px' }}>Microsoft Azure OpenAI</div>
+          <div style={{ fontSize: '12px', color: '#A3A3A3' }}>OpenAI models via Azure deployment</div>
         </button>
       </div>
     </div>

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { TeradataForm } from './TeradataForm';
 import { ClaudeApiForm } from './ClaudeApiForm';
 import { GeminiApiForm } from './GeminiApiForm';
+import { AzureApiForm } from './AzureApiForm';
 import { LlmProviderSelector, useLlmProvider } from './LlmProviderSelector';
 
 export function SettingsScreen(): JSX.Element {
@@ -43,6 +44,7 @@ export function SettingsScreen(): JSX.Element {
         <LlmProviderSelector value={provider} onChange={setProvider} />
         {provider === 'bedrock' && <ClaudeApiForm />}
         {provider === 'gemini' && <GeminiApiForm />}
+        {provider === 'azure' && <AzureApiForm />}
 
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <button
